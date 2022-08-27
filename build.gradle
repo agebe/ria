@@ -1,0 +1,38 @@
+plugins {
+  id 'java'
+  id 'java-library'
+  id 'eclipse'
+  id 'antlr'
+}
+
+repositories {
+  mavenCentral()
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs += ["build/generated-src/antlr/main"]
+    }
+  }
+}
+
+generateGrammarSource {
+  maxHeapSize = "64m"
+  //https://github.com/antlr/antlr4/blob/master/doc/tool-options.md
+  arguments += ["-visitor", "-long-messages"]
+  // workaround, could not get the antlr compiler to work when moving the input-files (.g4) into sub-folder
+  outputDirectory = file("build/generated-src/antlr/main/io/github/agebe/script/antlr")
+}
+
+// generate the java sources from the antlr grammar before the eclipse tasks runs
+// otherwise the eclipse task does not pickup the 'build/generated-src/antlr/main' source folder
+tasks.eclipse.dependsOn(generateGrammarSource)
+
+// this is required since gradle 7.x for the maven publish tasks to work (tested on gradle 7.2)
+//tasks.sourcesJar.dependsOn(generateGrammarSource)
+//tasks.sourcesJar.duplicatesStrategy('exclude')
+
+dependencies {
+  antlr 'org.antlr:antlr4:4.10.1'
+}
