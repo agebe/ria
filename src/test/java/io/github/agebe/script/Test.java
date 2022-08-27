@@ -20,7 +20,6 @@ public class Test {
       """;
 
   public static void main(String[] args) {
-//    ScriptLexer lexer = new ScriptLexer(CharStreams.fromString("foo(myVar, \"myStringLiteral\")"));
     ScriptLexer lexer = new ScriptLexer(CharStreams.fromString(SCRIPT));
     // antlr uses the ConsoleErrorListener by default
     // showing here how to remove it for later
@@ -35,7 +34,8 @@ public class Test {
     ErrorListener errorListener = new ErrorListener();
     parser.addErrorListener(errorListener);
     ScriptParser.ScriptContext tree = parser.script();
-    ParseTreeWalker.DEFAULT.walk(new MyParseTreeListener(), tree);
+//    ParseTreeWalker.DEFAULT.walk(new MyParseTreeListener(), tree);
+    ParseTreeWalker.DEFAULT.walk(new MyScriptListener(), tree);
   }
 
 }
