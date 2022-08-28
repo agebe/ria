@@ -10,12 +10,12 @@ public class Test1 {
       var v3 = "12345";
       v1 = v2;
       // dot operator not supported yet
-      foo
+      //foo
       return v1.equals("12345");
       """;
 
   @Test
   public void test1() {
-    new RestrictedScriptBuilder(SCRIPT).create().run();
+    new RestrictedScriptBuilder().setScript(SCRIPT).create().run();
   }
 }

@@ -31,7 +31,7 @@ public class Test {
     ScriptParser parser = new ScriptParser(tokens);
     // same is with the parser error listener ...
     //parser.getErrorListeners().forEach(System.out::println);
-    ErrorListener errorListener = new ErrorListener();
+    SyntaxExceptionErrorListener errorListener = new SyntaxExceptionErrorListener();
     parser.addErrorListener(errorListener);
     ScriptParser.ScriptContext tree = parser.script();
 //    ParseTreeWalker.DEFAULT.walk(new MyParseTreeListener(), tree);
