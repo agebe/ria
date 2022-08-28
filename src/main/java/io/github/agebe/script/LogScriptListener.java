@@ -20,7 +20,7 @@ import io.github.agebe.script.antlr.ScriptParser.StmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VardefContext;
 
-public class MyScriptListener implements ScriptListener {
+public class LogScriptListener implements ScriptListener {
 
   private void log(String msg) {
     log(msg, null);
@@ -32,7 +32,6 @@ public class MyScriptListener implements ScriptListener {
     } else {
       System.out.println(msg + " / " + param);
     }
-    
   }
 
   @Override

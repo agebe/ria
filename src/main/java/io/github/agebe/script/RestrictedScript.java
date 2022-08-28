@@ -13,7 +13,7 @@ public class RestrictedScript {
   }
 
   public Object run() {
-    ParseTreeWalker.DEFAULT.walk(new MyScriptListener(), tree);
+    ParseTreeWalker.DEFAULT.walk(new LogScriptListener(), tree);
     return null;
   }
 

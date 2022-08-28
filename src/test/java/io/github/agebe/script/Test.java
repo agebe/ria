@@ -35,7 +35,7 @@ public class Test {
     parser.addErrorListener(errorListener);
     ScriptParser.ScriptContext tree = parser.script();
 //    ParseTreeWalker.DEFAULT.walk(new MyParseTreeListener(), tree);
-    ParseTreeWalker.DEFAULT.walk(new MyScriptListener(), tree);
+    ParseTreeWalker.DEFAULT.walk(new LogScriptListener(), tree);
   }
 
 }
