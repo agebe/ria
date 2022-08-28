@@ -24,22 +24,32 @@ public class RestrictedScript {
   // TODO also add support for generic types, like e.g. List<String>
 
   public boolean evalPredicate() {
-    return true;
+    run();
+    // TODO implement
+    return false;
   }
 
   public double evalDouble() {
+    run();
+ // TODO implement
     return 0;
   }
 
   public float evalFloat() {
+    run();
+ // TODO implement
     return 0;
   }
 
   public long evalLong() {
+    run();
+ // TODO implement
     return 0;
   }
 
   public int evalInt() {
+    run();
+ // TODO implement
     return 0;
   }
 

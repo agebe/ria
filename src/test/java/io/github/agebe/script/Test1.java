@@ -1,21 +1,47 @@
 package io.github.agebe.script;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
 
-  private static final String SCRIPT = """
+//  @Test
+  public void hello() {
+    new RestrictedScriptBuilder().setScript("System.out.println(\"Hello World\");").create().run();
+  }
+
+//  @Test
+  public void importedHello() {
+    new RestrictedScriptBuilder()
+    //.import("System.out.*")
+    .setScript("println(\"Hello World\");")
+    .create()
+    .run();
+  }
+
+  @Test
+  public void isBlank() {
+    boolean result = new RestrictedScriptBuilder()
+        .setScript("""
+            org.apache.commons.lang3.StringUtils.isBlank("123");
+            """)
+        .create()
+        .evalPredicate();
+    assertFalse(result);
+  }
+
+//  @Test
+  public void test1() {
+    String script = """
       var v1;
       var v2 = foo(myVar, "myStringLiteral");
       var v3 = "12345";
       v1 = v2;
       // dot operator not supported yet
-      //foo
+      System.out.println("Hello World");
       return v1.equals("12345");
-      """;
-
-  @Test
-  public void test1() {
-    new RestrictedScriptBuilder().setScript(SCRIPT).create().run();
+        """;
+    new RestrictedScriptBuilder().setScript(script).create().run();
   }
 }

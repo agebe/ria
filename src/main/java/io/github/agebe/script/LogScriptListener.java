@@ -46,12 +46,12 @@ public class LogScriptListener implements ScriptListener {
 
   @Override
   public void enterEveryRule(ParserRuleContext ctx) {
-    log("enter every rule", ctx.getText());
+//    log("enter every rule", ctx.getText());
   }
 
   @Override
   public void exitEveryRule(ParserRuleContext ctx) {
-    log("exit every rule");
+//    log("exit every rule");
   }
 
   @Override
@@ -91,7 +91,7 @@ public class LogScriptListener implements ScriptListener {
 
   @Override
   public void exitVardef(VardefContext ctx) {
-    log("exit vardet");
+    log("exit vardef");
   }
 
   @Override
@@ -116,12 +116,12 @@ public class LogScriptListener implements ScriptListener {
 
   @Override
   public void enterExpr(ExprContext ctx) {
-    log("enter expr");
+    log("enter expr", ctx.getText());
   }
 
   @Override
   public void exitExpr(ExprContext ctx) {
-    log("exit expr");
+    log("exit expr", ctx.getText());
   }
 
   @Override
