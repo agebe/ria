@@ -14,6 +14,8 @@ public class Test1 {
 //  @Test
   public void importedHello() {
     new RestrictedScriptBuilder()
+    // TODO add support for import and static imports (do we need to make a difference?)
+    // importing automatically allows access
     //.import("System.out.*")
     .setScript("println(\"Hello World\");")
     .create()
