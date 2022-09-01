@@ -26,7 +26,7 @@ public class Test1 {
   public void isBlank() {
     boolean result = new RestrictedScriptBuilder()
         .setScript("""
-            org.apache.commons.lang3.StringUtils.isBlank("123");
+            org.apache.commons.lang3.StringUtils.isBlank("123", foo);
             """)
         .create()
         .evalPredicate();

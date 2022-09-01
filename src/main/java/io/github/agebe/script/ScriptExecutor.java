@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +28,13 @@ public class ScriptExecutor implements ScriptListener {
 
   private Deque<StackItem> stack = new ArrayDeque<StackItem>();
 
+  private void log(String msg) {
+    System.out.println(msg);
+  }
+
   @Override
   public void visitTerminal(TerminalNode node) {
+//    log("push terminal " + node.getSymbol().getText());
     stack.push(new Terminal(node.getSymbol()));
   }
 
@@ -72,8 +76,10 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitStmt(StmtContext ctx) {
-    // TODO Auto-generated method stub
-    
+    // TODO just for now to show something
+    log(""+stack.pop());
+    log(""+stack.pop());
+    // TODO at this point everything has to be resolved (executed) latest i think?!
   }
 
   @Override
@@ -144,7 +150,7 @@ public class ScriptExecutor implements ScriptListener {
       }
       items.addFirst(item);
     }
-    System.out.println("on exitExpr got items '%s'".formatted(items));
+//    log("on exitExpr got items '%s'".formatted(items));
     // only 1 item on the stack, we just push that back as there is nothing else to do
     if(items.size() == 1) {
       stack.push(items.get(0));
@@ -168,14 +174,19 @@ public class ScriptExecutor implements ScriptListener {
 
   private void dotOperator(StackItem item1, StackItem item2) {
     if(item1 instanceof Identifier) {
+      Identifier i1 = (Identifier)item1;
       if(item2 instanceof Identifier) {
-        Identifier i1 = (Identifier)item1;
         Identifier i2 = (Identifier)item2;
         stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent()));
-        return;
+      } else if(item2 instanceof FunctionCall) {
+        FunctionCall f = (FunctionCall)item2;
+        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1));
+      } else {
+        fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
       }
+    } else {
+      fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
     }
-    fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
   }
 
   @Override
@@ -186,8 +197,25 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitFcall(FcallContext ctx) {
-    // TODO Auto-generated method stub
-    
+    // get rid of right parenthesis
+    String rp = popTerminal().getToken().getText();
+    if(!StringUtils.equals(rp, ")")) {
+      fail("expected right parenthesis but got " + rp);
+    }
+    LinkedList<FunctionParameter> params = new LinkedList<>();
+    for(;;) {
+      StackItem item = stack.pop();
+      if(item instanceof FunctionParameter) {
+        FunctionParameter param = (FunctionParameter)item;
+        params.addFirst(param);
+      } else if(item instanceof FunctionName) {
+        FunctionName name = (FunctionName)item;
+        stack.push(new FunctionCall(name, params, null));
+        return;
+      } else {
+        fail("unexpected item on stack for function call " + item);
+      }
+    }
   }
 
   @Override
@@ -198,14 +226,11 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitFname(FnameContext ctx) {
-    // TODO Auto-generated method stub
-    
+    stack.push(new FunctionName(popTerminal().getToken().getText()));
   }
 
   @Override
   public void enterFparams(FparamsContext ctx) {
-    // TODO Auto-generated method stub
-    
   }
 
   @Override
@@ -216,14 +241,16 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void enterFparam(FparamContext ctx) {
-    // TODO Auto-generated method stub
-    
+    // get rid of initial left parenthesis or comma separating parameters
+    String s = popTerminal().getToken().getText();
+    if(!StringUtils.equalsAny(s, "(", ",")) {
+      fail("expected left parenthesis or comma but got " + s);
+    }
   }
 
   @Override
   public void exitFparam(FparamContext ctx) {
-    // TODO Auto-generated method stub
-    
+    stack.push(new FunctionParameter(stack.pop()));
   }
 
   @Override
@@ -254,17 +281,19 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitIdent(IdentContext ctx) {
-    StackItem terminal = stack.pop();
-    if(terminal instanceof Terminal) {
-      Token token = ((Terminal)terminal).getToken();
-      stack.push(new Identifier(token.getText()));
-    } else {
-      fail("expected terminal but got '%s'".formatted(terminal));
-    }
+    stack.push(new Identifier(popTerminal().getToken().getText()));
   }
 
   private void fail(String msg) {
     throw new RestrictedScriptException(msg);
+  }
+
+  private Terminal popTerminal() {
+    StackItem terminal = stack.pop();
+    if(!(terminal instanceof Terminal)) {
+      fail("expected terminal but got '%s'".formatted(terminal));
+    }
+    return (Terminal)terminal;
   }
 
 }
