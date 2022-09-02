@@ -1,7 +1,9 @@
-package io.github.agebe.script.lang;
+package io.github.agebe.script;
 
 public enum LangType {
+  CLASS,
   OBJ,
+  BOOLEAN,
   DOUBLE,
   FLOAT,
   LONG,
@@ -9,5 +11,4 @@ public enum LangType {
   CHAR,
   VOID,
   ;
-  
 }

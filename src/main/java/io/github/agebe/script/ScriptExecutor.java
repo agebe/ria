@@ -36,6 +36,10 @@ public class ScriptExecutor implements ScriptListener {
 
   private Deque<LangItem> stack = new ArrayDeque<LangItem>();
 
+  private SymbolTable symbols = new SymbolTable();
+
+  private FunctionCaller caller = new FunctionCaller(symbols);
+
   private void log(String msg) {
     System.out.println(msg);
   }
@@ -85,9 +89,10 @@ public class ScriptExecutor implements ScriptListener {
   @Override
   public void exitStmt(StmtContext ctx) {
     // TODO just for now to show something
-    log(""+stack.pop());
-    log(""+stack.pop());
-    // TODO at this point everything has to be resolved (executed) latest i think?!
+    Terminal semi = popTerminal();
+    LangItem i = stack.pop();
+    log(""+i);
+    i.resolve();
   }
 
   @Override
@@ -185,10 +190,10 @@ public class ScriptExecutor implements ScriptListener {
       Identifier i1 = (Identifier)item1;
       if(item2 instanceof Identifier) {
         Identifier i2 = (Identifier)item2;
-        stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent()));
+        stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent(), symbols));
       } else if(item2 instanceof FunctionCall) {
         FunctionCall f = (FunctionCall)item2;
-        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1));
+        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1, caller));
       } else {
         fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
       }
@@ -218,7 +223,7 @@ public class ScriptExecutor implements ScriptListener {
         params.addFirst(param);
       } else if(item instanceof FunctionName) {
         FunctionName name = (FunctionName)item;
-        stack.push(new FunctionCall(name, params, null));
+        stack.push(new FunctionCall(name, params, null, caller));
         return;
       } else {
         fail("unexpected item on stack for function call " + item);
@@ -289,7 +294,7 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitIdent(IdentContext ctx) {
-    stack.push(new Identifier(popTerminal().getToken().getText()));
+    stack.push(new Identifier(popTerminal().getToken().getText(), symbols));
   }
 
   private void fail(String msg) {

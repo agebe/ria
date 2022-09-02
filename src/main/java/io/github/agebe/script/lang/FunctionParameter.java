@@ -18,4 +18,9 @@ public class FunctionParameter extends CachedLangItem {
     return "FunctionParameter [parameter=" + parameter + "]";
   }
 
+  @Override
+  protected Result resolveOnce() {
+    return parameter.resolve();
+  }
+
 }

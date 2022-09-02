@@ -6,8 +6,13 @@ import org.junit.jupiter.api.Test;
 
 public class Test1 {
 
-//  @Test
+  @Test
   public void hello() {
+    new RestrictedScriptBuilder().setScript("java.lang.System.out.println(\"Hello World\");").create().run();
+  }
+
+  @Test
+  public void helloWithDefaultImport() {
     new RestrictedScriptBuilder().setScript("System.out.println(\"Hello World\");").create().run();
   }
 
@@ -26,7 +31,7 @@ public class Test1 {
   public void isBlank() {
     boolean result = new RestrictedScriptBuilder()
         .setScript("""
-            org.apache.commons.lang3.StringUtils.isBlank("123", foo);
+            org.apache.commons.lang3.StringUtils.isBlank("123");
             """)
         .create()
         .evalPredicate();

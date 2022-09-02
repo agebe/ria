@@ -2,19 +2,29 @@ package io.github.agebe.script.lang;
 
 import java.util.List;
 
+import io.github.agebe.script.FunctionCaller;
+
 public class FunctionCall extends CachedLangItem {
 
   private FunctionName name;
 
   private List<FunctionParameter> parameters;
 
+  // TODO this could also be a StringLiteral, probably should be LangItem
   private Identifier target;
 
-  public FunctionCall(FunctionName name, List<FunctionParameter> parameters, Identifier target) {
+  private FunctionCaller caller;
+
+  public FunctionCall(
+      FunctionName name,
+      List<FunctionParameter> parameters,
+      Identifier target,
+      FunctionCaller caller) {
     super();
     this.name = name;
     this.parameters = parameters;
     this.target = target;
+    this.caller = caller;
   }
 
   public FunctionName getName() {
@@ -35,9 +45,8 @@ public class FunctionCall extends CachedLangItem {
   }
 
   @Override
-  protected LangItemResult resolveOnce() {
-    // TODO Auto-generated method stub
-    return null;
+  protected Result resolveOnce() {
+    return caller.call(this);
   }
 
 }
