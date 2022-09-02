@@ -1,6 +1,6 @@
-package io.github.agebe.script;
+package io.github.agebe.script.lang;
 
-public class FunctionName implements StackItem {
+public class FunctionName extends CachedLangItem {
 
   private String name;
 

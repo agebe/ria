@@ -1,8 +1,8 @@
-package io.github.agebe.script;
+package io.github.agebe.script.lang;
 
 import org.antlr.v4.runtime.Token;
 
-public class Terminal implements StackItem {
+public class Terminal extends CachedLangItem {
 
   private Token token;
 

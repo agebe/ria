@@ -1,6 +1,6 @@
-package io.github.agebe.script;
+package io.github.agebe.script.lang;
 
-public class Identifier implements StackItem {
+public class Identifier extends CachedLangItem {
 
   private String ident;
 

@@ -81,7 +81,7 @@ public class RestrictedScriptBuilder {
 
   public RestrictedScript create() {
     if(StringUtils.isBlank(script)) {
-      throw new RestrictedScriptException("no script");
+      throw new ScriptException("no script");
     }
     if(scriptCtx == null) {
       parse();

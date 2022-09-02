@@ -23,10 +23,18 @@ import io.github.agebe.script.antlr.ScriptParser.ScriptContext;
 import io.github.agebe.script.antlr.ScriptParser.StmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VardefContext;
+import io.github.agebe.script.lang.Expression;
+import io.github.agebe.script.lang.FunctionCall;
+import io.github.agebe.script.lang.FunctionName;
+import io.github.agebe.script.lang.FunctionParameter;
+import io.github.agebe.script.lang.Identifier;
+import io.github.agebe.script.lang.LangItem;
+import io.github.agebe.script.lang.StringLiteral;
+import io.github.agebe.script.lang.Terminal;
 
 public class ScriptExecutor implements ScriptListener {
 
-  private Deque<StackItem> stack = new ArrayDeque<StackItem>();
+  private Deque<LangItem> stack = new ArrayDeque<LangItem>();
 
   private void log(String msg) {
     System.out.println(msg);
@@ -139,9 +147,9 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitExpr(ExprContext ctx) {
-    LinkedList<StackItem> items = new LinkedList<>();
+    LinkedList<LangItem> items = new LinkedList<>();
     for(;;) {
-      StackItem item = stack.pop();
+      LangItem item = stack.pop();
       if(item instanceof Expression) {
         Expression expr = (Expression)item;
         if(expr.getCtx().equals(ctx)) {
@@ -172,7 +180,7 @@ public class ScriptExecutor implements ScriptListener {
     }
   }
 
-  private void dotOperator(StackItem item1, StackItem item2) {
+  private void dotOperator(LangItem item1, LangItem item2) {
     if(item1 instanceof Identifier) {
       Identifier i1 = (Identifier)item1;
       if(item2 instanceof Identifier) {
@@ -204,7 +212,7 @@ public class ScriptExecutor implements ScriptListener {
     }
     LinkedList<FunctionParameter> params = new LinkedList<>();
     for(;;) {
-      StackItem item = stack.pop();
+      LangItem item = stack.pop();
       if(item instanceof FunctionParameter) {
         FunctionParameter param = (FunctionParameter)item;
         params.addFirst(param);
@@ -285,11 +293,11 @@ public class ScriptExecutor implements ScriptListener {
   }
 
   private void fail(String msg) {
-    throw new RestrictedScriptException(msg);
+    throw new ScriptException(msg);
   }
 
   private Terminal popTerminal() {
-    StackItem terminal = stack.pop();
+    LangItem terminal = stack.pop();
     if(!(terminal instanceof Terminal)) {
       fail("expected terminal but got '%s'".formatted(terminal));
     }

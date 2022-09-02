@@ -1,6 +1,6 @@
 package io.github.agebe.script;
 
-public class SyntaxException extends RestrictedScriptException {
+public class SyntaxException extends ScriptException {
 
   private static final long serialVersionUID = 1L;
 

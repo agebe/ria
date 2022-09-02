@@ -1,6 +1,6 @@
-package io.github.agebe.script;
+package io.github.agebe.script.lang;
 
-public class StringLiteral implements StackItem {
+public class StringLiteral extends CachedLangItem {
 
   private String literal;
 
