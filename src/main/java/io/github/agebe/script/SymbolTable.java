@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,25 +51,37 @@ public class SymbolTable {
   }
 
   private ClassSymbol cls(String name) {
-    try {
-      Class<?> cls = Class.forName(name);
-      return cls!=null?new ClassSymbol(cls):null;
-    } catch(ClassNotFoundException e) {
-      return null;
-    }
+    Class<?> cls = findClass(name);
+    return cls!=null?new ClassSymbol(cls):null;
   }
 
   private VarSymbol staticField(String name) {
     // e.g. like java.lang.System.out
-    final Class<?> cls = findClass(StringUtils.split(name, '.'));
+    Class<?> cls = null;
+    String[] parts = StringUtils.split(name, '.');
+    String[] fields = null;
+    if(parts.length == 0) {
+      return null;
+    }
+    for(int i=1;i<parts.length;i++) {
+      cls = findClass(StringUtils.join(parts, '.', 0, i));
+      if(cls != null) {
+        fields = new String[parts.length-i];
+        System.arraycopy(parts, i, fields, 0, parts.length-i);
+        // TODO get the rest of the array as fields to follow
+        break;
+      }
+    }
     if(cls == null) {
       return null;
     }
-    String[] parts = StringUtils.split(StringUtils.removeStartIgnoreCase(name, cls.getName()), '.');
-    log.debug("found class '{}', fields to follow '{}'", cls.getName(), Arrays.toString(parts));
+    log.debug("found class '{}', fields to follow '{}'", cls.getName(), Arrays.toString(fields));
+    if(fields.length == 0) {
+      return null;
+    }
     Field f = null;
     Class<?> wcls = cls;
-    for(String s : parts) {
+    for(String s : fields) {
       f = getField(wcls, s);
       if(f == null) {
         log.debug("field '{}' not found on class '{}'", s, wcls.getName());
@@ -98,17 +111,40 @@ public class SymbolTable {
     }
   }
 
-  private Class<?> findClass(String[] parts) {
-    for(int i=0;i<parts.length;i++) {
-      Class<?> cls = findClass(StringUtils.join(parts, '.', 0, i));
-      if(cls != null) {
-        return cls;
-      }
+  private Class<?> findClass(String name) {
+    Class<?> cls = findClassExact(name);
+    if(cls != null) {
+      log.debug("found class '{}'", cls.getName());
+      return cls;
     }
-    return null;
+    cls = importList.stream()
+        .map(imp -> fromImport(name, imp))
+        .filter(Objects::nonNull)
+        .map(this::findClassExact)
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
+    if(cls != null) {
+      log.debug("found class '{}' for name '{}' (resolved from imports)", cls.getName(), name);
+    } else {
+      log.debug("class not found '{}'", name);
+    }
+    return cls;
   }
 
-  private Class<?> findClass(String name) {
+  private String fromImport(String clsName, String importName) {
+    String[] parts = StringUtils.split(importName, '.');
+    String last = parts[parts.length-1];
+    if("*".equals(last)) {
+      return StringUtils.join(parts, '.', 0, parts.length-1) + "." + clsName;
+    } else if(last.equals(clsName)) {
+      return importName;
+    } else {
+      return null;
+    }
+  }
+
+  private Class<?> findClassExact(String name) {
     try {
       return Class.forName(name);
     } catch(ClassNotFoundException e) {

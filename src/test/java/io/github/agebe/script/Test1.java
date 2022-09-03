@@ -24,7 +24,7 @@ public class Test1 {
     new RestrictedScriptBuilder().setScript("java.lang.System.out.println(\"Hello World\");").create().run();
   }
 
-  //@Test
+  @Test
   public void helloWithDefaultImport() {
     new RestrictedScriptBuilder().setScript("System.out.println(\"Hello World\");").create().run();
   }
