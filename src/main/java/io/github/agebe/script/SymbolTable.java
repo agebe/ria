@@ -17,15 +17,17 @@ public class SymbolTable {
 
   private static final Logger log = LoggerFactory.getLogger(SymbolTable.class);
 
-  // TODO add support for imports and static imports
-  // TODO add support for function alias foo -> System.out.println
+  // TODO add support for function alias println -> System.out.println
   private List<String> importList;
+
+  private List<String> importStaticList;
 
   private Map<String, VarSymbol> variables = new HashMap<>();
 
-  public SymbolTable(List<String> importList) {
+  public SymbolTable(List<String> importList, List<String> importStaticList) {
     super();
     this.importList = importList;
+    this.importStaticList = importStaticList;
   }
 
   public Symbol resolve(String name) {
@@ -42,6 +44,41 @@ public class SymbolTable {
       return sf;
     }
     throw new SymbolNotFoundException(name);
+  }
+
+  public Symbol resolveFunction(String name) {
+    // TODO check function alias first
+    // TODO check script functions next
+    return importStaticList.stream()
+        .map(imp -> resolveStaticImport(imp, name))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private Symbol resolveStaticImport(String staticImport, String functionName) {
+    String[] parts = StringUtils.split(staticImport, '.');
+    String last = parts[parts.length-1];
+    if(functionName.equals(last)) {
+      String className = StringUtils.substringBeforeLast(staticImport, ".");
+      Class<?> cls = findClass(className);
+      return cls!=null?new ClassSymbol(cls):null;
+    } else if("*".equals(last)) {
+      String className = StringUtils.substringBeforeLast(staticImport, ".");
+      Class<?> cls = findClass(className);
+      if((cls != null) && hasMethod(cls, functionName)) {
+        return new ClassSymbol(cls);
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  private boolean hasMethod(Class<?> cls, String methodName) {
+    return Arrays.stream(cls.getMethods())
+        .anyMatch(m -> StringUtils.equals(m.getName(), methodName));
   }
 
   public Result resolveAsResult(String name) {

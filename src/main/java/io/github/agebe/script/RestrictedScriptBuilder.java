@@ -20,6 +20,8 @@ public class RestrictedScriptBuilder {
 
   private JImmutableList<String> importList = JImmutables.list("java.lang.*");
 
+  private JImmutableList<String> importStaticList = JImmutables.list();
+
   public RestrictedScriptBuilder() {
     super();
   }
@@ -28,12 +30,14 @@ public class RestrictedScriptBuilder {
       String script,
       boolean showErrorsOnConsole,
       ScriptParser.ScriptContext scriptCtx,
-      JImmutableList<String> importList) {
+      JImmutableList<String> importList,
+      JImmutableList<String> importStaticList) {
     super();
     this.script = script;
     this.showErrorsOnConsole = showErrorsOnConsole;
     this.scriptCtx = scriptCtx;
     this.importList = importList;
+    this.importStaticList = importStaticList;
   }
 
   public boolean isShowErrorsOnConsole() {
@@ -45,7 +49,8 @@ public class RestrictedScriptBuilder {
         script,
         showErrorsOnConsole,
         scriptCtx,
-        importList);
+        importList,
+        importStaticList);
   }
 
   // TODO set variables
@@ -68,7 +73,8 @@ public class RestrictedScriptBuilder {
         script,
         showErrorsOnConsole,
         null,
-        importList);
+        importList,
+        importStaticList);
   }
 
   public RestrictedScriptBuilder addImport(String imp) {
@@ -76,7 +82,17 @@ public class RestrictedScriptBuilder {
         script,
         showErrorsOnConsole,
         null,
-        importList.insert(imp));
+        importList.insert(imp),
+        importStaticList);
+  }
+
+  public RestrictedScriptBuilder addStaticImport(String imp) {
+    return new RestrictedScriptBuilder(
+        script,
+        showErrorsOnConsole,
+        null,
+        importList,
+        importStaticList.insert(imp));
   }
 
   public void parse() {
@@ -108,7 +124,10 @@ public class RestrictedScriptBuilder {
     if(scriptCtx == null) {
       parse();
     }
-    return new RestrictedScript(scriptCtx, new SymbolTable(this.importList.getList()));
+    return new RestrictedScript(scriptCtx,
+        new SymbolTable(
+            this.importList.getList(),
+            this.importStaticList.getList()));
   }
 
 }

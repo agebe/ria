@@ -61,6 +61,8 @@ public class Value {
     // TODO
     if(cls == boolean.class) {
       return b;
+    } else if(cls == double.class) {
+      return d;
     } else {
       return obj;
     }
@@ -94,6 +96,13 @@ public class Value {
     Value v = new Value();
     v.b = (Boolean)o;
     v.cls = boolean.class;
+    return v;
+  }
+
+  public static Value ofDouble(Object o) {
+    Value v = new Value();
+    v.d = (Double)o;
+    v.cls = double.class;
     return v;
   }
 

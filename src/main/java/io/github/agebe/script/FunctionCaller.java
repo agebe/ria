@@ -27,8 +27,14 @@ public class FunctionCaller {
       if(function.getTarget() != null) {
         Result target = function.getTarget().resolve();
         return callJavaMethod(target, function);
+      } else {
+        Symbol symbol = symbols.resolveFunction(function.getName().getName());
+        if(symbol instanceof ClassSymbol) {
+          return callJavaMethod(symbol.toResult(), function);
+        } else {
+          throw new ScriptException("function '%s' not found".formatted(function.getName().getName()));
+        }
       }
-      throw new ScriptException("not impl");
     } catch(Exception e) {
       throw new ScriptException("script execution failed", e);
     }
@@ -49,6 +55,8 @@ public class FunctionCaller {
       } else if(returnType.isPrimitive()) {
         if(returnType.getName().equals("boolean")) {
           return new Result(LangType.BOOLEAN, Value.ofBoolean(result));
+        } else if(returnType.getName().equals("double")) {
+          return new Result(LangType.DOUBLE, Value.ofDouble(result));
         } else {
           // TODO support all primitive types
           System.out.println(returnType.isPrimitive());
