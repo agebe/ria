@@ -1,7 +1,6 @@
 package io.github.agebe.script;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,13 +19,13 @@ public class SymbolTable {
 
   // TODO add support for imports and static imports
   // TODO add support for function alias foo -> System.out.println
-  private List<String> importList = new ArrayList<>();
+  private List<String> importList;
 
   private Map<String, VarSymbol> variables = new HashMap<>();
 
-  public SymbolTable() {
+  public SymbolTable(List<String> importList) {
     super();
-    importList.add("java.lang.*");
+    this.importList = importList;
   }
 
   public Symbol resolve(String name) {

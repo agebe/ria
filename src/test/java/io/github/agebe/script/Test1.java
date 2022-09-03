@@ -19,19 +19,23 @@ public class Test1 {
 
   public static final TestInner2 TI2 = new TestInner2();
 
+  private RestrictedScriptBuilder base = new RestrictedScriptBuilder()
+      .setShowErrorsOnConsole(true)
+      .addImport("java.util.Objects");
+
   @Test
   public void hello() {
-    new RestrictedScriptBuilder().setScript("java.lang.System.out.println(\"Hello World\");").create().run();
+    base.setScript("java.lang.System.out.println(\"Hello World\");").create().run();
   }
 
   @Test
   public void helloWithDefaultImport() {
-    new RestrictedScriptBuilder().setScript("System.out.println(\"Hello World\");").create().run();
+    base.setScript("System.out.println(\"Hello World\");").create().run();
   }
 
   @Test
   public void fcall() {
-    new RestrictedScriptBuilder().setScript("""
+    base.setScript("""
         java.lang.System.out.println(io.github.agebe.script.Test1.TI2.TI1.f1());
         """)
     .create()
@@ -40,16 +44,26 @@ public class Test1 {
 
   @Test
   public void multiParamFCall() {
-    new RestrictedScriptBuilder().setScript("""
-        java.util.Objects.equals("123", "123");
+    base.setScript("""
+        Objects.equals("123", "123");
         """)
+    .create()
+    .run();
+  }
+
+  @Test
+  public void printNow() {
+    base.setScript("""
+        System.out.println(LocalDateTime.now());
+        """)
+    .addImport("java.time.*")
     .create()
     .run();
   }
 
 //  @Test
   public void importedHello() {
-    new RestrictedScriptBuilder()
+    base
     // TODO add support for import and static imports (do we need to make a difference?)
     // importing automatically allows access
     //.import("System.out.*")
@@ -60,8 +74,7 @@ public class Test1 {
 
   @Test
   public void isBlank() {
-    boolean result = new RestrictedScriptBuilder()
-        .setScript("""
+    boolean result = base.setScript("""
             org.apache.commons.lang3.StringUtils.isBlank("123");
             """)
         .create()

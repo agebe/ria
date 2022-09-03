@@ -6,14 +6,17 @@ import io.github.agebe.script.antlr.ScriptParser;
 
 public class RestrictedScript {
 
-  private ScriptParser.ScriptContext tree;
+  private ScriptParser.ScriptContext script;
 
-  RestrictedScript(ScriptParser.ScriptContext tree) {
-    this.tree = tree;
+  private SymbolTable symbols;
+
+  RestrictedScript(ScriptParser.ScriptContext script, SymbolTable symbols) {
+    this.script = script;
+    this.symbols = symbols;
   }
 
   public Object run() {
-    ParseTreeWalker.DEFAULT.walk(new ScriptExecutor(), tree);
+    ParseTreeWalker.DEFAULT.walk(new ScriptExecutor(symbols), script);
     return null;
   }
 

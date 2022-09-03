@@ -40,9 +40,14 @@ public class ScriptExecutor implements ScriptListener {
 
   private Deque<LangItem> stack = new ArrayDeque<LangItem>();
 
-  private SymbolTable symbols = new SymbolTable();
+  private SymbolTable symbols;
 
-  private FunctionCaller caller = new FunctionCaller(symbols);
+  private FunctionCaller caller;
+
+  public ScriptExecutor(SymbolTable symbols) {
+    this.symbols = symbols;
+    this.caller = new FunctionCaller(symbols);
+  }
 
   private void log(String msg) {
     System.out.println(msg);
