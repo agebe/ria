@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.agebe.script.lang.Result;
 
 public class SymbolTable {
+
+  private static final Logger log = LoggerFactory.getLogger(SymbolTable.class);
 
   // TODO add support for imports and static imports
   // TODO add support for function alias foo -> System.out.println
@@ -61,14 +65,16 @@ public class SymbolTable {
       return null;
     }
     String[] parts = StringUtils.split(StringUtils.removeStartIgnoreCase(name, cls.getName()), '.');
-    System.out.println(Arrays.toString(parts));
+    log.debug("found class '{}', fields to follow '{}'", cls.getName(), Arrays.toString(parts));
     Field f = null;
     Class<?> wcls = cls;
     for(String s : parts) {
       f = getField(wcls, s);
       if(f == null) {
+        log.debug("field '{}' not found on class '{}'", s, wcls.getName());
         return null;
       }
+      log.debug("field '{}' found on class '{}', type '{}'", s, wcls.getName(), f.getType());
       wcls = f.getType();
     }
     if(f != null) {

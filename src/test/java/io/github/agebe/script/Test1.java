@@ -2,8 +2,6 @@ package io.github.agebe.script;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.Objects;
-
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
