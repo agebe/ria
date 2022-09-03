@@ -241,6 +241,11 @@ public class ScriptExecutor implements ScriptListener {
   @Override
   public void enterFparams(FparamsContext ctx) {
     log.debug("enter fparams '{}'", ctx.getText());
+    // get rid of initial left parenthesis
+    String s = popTerminal().getToken().getText();
+    if(!StringUtils.equals(s, "(")) {
+      fail("expected left parenthesis " + s);
+    }
   }
 
   @Override
@@ -251,10 +256,10 @@ public class ScriptExecutor implements ScriptListener {
   @Override
   public void enterFparam(FparamContext ctx) {
     log.debug("enter fparam '{}'", ctx.getText());
-    // get rid of initial left parenthesis or comma separating parameters
-    String s = popTerminal().getToken().getText();
-    if(!StringUtils.equalsAny(s, "(", ",")) {
-      fail("expected left parenthesis or comma but got " + s);
+ // get rid of initial comma separating parameters, this does not work for the first parameter though
+    LangItem item = stack.peek();
+    if((item instanceof Terminal) && ((Terminal) item).getToken().getText().equals(",")) {
+      popTerminal();
     }
   }
 

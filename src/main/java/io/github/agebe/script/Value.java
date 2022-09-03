@@ -57,6 +57,15 @@ public class Value {
     return cls;
   }
 
+  public Object getParamObj() {
+    // TODO
+    if(cls == boolean.class) {
+      return b;
+    } else {
+      return obj;
+    }
+  }
+
   public boolean getB() {
     return b;
   }
@@ -84,6 +93,7 @@ public class Value {
   public static Value ofBoolean(Object o) {
     Value v = new Value();
     v.b = (Boolean)o;
+    v.cls = boolean.class;
     return v;
   }
 

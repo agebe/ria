@@ -2,6 +2,8 @@ package io.github.agebe.script;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.Objects;
+
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -32,7 +34,16 @@ public class Test1 {
   @Test
   public void fcall() {
     new RestrictedScriptBuilder().setScript("""
-        io.github.agebe.script.Test1.TI2.TI1.f1();
+        java.lang.System.out.println(io.github.agebe.script.Test1.TI2.TI1.f1());
+        """)
+    .create()
+    .run();
+  }
+
+  @Test
+  public void multiParamFCall() {
+    new RestrictedScriptBuilder().setScript("""
+        java.util.Objects.equals("123", "123");
         """)
     .create()
     .run();
