@@ -6,14 +6,36 @@ import org.junit.jupiter.api.Test;
 
 public class Test1 {
 
+  public static class TestInner1 {
+    public static boolean f1() {
+      System.out.println("f1");
+      return true;
+    }
+  }
+
+  public static class TestInner2 {
+    public static final TestInner1 TI1 = new TestInner1();
+  }
+
+  public static final TestInner2 TI2 = new TestInner2();
+
   @Test
   public void hello() {
     new RestrictedScriptBuilder().setScript("java.lang.System.out.println(\"Hello World\");").create().run();
   }
 
-  @Test
+  //@Test
   public void helloWithDefaultImport() {
     new RestrictedScriptBuilder().setScript("System.out.println(\"Hello World\");").create().run();
+  }
+
+  @Test
+  public void fcall() {
+    new RestrictedScriptBuilder().setScript("""
+        io.github.agebe.script.Test1.TI2.TI1.f1();
+        """)
+    .create()
+    .run();
   }
 
 //  @Test

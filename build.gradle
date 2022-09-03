@@ -3,6 +3,7 @@ plugins {
   id 'java-library'
   id 'eclipse'
   id 'antlr'
+  id "com.github.ben-manes.versions" version "0.42.0"
 }
 
 repositories {
@@ -35,9 +36,11 @@ tasks.eclipse.dependsOn(generateGrammarSource)
 
 dependencies {
   antlr 'org.antlr:antlr4:4.10.1'
+  implementation 'org.slf4j:slf4j-api:2.0.0'
   implementation 'org.apache.commons:commons-lang3:3.12.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+  testImplementation 'ch.qos.logback:logback-classic:1.4.0'
 }
 
 test {
