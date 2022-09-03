@@ -17,17 +17,23 @@ public class SymbolTable {
 
   private static final Logger log = LoggerFactory.getLogger(SymbolTable.class);
 
-  // TODO add support for function alias println -> System.out.println
   private List<String> importList;
 
   private List<String> importStaticList;
 
+  private Map<String, String> functionAlias;
+
   private Map<String, VarSymbol> variables = new HashMap<>();
 
-  public SymbolTable(List<String> importList, List<String> importStaticList) {
+  public SymbolTable(
+      List<String> importList,
+      List<String> importStaticList,
+      Map<String, String> functionAlias) {
     super();
     this.importList = importList;
     this.importStaticList = importStaticList;
+    this.functionAlias = functionAlias;
+//    this.functionAlias = Map.of("println", "System.out.println");
   }
 
   public Symbol resolve(String name) {
@@ -46,8 +52,27 @@ public class SymbolTable {
     throw new SymbolNotFoundException(name);
   }
 
-  public Symbol resolveFunction(String name) {
-    // TODO check function alias first
+  public JavaMethodSymbol resolveFunction(String name) {
+    String target = functionAlias.get(name);
+    if(target != null) {
+      log.debug("found function alias for '{}', '{}'", name, target);
+      String className = StringUtils.substringBeforeLast(target, ".");
+      String methodName = StringUtils.substringAfterLast(target, ".");
+      Class<?> cls = findClass(className);
+      if(cls != null) {
+        log.debug("resolved function alias '{}' to class '{}', method '{}'", name, cls.getName(), methodName);
+        return new JavaMethodSymbol(cls, methodName, null);
+      } else {
+        VarSymbol vs = staticField(className);
+        if(vs != null) {
+          log.debug("resolved function alias '{}' to class '{}', method '{}'",
+              name,
+              vs.getVal().getCls(),
+              methodName);
+          return new JavaMethodSymbol(vs.getVal().getCls(), methodName, vs.getVal().getObj());
+        }
+      }
+    }
     // TODO check script functions next
     return importStaticList.stream()
         .map(imp -> resolveStaticImport(imp, name))
@@ -56,18 +81,18 @@ public class SymbolTable {
         .orElse(null);
   }
 
-  private Symbol resolveStaticImport(String staticImport, String functionName) {
+  private JavaMethodSymbol resolveStaticImport(String staticImport, String functionName) {
     String[] parts = StringUtils.split(staticImport, '.');
     String last = parts[parts.length-1];
     if(functionName.equals(last)) {
       String className = StringUtils.substringBeforeLast(staticImport, ".");
       Class<?> cls = findClass(className);
-      return cls!=null?new ClassSymbol(cls):null;
+      return cls!=null?new JavaMethodSymbol(cls, functionName, null):null;
     } else if("*".equals(last)) {
       String className = StringUtils.substringBeforeLast(staticImport, ".");
       Class<?> cls = findClass(className);
       if((cls != null) && hasMethod(cls, functionName)) {
-        return new ClassSymbol(cls);
+        return new JavaMethodSymbol(cls, functionName, null);
       } else {
         return null;
       }

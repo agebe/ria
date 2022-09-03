@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
+import org.javimmutable.collections.JImmutableMap;
 import org.javimmutable.collections.util.JImmutables;
 
 import io.github.agebe.script.antlr.ScriptLexer;
@@ -22,6 +23,8 @@ public class RestrictedScriptBuilder {
 
   private JImmutableList<String> importStaticList = JImmutables.list();
 
+  private JImmutableMap<String, String> functionAlias = JImmutables.map();
+
   public RestrictedScriptBuilder() {
     super();
   }
@@ -31,13 +34,15 @@ public class RestrictedScriptBuilder {
       boolean showErrorsOnConsole,
       ScriptParser.ScriptContext scriptCtx,
       JImmutableList<String> importList,
-      JImmutableList<String> importStaticList) {
+      JImmutableList<String> importStaticList,
+      JImmutableMap<String, String> functionAlias) {
     super();
     this.script = script;
     this.showErrorsOnConsole = showErrorsOnConsole;
     this.scriptCtx = scriptCtx;
     this.importList = importList;
     this.importStaticList = importStaticList;
+    this.functionAlias = functionAlias;
   }
 
   public boolean isShowErrorsOnConsole() {
@@ -50,7 +55,8 @@ public class RestrictedScriptBuilder {
         showErrorsOnConsole,
         scriptCtx,
         importList,
-        importStaticList);
+        importStaticList,
+        functionAlias);
   }
 
   // TODO set variables
@@ -74,7 +80,8 @@ public class RestrictedScriptBuilder {
         showErrorsOnConsole,
         null,
         importList,
-        importStaticList);
+        importStaticList,
+        functionAlias);
   }
 
   public RestrictedScriptBuilder addImport(String imp) {
@@ -83,7 +90,8 @@ public class RestrictedScriptBuilder {
         showErrorsOnConsole,
         null,
         importList.insert(imp),
-        importStaticList);
+        importStaticList,
+        functionAlias);
   }
 
   public RestrictedScriptBuilder addStaticImport(String imp) {
@@ -92,7 +100,18 @@ public class RestrictedScriptBuilder {
         showErrorsOnConsole,
         null,
         importList,
-        importStaticList.insert(imp));
+        importStaticList.insert(imp),
+        functionAlias);
+  }
+
+  public RestrictedScriptBuilder addFunctionAlias(String alias, String target) {
+    return new RestrictedScriptBuilder(
+        script,
+        showErrorsOnConsole,
+        null,
+        importList,
+        importStaticList,
+        functionAlias.assign(alias, target));
   }
 
   public void parse() {
@@ -127,7 +146,8 @@ public class RestrictedScriptBuilder {
     return new RestrictedScript(scriptCtx,
         new SymbolTable(
             this.importList.getList(),
-            this.importStaticList.getList()));
+            this.importStaticList.getList(),
+            this.functionAlias.getMap()));
   }
 
 }

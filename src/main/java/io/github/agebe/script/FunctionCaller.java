@@ -26,11 +26,15 @@ public class FunctionCaller {
     try {
       if(function.getTarget() != null) {
         Result target = function.getTarget().resolve();
-        return callJavaMethod(target, function);
+        JavaMethodSymbol symbol = new JavaMethodSymbol(
+            target.getValue().getCls(),
+            function.getName().getName(),
+            target.getValue().getObj());
+        return callJavaMethod(symbol, function);
       } else {
-        Symbol symbol = symbols.resolveFunction(function.getName().getName());
-        if(symbol instanceof ClassSymbol) {
-          return callJavaMethod(symbol.toResult(), function);
+        JavaMethodSymbol symbol = symbols.resolveFunction(function.getName().getName());
+        if(symbol != null) {
+          return callJavaMethod(symbol, function);
         } else {
           throw new ScriptException("function '%s' not found".formatted(function.getName().getName()));
         }
@@ -40,15 +44,16 @@ public class FunctionCaller {
     }
   }
 
-  private Result callJavaMethod(Result target, FunctionCall fcall) throws Exception {
-    String fname = fcall.getName().getName();
+  private Result callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) throws Exception {
+    // fcall function name might have been replaced via alias
+    String fname = symbol.getMethodName();
     Object[] params = resolveParameters(fcall.getParameters());
     Class<?>[] paramTypes = resolveParameterTypes(fcall.getParameters());
-    Class<?> cls = target.getValue().getCls();
+    Class<?> cls = symbol.getTargetType();
     Method m = matchMethod(findMethods(cls, fname), paramTypes);
     if(m != null) {
       log.debug("invoke method '{}' with parameter '{}'", m.getName(), Arrays.toString(params));
-      Object result = m.invoke(target.getValue().getObj(), params);
+      Object result = m.invoke(symbol.getTarget(), params);
       Class<?> returnType = m.getReturnType();
       if(returnType.equals(Void.class) || returnType.equals(void.class)) {
         return new Result(LangType.VOID, Value.vd());

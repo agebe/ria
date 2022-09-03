@@ -22,7 +22,8 @@ public class Test1 {
 
   private RestrictedScriptBuilder base = new RestrictedScriptBuilder()
       .setShowErrorsOnConsole(true)
-      .addImport("java.util.Objects");
+      .addImport("java.util.Objects")
+      .addFunctionAlias("println", "System.out.println");
 
   @Test
   public void hello() {
@@ -89,7 +90,7 @@ public class Test1 {
     max(0, 0);
     base.setScript("""
         max(Double.parseDouble("1.0"), Double.parseDouble("2.0"));
-        System.out.println(now());
+        println(now());
         """)
     .addStaticImport("Math.*")
     .addStaticImport("java.time.LocalDateTime.now")
