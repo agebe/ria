@@ -16,6 +16,7 @@ public class RestrictedScript {
   }
 
   public Object run() {
+    // TODO split the ScriptExecutor into ScriptParser to create the AST and the ScriptExecutor
     ParseTreeWalker.DEFAULT.walk(new ScriptExecutor(symbols), script);
     return null;
   }
