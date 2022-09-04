@@ -3,11 +3,11 @@ package io.github.agebe.script;
 import io.github.agebe.script.run.ScriptRunner;
 import io.github.agebe.script.symbol.SymbolTable;
 
-public class RestrictedScript {
+public class Script {
 
   private SymbolTable symbols;
 
-  RestrictedScript(SymbolTable symbols) {
+  Script(SymbolTable symbols) {
     this.symbols = symbols;
   }
 

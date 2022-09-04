@@ -20,7 +20,7 @@ public class Test1 {
 
   public static final TestInner2 TI2 = new TestInner2();
 
-  private RestrictedScriptBuilder base = new RestrictedScriptBuilder()
+  private ScriptBuilder base = new ScriptBuilder()
       .addImport("java.util.Objects")
       .addFunctionAlias("println", "System.out.println");
 
@@ -109,6 +109,6 @@ public class Test1 {
       System.out.println("Hello World");
       return v1.equals("12345");
         """;
-    new RestrictedScriptBuilder().setScript(script).create().run();
+    new ScriptBuilder().setScript(script).create().run();
   }
 }

@@ -30,9 +30,9 @@ import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VardefContext;
 import io.github.agebe.script.symbol.SymbolTable;
 
-public class ScriptParserListener implements ScriptListener {
+public class ParserListener implements ScriptListener {
 
-  private static final Logger log = LoggerFactory.getLogger(ScriptParserListener.class);
+  private static final Logger log = LoggerFactory.getLogger(ParserListener.class);
 
   private Deque<ParseItem> stack = new ArrayDeque<ParseItem>();
 

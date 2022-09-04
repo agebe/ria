@@ -7,7 +7,7 @@ import org.javimmutable.collections.util.JImmutables;
 import io.github.agebe.script.parser.Parser;
 import io.github.agebe.script.symbol.SymbolTable;
 
-public class RestrictedScriptBuilder {
+public class ScriptBuilder {
 
   private SymbolTable symbols;
 
@@ -17,11 +17,11 @@ public class RestrictedScriptBuilder {
 
   private JImmutableMap<String, String> functionAlias = JImmutables.map();
 
-  public RestrictedScriptBuilder() {
+  public ScriptBuilder() {
     super();
   }
 
-  private RestrictedScriptBuilder(
+  private ScriptBuilder(
       SymbolTable symbols,
       JImmutableList<String> importList,
       JImmutableList<String> importStaticList,
@@ -48,47 +48,47 @@ public class RestrictedScriptBuilder {
 //    return script;
 //  }
 
-  public RestrictedScriptBuilder setScript(String script) {
+  public ScriptBuilder setScript(String script) {
     return setScript(script, false);
   }
 
-  public RestrictedScriptBuilder setScript(String script, boolean showErrorsOnConsole) {
-    return new RestrictedScriptBuilder(
+  public ScriptBuilder setScript(String script, boolean showErrorsOnConsole) {
+    return new ScriptBuilder(
         new Parser(showErrorsOnConsole).parse(script),
         importList,
         importStaticList,
         functionAlias);
   }
 
-  public RestrictedScriptBuilder addImport(String imp) {
-    return new RestrictedScriptBuilder(
+  public ScriptBuilder addImport(String imp) {
+    return new ScriptBuilder(
         symbols,
         importList.insert(imp),
         importStaticList,
         functionAlias);
   }
 
-  public RestrictedScriptBuilder addStaticImport(String imp) {
-    return new RestrictedScriptBuilder(
+  public ScriptBuilder addStaticImport(String imp) {
+    return new ScriptBuilder(
         symbols,
         importList,
         importStaticList.insert(imp),
         functionAlias);
   }
 
-  public RestrictedScriptBuilder addFunctionAlias(String alias, String target) {
-    return new RestrictedScriptBuilder(
+  public ScriptBuilder addFunctionAlias(String alias, String target) {
+    return new ScriptBuilder(
         symbols,
         importList,
         importStaticList,
         functionAlias.assign(alias, target));
   }
 
-  public RestrictedScript create() {
+  public Script create() {
     if(symbols == null) {
       throw new ScriptException("no script");
     }
-    return new RestrictedScript(new SymbolTable(
+    return new Script(new SymbolTable(
         symbols,
         this.importList,
         this.importStaticList,

@@ -40,7 +40,7 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ScriptParserListener listener = new ScriptParserListener();
+    ParserListener listener = new ParserListener();
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener.getSymbols();
   }
