@@ -1,23 +1,18 @@
 package io.github.agebe.script;
 
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-
-import io.github.agebe.script.antlr.ScriptParser;
+import io.github.agebe.script.run.ScriptRunner;
+import io.github.agebe.script.symbol.SymbolTable;
 
 public class RestrictedScript {
 
-  private ScriptParser.ScriptContext script;
-
   private SymbolTable symbols;
 
-  RestrictedScript(ScriptParser.ScriptContext script, SymbolTable symbols) {
-    this.script = script;
+  RestrictedScript(SymbolTable symbols) {
     this.symbols = symbols;
   }
 
   public Object run() {
-    // TODO split the ScriptExecutor into ScriptParser to create the AST and the ScriptExecutor
-    ParseTreeWalker.DEFAULT.walk(new ScriptExecutor(symbols), script);
+    new ScriptRunner(symbols).run();
     return null;
   }
 

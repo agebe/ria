@@ -1,6 +1,6 @@
-package io.github.agebe.script.lang;
+package io.github.agebe.script.parser;
 
-public class FunctionName extends CachedLangItem {
+public class FunctionName implements ParseItem {
 
   private String name;
 

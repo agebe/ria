@@ -21,7 +21,6 @@ public class Test1 {
   public static final TestInner2 TI2 = new TestInner2();
 
   private RestrictedScriptBuilder base = new RestrictedScriptBuilder()
-      .setShowErrorsOnConsole(true)
       .addImport("java.util.Objects")
       .addFunctionAlias("println", "System.out.println");
 

@@ -1,8 +1,8 @@
-package io.github.agebe.script.lang;
+package io.github.agebe.script.parser;
 
 import org.antlr.v4.runtime.Token;
 
-public class Terminal extends CachedLangItem {
+public class Terminal implements ParseItem {
 
   private Token token;
 
@@ -13,6 +13,10 @@ public class Terminal extends CachedLangItem {
 
   public Token getToken() {
     return token;
+  }
+
+  public String getText() {
+    return token.getText();
   }
 
   @Override

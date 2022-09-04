@@ -1,6 +1,8 @@
-package io.github.agebe.script;
+package io.github.agebe.script.symbol;
 
-import io.github.agebe.script.lang.Result;
+import io.github.agebe.script.LangType;
+import io.github.agebe.script.Value;
+import io.github.agebe.script.parser.Result;
 
 public class ClassSymbol implements Symbol {
 

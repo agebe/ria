@@ -1,39 +1,67 @@
-package io.github.agebe.script;
+package io.github.agebe.script.symbol;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.javimmutable.collections.JImmutableList;
+import org.javimmutable.collections.JImmutableMap;
+import org.javimmutable.collections.util.JImmutables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.agebe.script.lang.Result;
+import io.github.agebe.script.LangType;
+import io.github.agebe.script.ScriptException;
+import io.github.agebe.script.Value;
+import io.github.agebe.script.parser.AstNode;
+import io.github.agebe.script.parser.Result;
 
 public class SymbolTable {
 
   private static final Logger log = LoggerFactory.getLogger(SymbolTable.class);
 
-  private List<String> importList;
+  private JImmutableList<String> importList;
 
-  private List<String> importStaticList;
+  private JImmutableList<String> importStaticList;
 
-  private Map<String, String> functionAlias;
+  private JImmutableMap<String, String> functionAlias;
 
   private Map<String, VarSymbol> variables = new HashMap<>();
 
-  public SymbolTable(
-      List<String> importList,
-      List<String> importStaticList,
-      Map<String, String> functionAlias) {
+  private AstNode entryPoint;
+
+  public SymbolTable(AstNode entryPoint) {
     super();
-    this.importList = importList;
-    this.importStaticList = importStaticList;
-    this.functionAlias = functionAlias;
-//    this.functionAlias = Map.of("println", "System.out.println");
+    this.entryPoint = entryPoint;
+    importList = JImmutables.list();
+    importStaticList = JImmutables.list();
+    functionAlias = JImmutables.map();
+  }
+
+  public SymbolTable(
+      SymbolTable symbols,
+      JImmutableList<String> importList,
+      JImmutableList<String> importStaticList,
+      JImmutableMap<String, String> functionAlias) {
+    super();
+    this.entryPoint = symbols.getEntryPoint();
+    // use the ones from the builder API first so they take precedence
+    this.importList = importList.insertAll(symbols.importList);
+    this.importStaticList = importStaticList.insertAll(symbols.importStaticList);
+    // function aliases from the builder API take precedence
+    this.functionAlias = symbols.functionAlias.assignAll(functionAlias);
+    this.variables = new HashMap<>(symbols.variables);
+  }
+
+  public AstNode getEntryPoint() {
+    return entryPoint;
+  }
+
+  public void setEntryPoint(AstNode entryPoint) {
+    this.entryPoint = entryPoint;
   }
 
   public Symbol resolve(String name) {

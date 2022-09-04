@@ -4,9 +4,17 @@ grammar Script;
 @header {
 package io.github.agebe.script.antlr;
 }
+// TODO function definition
 script: stmt*;
+// TODO if statement
+// TODO for statement
+// TODO while statement
+// TODO new operator
+// TODO arithmetic operators
+// TODO scopes {}
+// https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 stmt: (expr | vardef  | varAssignStmt | returnStmt) ';';
-returnStmt: 'return' expr;
+returnStmt: 'return' expr? ;
 vardef: 'var' ident assignment?;
 varAssignStmt: ident assignment;
 assignment: '=' expr;

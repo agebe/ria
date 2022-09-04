@@ -1,8 +1,10 @@
-package io.github.agebe.script;
+package io.github.agebe.script.parser;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -11,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.agebe.script.ScriptException;
 import io.github.agebe.script.antlr.ScriptListener;
 import io.github.agebe.script.antlr.ScriptParser.AssignmentContext;
 import io.github.agebe.script.antlr.ScriptParser.ExprContext;
@@ -25,33 +28,16 @@ import io.github.agebe.script.antlr.ScriptParser.ScriptContext;
 import io.github.agebe.script.antlr.ScriptParser.StmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VardefContext;
-import io.github.agebe.script.lang.Expression;
-import io.github.agebe.script.lang.FunctionCall;
-import io.github.agebe.script.lang.FunctionName;
-import io.github.agebe.script.lang.FunctionParameter;
-import io.github.agebe.script.lang.Identifier;
-import io.github.agebe.script.lang.LangItem;
-import io.github.agebe.script.lang.StringLiteral;
-import io.github.agebe.script.lang.Terminal;
+import io.github.agebe.script.symbol.SymbolTable;
 
-public class ScriptExecutor implements ScriptListener {
+public class ScriptParserListener implements ScriptListener {
 
-  private static final Logger log = LoggerFactory.getLogger(ScriptExecutor.class);
+  private static final Logger log = LoggerFactory.getLogger(ScriptParserListener.class);
 
-  private Deque<LangItem> stack = new ArrayDeque<LangItem>();
+  private Deque<ParseItem> stack = new ArrayDeque<ParseItem>();
 
-  private SymbolTable symbols;
-
-  private FunctionCaller caller;
-
-  public ScriptExecutor(SymbolTable symbols) {
-    this.symbols = symbols;
-    this.caller = new FunctionCaller(symbols);
-  }
-
-  private void log(String msg) {
-    System.out.println(msg);
-  }
+  // TODO currently just a single line of execution...
+  private List<Statement> stmts = new ArrayList<>();
 
   @Override
   public void visitTerminal(TerminalNode node) {
@@ -84,7 +70,7 @@ public class ScriptExecutor implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
-    log.debug("exit script");
+    log.debug("exit script, parse done");
   }
 
   @Override
@@ -96,10 +82,17 @@ public class ScriptExecutor implements ScriptListener {
   public void exitStmt(StmtContext ctx) {
     log.debug("exit stmt '{}'", ctx.getText());
     // TODO just for now to show something
-    popTerminal();
-    LangItem i = stack.pop();
-    log(""+i);
-    i.resolve();
+    Terminal semi = popTerminal();
+    if(!semi.getText().equals(";")) {
+      fail("expected semicolon");
+    }
+    ParseItem pi = stack.pop();
+    log.debug("got '{}' from stack", pi);
+    if(pi instanceof FunctionCall) {
+      stmts.add(new FunctionCallStatement((FunctionCall)pi));
+    } else {
+      fail("'%s' not supported yet".formatted(pi));
+    }
   }
 
   @Override
@@ -153,9 +146,9 @@ public class ScriptExecutor implements ScriptListener {
   @Override
   public void exitExpr(ExprContext ctx) {
     log.debug("exit expr '{}'", ctx.getText());
-    LinkedList<LangItem> items = new LinkedList<>();
+    LinkedList<ParseItem> items = new LinkedList<>();
     for(;;) {
-      LangItem item = stack.pop();
+      ParseItem item = stack.pop();
       if(item instanceof Expression) {
         Expression expr = (Expression)item;
         if(expr.getCtx().equals(ctx)) {
@@ -186,15 +179,15 @@ public class ScriptExecutor implements ScriptListener {
     }
   }
 
-  private void dotOperator(LangItem item1, LangItem item2) {
+  private void dotOperator(ParseItem item1, ParseItem item2) {
     if(item1 instanceof Identifier) {
       Identifier i1 = (Identifier)item1;
       if(item2 instanceof Identifier) {
         Identifier i2 = (Identifier)item2;
-        stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent(), symbols));
+        stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent()));
       } else if(item2 instanceof FunctionCall) {
         FunctionCall f = (FunctionCall)item2;
-        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1, caller));
+        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1));
       } else {
         fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
       }
@@ -218,13 +211,13 @@ public class ScriptExecutor implements ScriptListener {
     }
     LinkedList<FunctionParameter> params = new LinkedList<>();
     for(;;) {
-      LangItem item = stack.pop();
+      ParseItem item = stack.pop();
       if(item instanceof FunctionParameter) {
         FunctionParameter param = (FunctionParameter)item;
         params.addFirst(param);
       } else if(item instanceof FunctionName) {
         FunctionName name = (FunctionName)item;
-        stack.push(new FunctionCall(name, params, null, caller));
+        stack.push(new FunctionCall(name, params, null));
         return;
       } else {
         fail("unexpected item on stack for function call " + item);
@@ -262,7 +255,7 @@ public class ScriptExecutor implements ScriptListener {
   public void enterFparam(FparamContext ctx) {
     log.debug("enter fparam '{}'", ctx.getText());
  // get rid of initial comma separating parameters, this does not work for the first parameter though
-    LangItem item = stack.peek();
+    ParseItem item = stack.peek();
     if((item instanceof Terminal) && ((Terminal) item).getToken().getText().equals(",")) {
       popTerminal();
     }
@@ -302,7 +295,7 @@ public class ScriptExecutor implements ScriptListener {
   @Override
   public void exitIdent(IdentContext ctx) {
     log.debug("exit ident '{}'", ctx.getText());
-    stack.push(new Identifier(popTerminal().getToken().getText(), symbols));
+    stack.push(new Identifier(popTerminal().getToken().getText()));
   }
 
   private void fail(String msg) {
@@ -310,11 +303,24 @@ public class ScriptExecutor implements ScriptListener {
   }
 
   private Terminal popTerminal() {
-    LangItem terminal = stack.pop();
+    ParseItem terminal = stack.pop();
     if(!(terminal instanceof Terminal)) {
       fail("expected terminal but got '%s'".formatted(terminal));
     }
     return (Terminal)terminal;
+  }
+
+  private AstNode nodes(int i) {
+    if(i < stmts.size()) {
+      Statement s = stmts.get(i);
+      return new AstNode(s, nodes(i+1), null);
+    } else {
+      return null;
+    }
+  }
+
+  public SymbolTable getSymbols() {
+    return new SymbolTable(nodes(0));
   }
 
 }

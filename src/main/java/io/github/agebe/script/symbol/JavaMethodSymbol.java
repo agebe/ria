@@ -1,6 +1,7 @@
-package io.github.agebe.script;
+package io.github.agebe.script.symbol;
 
-import io.github.agebe.script.lang.Result;
+import io.github.agebe.script.ScriptException;
+import io.github.agebe.script.parser.Result;
 
 public class JavaMethodSymbol implements Symbol {
 

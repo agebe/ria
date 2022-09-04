@@ -1,10 +1,8 @@
-package io.github.agebe.script.lang;
+package io.github.agebe.script.parser;
 
 import java.util.List;
 
-import io.github.agebe.script.FunctionCaller;
-
-public class FunctionCall extends CachedLangItem {
+public class FunctionCall implements ParseItem {
 
   private FunctionName name;
 
@@ -13,18 +11,14 @@ public class FunctionCall extends CachedLangItem {
   // TODO this could also be a StringLiteral, probably should be LangItem
   private Identifier target;
 
-  private FunctionCaller caller;
-
   public FunctionCall(
       FunctionName name,
       List<FunctionParameter> parameters,
-      Identifier target,
-      FunctionCaller caller) {
+      Identifier target) {
     super();
     this.name = name;
     this.parameters = parameters;
     this.target = target;
-    this.caller = caller;
   }
 
   public FunctionName getName() {
@@ -42,11 +36,6 @@ public class FunctionCall extends CachedLangItem {
   @Override
   public String toString() {
     return "FunctionCall [name=" + name + ", parameters=" + parameters + ", target=" + target + "]";
-  }
-
-  @Override
-  protected Result resolveOnce() {
-    return caller.call(this);
   }
 
 }

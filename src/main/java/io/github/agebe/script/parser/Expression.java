@@ -1,8 +1,8 @@
-package io.github.agebe.script.lang;
+package io.github.agebe.script.parser;
 
 import io.github.agebe.script.antlr.ScriptParser.ExprContext;
 
-public class Expression extends CachedLangItem {
+public class Expression implements ParseItem {
 
   private ExprContext ctx;
 

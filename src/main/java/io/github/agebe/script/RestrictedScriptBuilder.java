@@ -1,23 +1,15 @@
 package io.github.agebe.script;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ConsoleErrorListener;
-import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
 import org.javimmutable.collections.util.JImmutables;
 
-import io.github.agebe.script.antlr.ScriptLexer;
-import io.github.agebe.script.antlr.ScriptParser;
+import io.github.agebe.script.parser.Parser;
+import io.github.agebe.script.symbol.SymbolTable;
 
 public class RestrictedScriptBuilder {
 
-  private String script;
-
-  private boolean showErrorsOnConsole;
-
-  private ScriptParser.ScriptContext scriptCtx;
+  private SymbolTable symbols;
 
   private JImmutableList<String> importList = JImmutables.list("java.lang.*");
 
@@ -30,33 +22,15 @@ public class RestrictedScriptBuilder {
   }
 
   private RestrictedScriptBuilder(
-      String script,
-      boolean showErrorsOnConsole,
-      ScriptParser.ScriptContext scriptCtx,
+      SymbolTable symbols,
       JImmutableList<String> importList,
       JImmutableList<String> importStaticList,
       JImmutableMap<String, String> functionAlias) {
     super();
-    this.script = script;
-    this.showErrorsOnConsole = showErrorsOnConsole;
-    this.scriptCtx = scriptCtx;
+    this.symbols = symbols;
     this.importList = importList;
     this.importStaticList = importStaticList;
     this.functionAlias = functionAlias;
-  }
-
-  public boolean isShowErrorsOnConsole() {
-    return showErrorsOnConsole;
-  }
-
-  public RestrictedScriptBuilder setShowErrorsOnConsole(boolean showErrorsOnConsole) {
-    return new RestrictedScriptBuilder(
-        script,
-        showErrorsOnConsole,
-        scriptCtx,
-        importList,
-        importStaticList,
-        functionAlias);
   }
 
   // TODO set variables
@@ -70,15 +44,17 @@ public class RestrictedScriptBuilder {
   // this way can reuse the already parsed script and e.g. imported function
   // and only have to e.g. setup variables again for a subsequent run
 
-  public String getScript() {
-    return script;
-  }
+//  public String getScript() {
+//    return script;
+//  }
 
   public RestrictedScriptBuilder setScript(String script) {
+    return setScript(script, false);
+  }
+
+  public RestrictedScriptBuilder setScript(String script, boolean showErrorsOnConsole) {
     return new RestrictedScriptBuilder(
-        script,
-        showErrorsOnConsole,
-        null,
+        new Parser(showErrorsOnConsole).parse(script),
         importList,
         importStaticList,
         functionAlias);
@@ -86,9 +62,7 @@ public class RestrictedScriptBuilder {
 
   public RestrictedScriptBuilder addImport(String imp) {
     return new RestrictedScriptBuilder(
-        script,
-        showErrorsOnConsole,
-        null,
+        symbols,
         importList.insert(imp),
         importStaticList,
         functionAlias);
@@ -96,9 +70,7 @@ public class RestrictedScriptBuilder {
 
   public RestrictedScriptBuilder addStaticImport(String imp) {
     return new RestrictedScriptBuilder(
-        script,
-        showErrorsOnConsole,
-        null,
+        symbols,
         importList,
         importStaticList.insert(imp),
         functionAlias);
@@ -106,48 +78,21 @@ public class RestrictedScriptBuilder {
 
   public RestrictedScriptBuilder addFunctionAlias(String alias, String target) {
     return new RestrictedScriptBuilder(
-        script,
-        showErrorsOnConsole,
-        null,
+        symbols,
         importList,
         importStaticList,
         functionAlias.assign(alias, target));
   }
 
-  public void parse() {
-    if(StringUtils.isBlank(script)) {
-      throw new ScriptException("no script has been setup");
-    }
-    ScriptLexer lexer = new ScriptLexer(CharStreams.fromString(script));
-    // antlr uses the ConsoleErrorListener by default
-    lexer.removeErrorListeners();
-    if(showErrorsOnConsole) {
-      lexer.addErrorListener(ConsoleErrorListener.INSTANCE);
-    }
-    lexer.addErrorListener(new SyntaxExceptionErrorListener());
-    //  lexer.getAllTokens().forEach(System.out::println);
-    CommonTokenStream tokens = new CommonTokenStream(lexer);
-    ScriptParser parser = new ScriptParser(tokens);
-    parser.removeErrorListeners();
-    if(showErrorsOnConsole) {
-      parser.addErrorListener(ConsoleErrorListener.INSTANCE);
-    }
-    parser.addErrorListener(new SyntaxExceptionErrorListener());
-    scriptCtx = parser.script();
-  }
-
   public RestrictedScript create() {
-    if(StringUtils.isBlank(script)) {
+    if(symbols == null) {
       throw new ScriptException("no script");
     }
-    if(scriptCtx == null) {
-      parse();
-    }
-    return new RestrictedScript(scriptCtx,
-        new SymbolTable(
-            this.importList.getList(),
-            this.importStaticList.getList(),
-            this.functionAlias.getMap()));
+    return new RestrictedScript(new SymbolTable(
+        symbols,
+        this.importList,
+        this.importStaticList,
+        this.functionAlias));
   }
 
 }
