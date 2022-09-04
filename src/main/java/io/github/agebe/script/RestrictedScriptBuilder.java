@@ -115,11 +115,12 @@ public class RestrictedScriptBuilder {
   }
 
   public void parse() {
+    if(StringUtils.isBlank(script)) {
+      throw new ScriptException("no script has been setup");
+    }
     ScriptLexer lexer = new ScriptLexer(CharStreams.fromString(script));
     // antlr uses the ConsoleErrorListener by default
-    // showing here how to remove it for later
     lexer.removeErrorListeners();
-    // add it back in for now ...
     if(showErrorsOnConsole) {
       lexer.addErrorListener(ConsoleErrorListener.INSTANCE);
     }
@@ -131,7 +132,6 @@ public class RestrictedScriptBuilder {
     if(showErrorsOnConsole) {
       parser.addErrorListener(ConsoleErrorListener.INSTANCE);
     }
-    // TODO throw exception on parser error
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     scriptCtx = parser.script();
   }
