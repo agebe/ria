@@ -1,8 +1,5 @@
 package io.github.agebe.script.symbol;
 
-import io.github.agebe.script.ScriptException;
-import io.github.agebe.script.parser.Result;
-
 public class JavaMethodSymbol implements Symbol {
 
   private Class<?> targetType;
@@ -33,11 +30,6 @@ public class JavaMethodSymbol implements Symbol {
   @Override
   public String toString() {
     return "JavaMethodSymbol [targetType=" + targetType + ", methodName=" + methodName + ", target=" + target + "]";
-  }
-
-  @Override
-  public Result toResult() {
-    throw new ScriptException("not supported");
   }
 
 }

@@ -2,8 +2,6 @@ package io.github.agebe.script.symbol;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,11 +11,9 @@ import org.javimmutable.collections.util.JImmutables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.agebe.script.LangType;
 import io.github.agebe.script.ScriptException;
-import io.github.agebe.script.Value;
 import io.github.agebe.script.parser.AstNode;
-import io.github.agebe.script.parser.Result;
+import io.github.agebe.script.run.Value;
 
 public class SymbolTable {
 
@@ -29,7 +25,7 @@ public class SymbolTable {
 
   private JImmutableMap<String, String> functionAlias;
 
-  private Map<String, VarSymbol> variables = new HashMap<>();
+//  private Map<String, VarSymbol> variables = new HashMap<>();
 
   private AstNode entryPoint;
 
@@ -53,7 +49,7 @@ public class SymbolTable {
     this.importStaticList = importStaticList.insertAll(symbols.importStaticList);
     // function aliases from the builder API take precedence
     this.functionAlias = symbols.functionAlias.assignAll(functionAlias);
-    this.variables = new HashMap<>(symbols.variables);
+//    this.variables = new HashMap<>(symbols.variables);
   }
 
   public AstNode getEntryPoint() {
@@ -65,10 +61,11 @@ public class SymbolTable {
   }
 
   public Symbol resolve(String name) {
-    VarSymbol variable = variables.get(name);
-    if(variable != null) {
-      return variable;
-    }
+    // FIXME
+//    VarSymbol variable = variables.get(name);
+//    if(variable != null) {
+//      return variable;
+//    }
     ClassSymbol cls = cls(name);
     if(cls != null) {
       return cls;
@@ -95,9 +92,9 @@ public class SymbolTable {
         if(vs != null) {
           log.debug("resolved function alias '{}' to class '{}', method '{}'",
               name,
-              vs.getVal().getCls(),
+              vs.getVal().type(),
               methodName);
-          return new JavaMethodSymbol(vs.getVal().getCls(), methodName, vs.getVal().getObj());
+          return new JavaMethodSymbol(vs.getVal().type(), methodName, vs.getVal().val());
         }
       }
     }
@@ -134,11 +131,6 @@ public class SymbolTable {
         .anyMatch(m -> StringUtils.equals(m.getName(), methodName));
   }
 
-  public Result resolveAsResult(String name) {
-    Symbol s = resolve(name);
-    return s!=null?s.toResult():null;
-  }
-
   private ClassSymbol cls(String name) {
     Class<?> cls = findClass(name);
     return cls!=null?new ClassSymbol(cls):null;
@@ -157,7 +149,6 @@ public class SymbolTable {
       if(cls != null) {
         fields = new String[parts.length-i];
         System.arraycopy(parts, i, fields, 0, parts.length-i);
-        // TODO get the rest of the array as fields to follow
         break;
       }
     }
@@ -181,8 +172,7 @@ public class SymbolTable {
     }
     if(f != null) {
       try {
-        // TODO add support for primitive typed fields
-        return new VarSymbol(parts[parts.length-1], LangType.OBJ, Value.ofObj(f.get(null), f.getType()));
+        return new VarSymbol(parts[parts.length-1], Value.of(f.getType(), f.get(null)));
       } catch(Exception e) {
         new ScriptException("failed to access field '%s'".formatted(name), e);
       }

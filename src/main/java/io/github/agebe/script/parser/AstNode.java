@@ -23,6 +23,14 @@ public class AstNode {
     return path?trueNode:falseNode;
   }
 
+  public AstNode getTrueNode() {
+    return trueNode;
+  }
+
+  public AstNode getFalseNode() {
+    return falseNode;
+  }
+
   @Override
   public String toString() {
     return "AstNode [stmt=" + stmt + "]";

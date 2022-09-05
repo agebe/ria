@@ -1,6 +1,6 @@
 package io.github.agebe.script.parser;
 
-public class Identifier implements ParseItem {
+public class Identifier implements ParseItem, Expression {
 
   private String ident;
 

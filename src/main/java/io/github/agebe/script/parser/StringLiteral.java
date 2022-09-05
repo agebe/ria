@@ -1,6 +1,6 @@
 package io.github.agebe.script.parser;
 
-public class StringLiteral implements ParseItem {
+public class StringLiteral implements ParseItem, Expression {
 
   private String literal;
 

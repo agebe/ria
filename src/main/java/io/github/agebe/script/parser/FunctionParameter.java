@@ -2,14 +2,14 @@ package io.github.agebe.script.parser;
 
 public class FunctionParameter implements ParseItem {
 
-  private ParseItem parameter;
+  private Expression parameter;
 
-  public FunctionParameter(ParseItem parameter) {
+  public FunctionParameter(Expression parameter) {
     super();
     this.parameter = parameter;
   }
 
-  public ParseItem getParameter() {
+  public Expression getParameter() {
     return parameter;
   }
 

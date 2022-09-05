@@ -2,19 +2,18 @@ package io.github.agebe.script.parser;
 
 import java.util.List;
 
-public class FunctionCall implements ParseItem {
+public class FunctionCall implements ParseItem, Expression {
 
   private FunctionName name;
 
   private List<FunctionParameter> parameters;
 
-  // TODO this could also be a StringLiteral, probably should be LangItem
-  private Identifier target;
+  private Expression target;
 
   public FunctionCall(
       FunctionName name,
       List<FunctionParameter> parameters,
-      Identifier target) {
+      Expression target) {
     super();
     this.name = name;
     this.parameters = parameters;
@@ -29,7 +28,7 @@ public class FunctionCall implements ParseItem {
     return parameters;
   }
 
-  public Identifier getTarget() {
+  public Expression getTarget() {
     return target;
   }
 

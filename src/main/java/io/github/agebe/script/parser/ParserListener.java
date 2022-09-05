@@ -140,7 +140,7 @@ public class ParserListener implements ScriptListener {
     log.debug("enter expr '{}'", ctx.getText());
     // push an expression start marker on the stack
     // so we know how far to go back on exitExpr
-    stack.push(new Expression(ctx));
+    stack.push(new ExpressionStartMarker(ctx));
   }
 
   @Override
@@ -149,8 +149,8 @@ public class ParserListener implements ScriptListener {
     LinkedList<ParseItem> items = new LinkedList<>();
     for(;;) {
       ParseItem item = stack.pop();
-      if(item instanceof Expression) {
-        Expression expr = (Expression)item;
+      if(item instanceof ExpressionStartMarker) {
+        ExpressionStartMarker expr = (ExpressionStartMarker)item;
         if(expr.getCtx().equals(ctx)) {
           break;
         }
@@ -264,7 +264,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitFparam(FparamContext ctx) {
     log.debug("exit fparam '{}'", ctx.getText());
-    stack.push(new FunctionParameter(stack.pop()));
+    stack.push(new FunctionParameter((Expression)stack.pop()));
   }
 
   @Override

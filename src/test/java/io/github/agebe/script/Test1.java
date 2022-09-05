@@ -1,6 +1,5 @@
 package io.github.agebe.script;
 
-import static java.lang.Math.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
@@ -85,10 +84,8 @@ public class Test1 {
 
   @Test
   public void staticImports() {
-    tan(1.1);
-    max(0, 0);
     base.setScript("""
-        max(Double.parseDouble("1.0"), Double.parseDouble("2.0"));
+        println(max(Double.parseDouble("1.0"), Double.parseDouble("2.0")));
         println(now());
         """)
     .addStaticImport("Math.*")

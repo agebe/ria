@@ -1,21 +1,16 @@
 package io.github.agebe.script.symbol;
 
-import io.github.agebe.script.LangType;
-import io.github.agebe.script.Value;
-import io.github.agebe.script.parser.Result;
+import io.github.agebe.script.run.Value;
 
 public class VarSymbol implements Symbol {
 
   private String name;
 
-  private LangType type;
-
   private Value val;
 
-  public VarSymbol(String name, LangType type, Value val) {
+  public VarSymbol(String name, Value val) {
     super();
     this.name = name;
-    this.type = type;
     this.val = val;
   }
 
@@ -23,17 +18,8 @@ public class VarSymbol implements Symbol {
     return name;
   }
 
-  public LangType getType() {
-    return type;
-  }
-
   public Value getVal() {
     return val;
-  }
-
-  @Override
-  public Result toResult() {
-    return new Result(type, val);
   }
 
 }
