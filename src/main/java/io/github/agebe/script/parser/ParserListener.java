@@ -19,6 +19,7 @@ import io.github.agebe.script.antlr.ScriptParser.AssignmentContext;
 import io.github.agebe.script.antlr.ScriptParser.BoolLiteralContext;
 import io.github.agebe.script.antlr.ScriptParser.ExprContext;
 import io.github.agebe.script.antlr.ScriptParser.FcallContext;
+import io.github.agebe.script.antlr.ScriptParser.FloatLiteralContext;
 import io.github.agebe.script.antlr.ScriptParser.FnameContext;
 import io.github.agebe.script.antlr.ScriptParser.FparamContext;
 import io.github.agebe.script.antlr.ScriptParser.FparamsContext;
@@ -344,6 +345,18 @@ public class ParserListener implements ScriptListener {
   public void exitBoolLiteral(BoolLiteralContext ctx) {
     log.debug("exit boolLiteral '{}'", ctx.getText());
     stack.push(new BoolLiteral(popTerminal().getText()));
+  }
+
+  @Override
+  public void enterFloatLiteral(FloatLiteralContext ctx) {
+    log.debug("enter floatLiteral '{}'", ctx.getText());
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void exitFloatLiteral(FloatLiteralContext ctx) {
+    log.debug("exit floatLiteral '{}'", ctx.getText());
+    stack.push(new FloatLiteral(popTerminal().getText()));
   }
 
 }

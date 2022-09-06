@@ -97,7 +97,7 @@ public class Test1 {
   @Test
   public void staticImports() {
     base.setScript("""
-        println(max(Double.parseDouble("1.0"), Double.parseDouble("2.0")));
+        println(max(Double.parseDouble("1.0"), 2d));
         println(now());
         """)
     .addStaticImport("Math.*")
@@ -109,9 +109,9 @@ public class Test1 {
 
   @Test
   public void runDouble() {
-    // TODO
-    //double pi = base.setScript("Math.PI;").create().evalDouble();
-    double sqrt2 = base.setScript("Math.sqrt(Double.parseDouble(\"2\"));").create().evalDouble();
+    double pi = base.setScript("Math.PI;").create().evalDouble();
+    Assertions.assertEquals(3.14, pi, 0.01);
+    double sqrt2 = base.setScript("Math.sqrt(2d);").create().evalDouble();
     Assertions.assertEquals(1.4142, sqrt2, 0.01);
   }
 
@@ -155,6 +155,24 @@ public class Test1 {
         .create()
         .evalPredicate();
     Assertions.assertTrue(b);
+  }
+
+  @Test
+  public void floatLiteral() {
+    float f = base
+        .setScript("1.2345f;")
+        .create()
+        .evalFloat();
+    Assertions.assertEquals(1.2345f, f);
+  }
+
+  @Test
+  public void doubleLiteral() {
+    double d = base
+        .setScript("1.2345d;")
+        .create()
+        .evalDouble();
+    Assertions.assertEquals(1.2345, d);
   }
 
 //  @Test
