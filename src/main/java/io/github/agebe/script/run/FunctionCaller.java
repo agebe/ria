@@ -68,6 +68,8 @@ public class FunctionCaller {
           return new BooleanValue(result);
         } else if(returnType.getName().equals("double")) {
           return new DoubleValue(result);
+        } else if(returnType.getName().equals("float")) {
+          return new FloatValue(result);
         } else {
           // TODO support all primitive types
           System.out.println(returnType.isPrimitive());

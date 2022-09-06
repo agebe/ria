@@ -14,12 +14,18 @@ public interface Value {
     return !isNull();
   }
 
-  boolean isBoolean();
+  default boolean isBoolean() {
+    return false;
+  }
 
   boolean toBoolean();
 
+  double toDouble();
+
+  float toFloat();
+
   static Value of(Class<?> cls, Object val) {
-    if(cls.equals(Void.class) || (cls == void.class)) {
+    if(Void.class.equals(cls) || (cls == void.class)) {
       return new VoidValue();
     } else if(cls.isPrimitive()) {
       if(boolean.class == cls) {

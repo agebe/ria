@@ -1,6 +1,7 @@
 package io.github.agebe.script;
 
 import io.github.agebe.script.run.ScriptRunner;
+import io.github.agebe.script.run.Value;
 import io.github.agebe.script.symbol.SymbolTable;
 
 public class Script {
@@ -11,33 +12,27 @@ public class Script {
     this.symbols = symbols;
   }
 
-  public Object run() {
-    new ScriptRunner(symbols).run();
-    return null;
+  public Value run() {
+    return new ScriptRunner(symbols).run();
   }
 
   public <T> T runReturning(Class<T> type) {
+    run();
     return null;
   }
 
   // TODO also add support for generic types, like e.g. List<String>
 
   public boolean evalPredicate() {
-    run();
-    // TODO implement
-    return false;
+    return run().toBoolean();
   }
 
   public double evalDouble() {
-    run();
- // TODO implement
-    return 0;
+    return run().toDouble();
   }
 
   public float evalFloat() {
-    run();
- // TODO implement
-    return 0;
+    return run().toFloat();
   }
 
   public long evalLong() {

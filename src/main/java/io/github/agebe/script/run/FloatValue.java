@@ -2,23 +2,23 @@ package io.github.agebe.script.run;
 
 import io.github.agebe.script.ScriptException;
 
-public class DoubleValue implements Value {
+public class FloatValue implements Value {
 
-  private double val;
+  private float val;
 
-  public DoubleValue(Object o) {
+  public FloatValue(Object o) {
     super();
-    val = ((Number)o).doubleValue();
+    val = ((Number)o).floatValue();
   }
 
-  public DoubleValue(double val) {
+  public FloatValue(float val) {
     super();
     this.val = val;
   }
 
   @Override
   public Class<?> type() {
-    return double.class;
+    return float.class;
   }
 
   @Override
@@ -33,7 +33,7 @@ public class DoubleValue implements Value {
 
   @Override
   public boolean toBoolean() {
-    throw new ScriptException("double can't be cast to boolean");
+    throw new ScriptException("float can't be cast to boolean");
   }
 
   @Override
@@ -43,7 +43,7 @@ public class DoubleValue implements Value {
 
   @Override
   public float toFloat() {
-    return (float)val;
+    return val;
   }
 
 }

@@ -1,7 +1,5 @@
 package io.github.agebe.script.run;
 
-import io.github.agebe.script.ScriptException;
-
 public class ObjValue implements Value {
 
   private Class<?> type;
@@ -44,11 +42,17 @@ public class ObjValue implements Value {
 
   @Override
   public boolean toBoolean() {
-    if(isBoolean()) {
-      return (Boolean)val;
-    } else {
-      throw new ScriptException("not boolean but '%s'".formatted(type));
-    }
+    return (Boolean)val;
+  }
+
+  @Override
+  public double toDouble() {
+    return (Double)val;
+  }
+
+  @Override
+  public float toFloat() {
+    return (Float)val;
   }
 
   @Override

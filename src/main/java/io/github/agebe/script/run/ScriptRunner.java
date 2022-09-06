@@ -27,6 +27,24 @@ public class ScriptRunner {
     this.expressions = new Expressions(symbols);
   }
 
+  public Value run() {
+    return run(symbols.getEntryPoint());
+  }
+
+  private Value run(AstNode current) {
+    lastResult = new VoidValue();
+    while(current != null) {
+      log.debug("exec next statement '{}'", current);
+      Value v = executeStatement(current.getStmt());
+      if(v != null) {
+        lastResult = v;
+      }
+      current = getPath(current, v);
+    }
+    log.debug("exit script run");
+    return lastResult;
+  }
+
   private AstNode getPath(AstNode node, Value val) {
     if(Objects.isNull(node.getTrueNode()) && Objects.isNull(node.getFalseNode())) {
       return null;
@@ -44,20 +62,6 @@ public class ScriptRunner {
       }
       return node.next(val.toBoolean());
     }
-  }
-
-  public Value run() {
-    AstNode current = symbols.getEntryPoint();
-    while(current != null) {
-      log.debug("exec next statement '{}'", current);
-      Value v = executeStatement(current.getStmt());
-      if(v != null) {
-        lastResult = v;
-      }
-      current = getPath(current, v);
-    }
-    log.debug("exit script run");
-    return lastResult;
   }
 
   private Value executeStatement(Statement stmt) {

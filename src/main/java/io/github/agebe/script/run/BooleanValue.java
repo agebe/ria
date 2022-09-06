@@ -1,5 +1,7 @@
 package io.github.agebe.script.run;
 
+import io.github.agebe.script.ScriptException;
+
 public class BooleanValue implements Value {
 
   private boolean val;
@@ -42,6 +44,16 @@ public class BooleanValue implements Value {
   @Override
   public boolean toBoolean() {
     return val;
+  }
+
+  @Override
+  public double toDouble() {
+    throw new ScriptException("boolean can't be cast to double");
+  }
+
+  @Override
+  public float toFloat() {
+    throw new ScriptException("boolean can't be cast to float");
   }
 
 }

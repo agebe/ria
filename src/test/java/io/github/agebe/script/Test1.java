@@ -2,6 +2,7 @@ package io.github.agebe.script;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -43,13 +44,25 @@ public class Test1 {
   }
 
   @Test
-  public void multiParamFCall() {
-    base.setScript("""
+  public void multiParamFCallTrue() {
+    boolean result = base.setScript("""
         Objects.equals("123", "123");
         """)
     .create()
-    .run();
+    .evalPredicate();
+    Assertions.assertTrue(result);
   }
+
+  @Test
+  public void multiParamFCallFalse() {
+    boolean result = base.setScript("""
+        Objects.equals("foo", "bar");
+        """)
+    .create()
+    .evalPredicate();
+    Assertions.assertFalse(result);
+  }
+
 
   @Test
   public void printNow() {
@@ -93,6 +106,26 @@ public class Test1 {
     .addStaticImport("java.time.Instant.now")
     .create()
     .run();
+  }
+
+  @Test
+  public void runDouble() {
+    // TODO
+    //double pi = base.setScript("Math.PI;").create().evalDouble();
+    double sqrt2 = base.setScript("Math.sqrt(Double.parseDouble(\"2\"));").create().evalDouble();
+    Assertions.assertEquals(1.4142, sqrt2, 0.01);
+  }
+
+  @Test
+  public void runFloat() {
+    float f = base.setScript("""
+        // TODO
+        //println(Float.parseFloat("1.23").class);
+        Float.parseFloat("1.23");
+        """)
+        .create()
+        .evalFloat();
+    Assertions.assertEquals(1.23, f, 0.01);
   }
 
 //  @Test

@@ -20,13 +20,18 @@ public class VoidValue implements Value {
   }
 
   @Override
-  public boolean isBoolean() {
-    return false;
+  public boolean toBoolean() {
+    throw new ScriptException("void can't be cast to boolean");
   }
 
   @Override
-  public boolean toBoolean() {
-    throw new ScriptException("void can't be converted to boolean");
+  public double toDouble() {
+    throw new ScriptException("void can't be cast to double");
+  }
+
+  @Override
+  public float toFloat() {
+    throw new ScriptException("void can't be cast to float");
   }
 
 }
