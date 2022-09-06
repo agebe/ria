@@ -63,7 +63,6 @@ public class Test1 {
     Assertions.assertFalse(result);
   }
 
-
   @Test
   public void printNow() {
     base.setScript("""
@@ -126,6 +125,36 @@ public class Test1 {
         .create()
         .evalFloat();
     Assertions.assertEquals(1.23, f, 0.01);
+  }
+
+  @Test
+  public void boolLiteralTrue() {
+    boolean b = base.setScript("""
+        true;
+        """)
+        .create()
+        .evalPredicate();
+    Assertions.assertTrue(b);
+  }
+
+  @Test
+  public void boolLiteralFalse() {
+    boolean b = base.setScript("""
+        false;
+        """)
+        .create()
+        .evalPredicate();
+    Assertions.assertFalse(b);
+  }
+
+  @Test
+  public void boolLiteral() {
+    boolean b = base.setScript("""
+        Boolean.valueOf(true);
+        """)
+        .create()
+        .evalPredicate();
+    Assertions.assertTrue(b);
   }
 
 //  @Test

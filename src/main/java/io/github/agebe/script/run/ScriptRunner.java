@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.agebe.script.ScriptException;
 import io.github.agebe.script.parser.AstNode;
-import io.github.agebe.script.parser.FunctionCallStatement;
+import io.github.agebe.script.parser.ExpressionStatement;
 import io.github.agebe.script.parser.Statement;
 import io.github.agebe.script.symbol.SymbolTable;
 
@@ -32,6 +32,7 @@ public class ScriptRunner {
   }
 
   private Value run(AstNode current) {
+    log.debug("start run at '{}'", current);
     lastResult = new VoidValue();
     while(current != null) {
       log.debug("exec next statement '{}'", current);
@@ -65,8 +66,9 @@ public class ScriptRunner {
   }
 
   private Value executeStatement(Statement stmt) {
-    if(stmt instanceof FunctionCallStatement) {
-      return expressions.execute(((FunctionCallStatement)stmt).getFunction());
+    if(stmt instanceof ExpressionStatement) {
+      //return expressions.execute(((FunctionCallStatement)stmt).getFunction());
+      return ((ExpressionStatement)stmt).execute(expressions);
     }
     throw new ScriptException("statement execution not implemeneted '%s'".formatted(stmt));
   }

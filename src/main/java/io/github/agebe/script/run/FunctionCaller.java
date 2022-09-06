@@ -30,7 +30,7 @@ public class FunctionCaller {
   public Value call(FunctionCall function) {
     try {
       if(function.getTarget() != null) {
-        Value target = expressions.execute(function.getTarget());
+        Value target = function.getTarget().eval(expressions);
         JavaMethodSymbol symbol = new JavaMethodSymbol(
             target.type(),
             function.getName().getName(),
@@ -147,7 +147,7 @@ public class FunctionCaller {
 
   private Value[] resolveParameters(List<FunctionParameter> parameters) {
     return parameters.stream()
-        .map(p -> expressions.execute(p.getParameter()))
+        .map(p -> p.getParameter().eval(expressions))
         .toArray(Value[]::new);
   }
 

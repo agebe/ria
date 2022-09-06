@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import io.github.agebe.script.ScriptException;
 import io.github.agebe.script.antlr.ScriptListener;
 import io.github.agebe.script.antlr.ScriptParser.AssignmentContext;
+import io.github.agebe.script.antlr.ScriptParser.BoolLiteralContext;
 import io.github.agebe.script.antlr.ScriptParser.ExprContext;
 import io.github.agebe.script.antlr.ScriptParser.FcallContext;
 import io.github.agebe.script.antlr.ScriptParser.FnameContext;
@@ -26,6 +27,7 @@ import io.github.agebe.script.antlr.ScriptParser.LiteralContext;
 import io.github.agebe.script.antlr.ScriptParser.ReturnStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.ScriptContext;
 import io.github.agebe.script.antlr.ScriptParser.StmtContext;
+import io.github.agebe.script.antlr.ScriptParser.StrLiteralContext;
 import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
 import io.github.agebe.script.antlr.ScriptParser.VardefContext;
 import io.github.agebe.script.symbol.SymbolTable;
@@ -88,8 +90,8 @@ public class ParserListener implements ScriptListener {
     }
     ParseItem pi = stack.pop();
     log.debug("got '{}' from stack", pi);
-    if(pi instanceof FunctionCall) {
-      stmts.add(new FunctionCallStatement((FunctionCall)pi));
+    if(pi instanceof Expression) {
+      stmts.add(new ExpressionStatement((Expression)pi));
     } else {
       fail("'%s' not supported yet".formatted(pi));
     }
@@ -275,16 +277,6 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitLiteral(LiteralContext ctx) {
     log.debug("exit literal '{}'", ctx.getText());
-    Terminal t = (Terminal)stack.pop();
-    String s = t.getToken().getText();
-    if(StringUtils.startsWith(s, "\"") && StringUtils.endsWith(s, "\"")) {
-      if(s.length() == 1) {
-        fail("invalid string literal " + s);
-      }
-      stack.push(new StringLiteral(StringUtils.substring(s, 1, s.length()-1)));
-    } else {
-      fail("unsupported literal " + s);
-    }
   }
 
   @Override
@@ -321,6 +313,37 @@ public class ParserListener implements ScriptListener {
 
   public SymbolTable getSymbols() {
     return new SymbolTable(nodes(0));
+  }
+
+  @Override
+  public void enterStrLiteral(StrLiteralContext ctx) {
+    log.debug("enter strLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitStrLiteral(StrLiteralContext ctx) {
+    log.debug("exit strLiteral '{}'", ctx.getText());
+    Terminal t = (Terminal)stack.pop();
+    String s = t.getToken().getText();
+    if(StringUtils.startsWith(s, "\"") && StringUtils.endsWith(s, "\"")) {
+      if(s.length() == 1) {
+        fail("invalid string literal " + s);
+      }
+      stack.push(new StringLiteral(StringUtils.substring(s, 1, s.length()-1)));
+    } else {
+      fail("unsupported literal " + s);
+    }
+  }
+
+  @Override
+  public void enterBoolLiteral(BoolLiteralContext ctx) {
+    log.debug("enter boolLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitBoolLiteral(BoolLiteralContext ctx) {
+    log.debug("exit boolLiteral '{}'", ctx.getText());
+    stack.push(new BoolLiteral(popTerminal().getText()));
   }
 
 }

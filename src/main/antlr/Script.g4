@@ -23,7 +23,9 @@ fcall: fname LPAREN fparams RPAREN;
 fname: IDENTIFIER;
 fparams: fparam? (',' fparam)*;
 fparam: expr;
-literal: StringLiteral;
+literal: strLiteral | boolLiteral ;
+strLiteral: StringLiteral ;
+boolLiteral: 'true' | 'false' ;
 ident : IDENTIFIER;
 WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
 LPAREN : '(';

@@ -2,6 +2,9 @@ package io.github.agebe.script.parser;
 
 import java.util.List;
 
+import io.github.agebe.script.run.Expressions;
+import io.github.agebe.script.run.Value;
+
 public class FunctionCall implements ParseItem, Expression {
 
   private FunctionName name;
@@ -35,6 +38,11 @@ public class FunctionCall implements ParseItem, Expression {
   @Override
   public String toString() {
     return "FunctionCall [name=" + name + ", parameters=" + parameters + ", target=" + target + "]";
+  }
+
+  @Override
+  public Value eval(Expressions expressions) {
+    return expressions.getFunctions().call(this);
   }
 
 }
