@@ -11,27 +11,26 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.antlr.ScriptListener;
+import org.rescript.antlr.ScriptParser.AssignmentContext;
+import org.rescript.antlr.ScriptParser.BoolLiteralContext;
+import org.rescript.antlr.ScriptParser.ExprContext;
+import org.rescript.antlr.ScriptParser.FcallContext;
+import org.rescript.antlr.ScriptParser.FloatLiteralContext;
+import org.rescript.antlr.ScriptParser.FnameContext;
+import org.rescript.antlr.ScriptParser.FparamContext;
+import org.rescript.antlr.ScriptParser.FparamsContext;
+import org.rescript.antlr.ScriptParser.IdentContext;
+import org.rescript.antlr.ScriptParser.LiteralContext;
+import org.rescript.antlr.ScriptParser.ReturnStmtContext;
+import org.rescript.antlr.ScriptParser.ScriptContext;
+import org.rescript.antlr.ScriptParser.StmtContext;
+import org.rescript.antlr.ScriptParser.StrLiteralContext;
+import org.rescript.antlr.ScriptParser.VarAssignStmtContext;
+import org.rescript.antlr.ScriptParser.VardefContext;
 import org.rescript.symbol.SymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.github.agebe.script.antlr.ScriptListener;
-import io.github.agebe.script.antlr.ScriptParser.AssignmentContext;
-import io.github.agebe.script.antlr.ScriptParser.BoolLiteralContext;
-import io.github.agebe.script.antlr.ScriptParser.ExprContext;
-import io.github.agebe.script.antlr.ScriptParser.FcallContext;
-import io.github.agebe.script.antlr.ScriptParser.FloatLiteralContext;
-import io.github.agebe.script.antlr.ScriptParser.FnameContext;
-import io.github.agebe.script.antlr.ScriptParser.FparamContext;
-import io.github.agebe.script.antlr.ScriptParser.FparamsContext;
-import io.github.agebe.script.antlr.ScriptParser.IdentContext;
-import io.github.agebe.script.antlr.ScriptParser.LiteralContext;
-import io.github.agebe.script.antlr.ScriptParser.ReturnStmtContext;
-import io.github.agebe.script.antlr.ScriptParser.ScriptContext;
-import io.github.agebe.script.antlr.ScriptParser.StmtContext;
-import io.github.agebe.script.antlr.ScriptParser.StrLiteralContext;
-import io.github.agebe.script.antlr.ScriptParser.VarAssignStmtContext;
-import io.github.agebe.script.antlr.ScriptParser.VardefContext;
 
 public class ParserListener implements ScriptListener {
 

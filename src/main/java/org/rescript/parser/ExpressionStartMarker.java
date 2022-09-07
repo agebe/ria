@@ -1,6 +1,6 @@
 package org.rescript.parser;
 
-import io.github.agebe.script.antlr.ScriptParser.ExprContext;
+import org.rescript.antlr.ScriptParser.ExprContext;
 
 public class ExpressionStartMarker implements ParseItem {
 

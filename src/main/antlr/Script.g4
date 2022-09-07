@@ -2,7 +2,7 @@
 // Lexer rules start with a capital letter
 grammar Script;
 @header {
-package io.github.agebe.script.antlr;
+package org.rescript.antlr;
 }
 // TODO function definition
 script: stmt*;

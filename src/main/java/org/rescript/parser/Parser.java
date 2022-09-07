@@ -6,10 +6,9 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.antlr.ScriptLexer;
+import org.rescript.antlr.ScriptParser;
 import org.rescript.symbol.SymbolTable;
-
-import io.github.agebe.script.antlr.ScriptLexer;
-import io.github.agebe.script.antlr.ScriptParser;
 
 public class Parser {
 
