@@ -60,4 +60,14 @@ public class ObjValue implements Value {
     return val == null;
   }
 
+  @Override
+  public int toInt() {
+    return (Integer)val;
+  }
+
+  @Override
+  public long toLong() {
+    return (Long)val;
+  }
+
 }

@@ -32,11 +32,6 @@ public class BooleanValue implements Value {
   }
 
   @Override
-  public boolean isNull() {
-    return false;
-  }
-
-  @Override
   public boolean isBoolean() {
     return true;
   }
@@ -54,6 +49,16 @@ public class BooleanValue implements Value {
   @Override
   public float toFloat() {
     throw new ScriptException("boolean can't be cast to float");
+  }
+
+  @Override
+  public int toInt() {
+    throw new ScriptException("boolean can't be cast to int");
+  }
+
+  @Override
+  public long toLong() {
+    throw new ScriptException("boolean can't be cast to long");
   }
 
 }

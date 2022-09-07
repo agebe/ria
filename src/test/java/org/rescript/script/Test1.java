@@ -169,12 +169,76 @@ public class Test1 {
   }
 
   @Test
+  public void floatLiteral2() {
+    float f = base
+        .setScript("1.2345f;")
+        .create()
+        .evalFloat();
+    Assertions.assertEquals(1.2345f, f);
+  }
+
+
+  @Test
   public void doubleLiteral() {
     double d = base
-        .setScript("1.2345d;")
+        .setScript("12_34.5_6d;")
         .create()
         .evalDouble();
-    Assertions.assertEquals(1.2345, d);
+    Assertions.assertEquals(1234.56, d);
+  }
+
+  @Test
+  public void intLiteral() {
+    int i = base
+        .setScript("4_2;")
+        .create()
+        .evalInt();
+    Assertions.assertEquals(42, i);
+  }
+
+  @Test
+  public void intLiteralHex() {
+    int i = base
+        .setScript("0xabc;")
+        .create()
+        .evalInt();
+    Assertions.assertEquals(0xABC, i);
+  }
+
+  @Test
+  public void intLiteralOct() {
+    int i = base
+        .setScript("023;")
+        .create()
+        .evalInt();
+    Assertions.assertEquals(19, i);
+  }
+
+  @Test
+  public void intLiteralBin() {
+    int i = base
+        .setScript("0b101010;")
+        .create()
+        .evalInt();
+    Assertions.assertEquals(42, i);
+  }
+
+  @Test
+  public void longLiteral() {
+    long l = base
+        .setScript("9__223_372_036_854_775_807l;")
+        .create()
+        .evalLong();
+    Assertions.assertEquals(9223372036854775807l, l);
+  }
+
+  @Test
+  public void longMax() {
+    long l = base
+        .setScript("Long.MAX_VALUE;")
+        .create()
+        .evalLong();
+    Assertions.assertEquals(Long.MAX_VALUE, l);
   }
 
 //  @Test

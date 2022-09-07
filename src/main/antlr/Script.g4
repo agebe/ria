@@ -24,9 +24,10 @@ fcall: fname LPAREN fparams RPAREN;
 fname: Identifier;
 fparams: fparam? (COMMA fparam)*;
 fparam: expr;
-literal: strLiteral | boolLiteral | floatLiteral;
+literal: strLiteral | boolLiteral | intLiteral | floatLiteral;
 strLiteral: StringLiteral ;
 boolLiteral: BooleanLiteral ;
+intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
 ident : Identifier;
 // from https://stackoverflow.com/a/24559773

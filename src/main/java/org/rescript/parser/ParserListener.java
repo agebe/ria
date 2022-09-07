@@ -21,6 +21,7 @@ import org.rescript.antlr.ScriptParser.FnameContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
+import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
@@ -349,13 +350,23 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterFloatLiteral(FloatLiteralContext ctx) {
     log.debug("enter floatLiteral '{}'", ctx.getText());
-    // TODO Auto-generated method stub
   }
 
   @Override
   public void exitFloatLiteral(FloatLiteralContext ctx) {
     log.debug("exit floatLiteral '{}'", ctx.getText());
     stack.push(new FloatLiteral(popTerminal().getText()));
+  }
+
+  @Override
+  public void enterIntLiteral(IntLiteralContext ctx) {
+    log.debug("enter intLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitIntLiteral(IntLiteralContext ctx) {
+    log.debug("exit intLiteral '{}'", ctx.getText());
+    stack.push(new IntLiteral(popTerminal().getText()));
   }
 
 }

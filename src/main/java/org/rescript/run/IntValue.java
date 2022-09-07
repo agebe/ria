@@ -1,22 +1,22 @@
 package org.rescript.run;
 
-public class FloatValue implements Value {
+public class IntValue implements Value {
 
-  private float val;
+  private int val;
 
-  public FloatValue(Object o) {
-    super();
-    val = ((Number)o).floatValue();
-  }
-
-  public FloatValue(float val) {
+  public IntValue(int val) {
     super();
     this.val = val;
   }
 
+  public IntValue(Object o) {
+    super();
+    val = ((Number)o).intValue();
+  }
+
   @Override
   public Class<?> type() {
-    return float.class;
+    return int.class;
   }
 
   @Override
@@ -36,12 +36,11 @@ public class FloatValue implements Value {
 
   @Override
   public int toInt() {
-    return (int)val;
+    return val;
   }
 
   @Override
   public long toLong() {
-    return (long)val;
+    return val;
   }
-
 }

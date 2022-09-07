@@ -8,7 +8,9 @@ public interface Value {
 
   Object val();
 
-  boolean isNull();
+  default boolean isNull() {
+    return false;
+  }
 
   default boolean isNotNull() {
     return !isNull();
@@ -18,11 +20,17 @@ public interface Value {
     return false;
   }
 
-  boolean toBoolean();
+  default boolean toBoolean() {
+    throw new ScriptException("'%s' can't be cast to boolean".formatted(type()));
+  }
 
   double toDouble();
 
   float toFloat();
+
+  int toInt();
+
+  long toLong();
 
   static Value of(Class<?> cls, Object val) {
     if(Void.class.equals(cls) || (cls == void.class)) {
@@ -32,6 +40,10 @@ public interface Value {
         return new BooleanValue(val);
       } else if(double.class == cls) {
         return new DoubleValue(val);
+      } else if(int.class == cls) {
+        return new IntValue(val);
+      } else if(int.class == cls) {
+        return new LongValue(val);
       } else {
         throw new ScriptException("primitive type '%s' not implemented yet".formatted(cls));
       }

@@ -36,15 +36,11 @@ public class Script {
   }
 
   public long evalLong() {
-    run();
- // TODO implement
-    return 0;
+    return run().toLong();
   }
 
   public int evalInt() {
-    run();
- // TODO implement
-    return 0;
+    return run().toInt();
   }
 
 }

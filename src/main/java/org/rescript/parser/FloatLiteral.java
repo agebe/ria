@@ -1,5 +1,6 @@
 package org.rescript.parser;
 
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.run.DoubleValue;
 import org.rescript.run.Expressions;
 import org.rescript.run.FloatValue;
@@ -16,9 +17,9 @@ public class FloatLiteral implements ParseItem, Expression {
 
   private Value parse(String literal) {
     if(literal.endsWith("f") || literal.endsWith("F")) {
-      return new FloatValue(Float.parseFloat(literal));
+      return new FloatValue(Float.parseFloat(StringUtils.remove(literal, '_')));
     } else {
-      return new DoubleValue(Double.parseDouble(literal));
+      return new DoubleValue(Double.parseDouble(StringUtils.remove(literal, '_')));
     }
   }
 

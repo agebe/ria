@@ -46,4 +46,14 @@ public class DoubleValue implements Value {
     return (float)val;
   }
 
+  @Override
+  public int toInt() {
+    return (int)val;
+  }
+
+  @Override
+  public long toLong() {
+    return (long)val;
+  }
+
 }

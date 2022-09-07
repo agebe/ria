@@ -34,4 +34,14 @@ public class VoidValue implements Value {
     throw new ScriptException("void can't be cast to float");
   }
 
+  @Override
+  public int toInt() {
+    throw new ScriptException("void can't be cast to int");
+  }
+
+  @Override
+  public long toLong() {
+    throw new ScriptException("void can't be cast to long");
+  }
+
 }
