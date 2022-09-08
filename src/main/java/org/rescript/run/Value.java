@@ -40,9 +40,11 @@ public interface Value {
         return new BooleanValue(val);
       } else if(double.class == cls) {
         return new DoubleValue(val);
+      } else if(float.class == cls) {
+        return new FloatValue(val);
       } else if(int.class == cls) {
         return new IntValue(val);
-      } else if(int.class == cls) {
+      } else if(long.class == cls) {
         return new LongValue(val);
       } else {
         throw new ScriptException("primitive type '%s' not implemented yet".formatted(cls));

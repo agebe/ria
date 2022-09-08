@@ -144,7 +144,9 @@ public class SymbolTable {
       return null;
     }
     for(int i=1;i<parts.length;i++) {
-      cls = findClass(StringUtils.join(parts, '.', 0, i));
+      String probeClass = StringUtils.join(parts, '.', 0, i);
+      cls = findClass(probeClass);
+      log.debug("probe class '{}', result: '{}'", probeClass, cls);
       if(cls != null) {
         fields = new String[parts.length-i];
         System.arraycopy(parts, i, fields, 0, parts.length-i);
