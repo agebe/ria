@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.rescript.Script;
 import org.rescript.ScriptBuilder;
 
 public class Test1 {
@@ -78,9 +79,6 @@ public class Test1 {
 //  @Test
   public void importedHello() {
     base
-    // TODO add support for import and static imports (do we need to make a difference?)
-    // importing automatically allows access
-    //.import("System.out.*")
     .setScript("println(\"Hello World\");")
     .create()
     .run();
@@ -120,8 +118,6 @@ public class Test1 {
   @Test
   public void runFloat() {
     float f = base.setScript("""
-        // TODO
-        //println(Float.parseFloat("1.23").class);
         Float.parseFloat("1.23");
         """)
         .create()
@@ -189,56 +185,49 @@ public class Test1 {
 
   @Test
   public void intLiteral() {
-    int i = base
-        .setScript("4_2;")
-        .create()
-        .evalInt();
-    Assertions.assertEquals(42, i);
+    Assertions.assertEquals(42, new Script().evalInt("4_2;"));
   }
 
   @Test
   public void intLiteralHex() {
-    int i = base
-        .setScript("0xabc;")
-        .create()
-        .evalInt();
-    Assertions.assertEquals(0xABC, i);
+    Assertions.assertEquals(0xABC, new Script().evalInt("0xabc;"));
   }
 
   @Test
   public void intLiteralOct() {
-    int i = base
-        .setScript("023;")
-        .create()
-        .evalInt();
-    Assertions.assertEquals(19, i);
+    Assertions.assertEquals(19, new Script().evalInt("023;"));
   }
 
   @Test
   public void intLiteralBin() {
-    int i = base
-        .setScript("0b101010;")
-        .create()
-        .evalInt();
-    Assertions.assertEquals(42, i);
+    Assertions.assertEquals(42, new Script().evalInt("0b101010;"));
   }
 
   @Test
   public void longLiteral() {
-    long l = base
-        .setScript("9__223_372_036_854_775_807l;")
-        .create()
-        .evalLong();
-    Assertions.assertEquals(9223372036854775807l, l);
+    Assertions.assertEquals(9223372036854775807l,
+        new Script().evalLong("9__223_372_036_854_775_807l;"));
   }
 
   @Test
   public void longMax() {
-    long l = base
-        .setScript("Long.MAX_VALUE;")
-        .create()
-        .evalLong();
-    Assertions.assertEquals(Long.MAX_VALUE, l);
+    Assertions.assertEquals(Long.MAX_VALUE, new Script().evalLong("Long.MAX_VALUE;"));
+  }
+
+  @Test
+  public void runReturning() {
+    String s = new Script().runReturning("\"foo\";", String.class);
+    Assertions.assertEquals("foo", s);
+  }
+
+  @Test
+  public void repl() {
+    Script script = new Script();
+    double d = script.evalDouble("1.23d;");
+    int i = script.evalInt("1;");
+    Assertions.assertEquals(1.23, d);
+    Assertions.assertEquals(1, i);
+    // TODO add more commands (var def assign to check that state persists)
   }
 
 //  @Test

@@ -10,7 +10,7 @@ public class ScriptBuilder {
 
   private SymbolTable symbols;
 
-  private JImmutableList<String> importList = JImmutables.list("java.lang.*");
+  private JImmutableList<String> importList = JImmutables.list();
 
   private JImmutableList<String> importStaticList = JImmutables.list();
 

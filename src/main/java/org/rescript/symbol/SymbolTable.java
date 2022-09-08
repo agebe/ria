@@ -1,5 +1,8 @@
 package org.rescript.symbol;
 
+import static org.javimmutable.collections.util.JImmutables.list;
+import static org.javimmutable.collections.util.JImmutables.map;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Objects;
@@ -28,12 +31,12 @@ public class SymbolTable {
 
   private AstNode entryPoint;
 
+  public SymbolTable() {
+    this(null);
+  }
+
   public SymbolTable(AstNode entryPoint) {
-    super();
-    this.entryPoint = entryPoint;
-    importList = JImmutables.list();
-    importStaticList = JImmutables.list();
-    functionAlias = JImmutables.map();
+    this(list(), list(), map(), entryPoint);
   }
 
   public SymbolTable(
@@ -41,14 +44,25 @@ public class SymbolTable {
       JImmutableList<String> importList,
       JImmutableList<String> importStaticList,
       JImmutableMap<String, String> functionAlias) {
+    this(
+        importList.insertAll(symbols.importList),
+        importStaticList.insertAll(symbols.importStaticList),
+        symbols.functionAlias.assignAll(functionAlias),
+        symbols.getEntryPoint()
+        );
+  }
+
+  public SymbolTable(JImmutableList<String> importList, JImmutableList<String> importStaticList,
+      JImmutableMap<String, String> functionAlias, AstNode entryPoint) {
     super();
-    this.entryPoint = symbols.getEntryPoint();
-    // use the ones from the builder API first so they take precedence
-    this.importList = importList.insertAll(symbols.importList);
-    this.importStaticList = importStaticList.insertAll(symbols.importStaticList);
-    // function aliases from the builder API take precedence
-    this.functionAlias = symbols.functionAlias.assignAll(functionAlias);
-//    this.variables = new HashMap<>(symbols.variables);
+    this.importList = importList;
+    this.importStaticList = importStaticList;
+    this.functionAlias = functionAlias;
+    this.entryPoint = entryPoint;
+  }
+
+  private JImmutableList<String> imports() {
+    return importList.insertFirst("java.lang.*");
   }
 
   public AstNode getEntryPoint() {
@@ -197,7 +211,7 @@ public class SymbolTable {
       log.debug("found class '{}'", cls.getName());
       return cls;
     }
-    cls = importList.stream()
+    cls = imports().stream()
         .map(imp -> fromImport(name, imp))
         .filter(Objects::nonNull)
         .map(this::findClassExact)
@@ -230,6 +244,15 @@ public class SymbolTable {
     } catch(ClassNotFoundException e) {
       return null;
     }
+  }
+
+  public SymbolTable merge(SymbolTable symbols) {
+    return new SymbolTable(
+        importList.insertAll(symbols.importList),
+        importStaticList.insertAll(symbols.importStaticList),
+        functionAlias.insertAll(symbols.functionAlias),
+        symbols.entryPoint
+        );
   }
 
 }
