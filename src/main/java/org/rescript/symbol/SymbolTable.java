@@ -5,12 +5,13 @@ import static org.javimmutable.collections.util.JImmutables.map;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
-import org.javimmutable.collections.util.JImmutables;
 import org.rescript.ScriptException;
 import org.rescript.parser.AstNode;
 import org.rescript.run.Value;
@@ -27,7 +28,7 @@ public class SymbolTable {
 
   private JImmutableMap<String, String> functionAlias;
 
-//  private Map<String, VarSymbol> variables = new HashMap<>();
+  private Map<String, VarSymbol> variables = new HashMap<>();
 
   private AstNode entryPoint;
 
@@ -74,11 +75,10 @@ public class SymbolTable {
   }
 
   public Symbol resolve(String name) {
-    // FIXME
-//    VarSymbol variable = variables.get(name);
-//    if(variable != null) {
-//      return variable;
-//    }
+    VarSymbol variable = variables.get(name);
+    if(variable != null) {
+      return variable;
+    }
     ClassSymbol cls = cls(name);
     if(cls != null) {
       return cls;
@@ -253,6 +253,13 @@ public class SymbolTable {
         functionAlias.insertAll(symbols.functionAlias),
         symbols.entryPoint
         );
+  }
+
+  public void defineVar(String name, Value val) {
+    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val));
+    if(v != null) {
+      throw new ScriptException("variable '%s' already defined".formatted(name));
+    }
   }
 
 }

@@ -6,6 +6,7 @@ import org.rescript.ScriptException;
 import org.rescript.parser.AstNode;
 import org.rescript.parser.ExpressionStatement;
 import org.rescript.parser.Statement;
+import org.rescript.parser.VardefStatement;
 import org.rescript.symbol.SymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,9 @@ public class ScriptRunner {
     if(stmt instanceof ExpressionStatement) {
       //return expressions.execute(((FunctionCallStatement)stmt).getFunction());
       return ((ExpressionStatement)stmt).execute(expressions);
+    } else if (stmt instanceof VardefStatement) {
+      ((VardefStatement)stmt).execute(symbols, expressions);
+      return null;
     }
     throw new ScriptException("statement execution not implemeneted '%s'".formatted(stmt));
   }

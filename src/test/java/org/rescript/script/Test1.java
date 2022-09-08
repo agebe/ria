@@ -230,17 +230,24 @@ public class Test1 {
     // TODO add more commands (var def assign to check that state persists)
   }
 
-//  @Test
+  @Test
   public void test1() {
     String script = """
-      var v1;
-      var v2 = foo(myVar, "myStringLiteral");
-      var v3 = "12345";
-      v1 = v2;
-      // dot operator not supported yet
-      System.out.println("Hello World");
-      return v1.equals("12345");
-        """;
-    new ScriptBuilder().setScript(script).create().run();
+        var v1 = "1";
+        var v2 = "2";
+        println(v1.equals(v2));
+        println(v1);
+        println(v2);
+        var v3 = v1;
+        println(v3);
+        println(v3.equals(v1));
+        var v4;
+        println(v4);
+        //var v2 = foo(myVar, "myStringLiteral");
+        //var v3 = "12345";
+        //v1 = v3;
+        //return v1.equals("12345");
+          """;
+    base.setScript(script).create().run();
   }
 }

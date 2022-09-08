@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
@@ -91,7 +92,9 @@ public class ParserListener implements ScriptListener {
     }
     ParseItem pi = stack.pop();
     log.debug("got '{}' from stack", pi);
-    if(pi instanceof Expression) {
+    if(pi instanceof Statement) {
+      stmts.add((Statement)pi);
+    } else if(pi instanceof Expression) {
       stmts.add(new ExpressionStatement((Expression)pi));
     } else {
       fail("'%s' not supported yet".formatted(pi));
@@ -116,6 +119,25 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitVardef(VardefContext ctx) {
     log.debug("exit vardef '{}'", ctx.getText());
+    ParseItem pi1 = stack.pop();
+    ParseItem pi2 = stack.pop();
+    if(pi2 instanceof Terminal) {
+      String t2 = ((Terminal)pi2).getText();
+      if("var".equals(t2)) {
+        Identifier i1 = (Identifier)pi1;
+        stack.push(new VardefStatement(i1.getIdent(), null));
+      } else if( "=".equals(t2)) {
+        ParseItem pi3 = stack.pop();
+        Terminal t4 = popTerminal();
+        if(!"var".equals(t4.getText())) {
+          throw new SyntaxException("expected 'var' but got '%s'".formatted(t4.getText()));
+        }
+        Identifier i3 = (Identifier)pi3;
+        stack.push(new VardefStatement(i3.getIdent(), (Expression)pi1));
+      }
+    } else {
+      throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
+    }
   }
 
   @Override
