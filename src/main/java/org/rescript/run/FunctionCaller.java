@@ -1,5 +1,6 @@
 package org.rescript.run;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,7 @@ public class FunctionCaller {
     }
   }
 
-  private Value callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) throws Exception {
+  private Value callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) {
     // fcall function name might have been replaced via alias
     String fname = symbol.getMethodName();
     Value[] parameters = resolveParameters(fcall.getParameters());
@@ -57,29 +58,35 @@ public class FunctionCaller {
     Class<?> cls = symbol.getTargetType();
     Method m = matchMethod(findMethods(cls, fname), paramTypes);
     if(m != null) {
-      log.debug("invoke method '{}' with parameter types '{}'", m.getName(), Arrays.toString(paramTypes));
-      Object result = m.invoke(symbol.getTarget(), params);
-      Class<?> returnType = m.getReturnType();
-      if(returnType.equals(Void.class) || returnType.equals(void.class)) {
-        return new VoidValue();
-      } else if(returnType.isPrimitive()) {
-        if(returnType.getName().equals("boolean")) {
-          return new BooleanValue(result);
-        } else if(returnType.getName().equals("double")) {
-          return new DoubleValue(result);
-        } else if(returnType.getName().equals("float")) {
-          return new FloatValue(result);
+      try {
+        log.debug("invoke method '{}' with parameter types '{}'", m.getName(), Arrays.toString(paramTypes));
+        Object result = m.invoke(symbol.getTarget(), params);
+        Class<?> returnType = m.getReturnType();
+        if(returnType.equals(Void.class) || returnType.equals(void.class)) {
+          return new VoidValue();
+        } else if(returnType.isPrimitive()) {
+          if(returnType.getName().equals("boolean")) {
+            return new BooleanValue(result);
+          } else if(returnType.getName().equals("double")) {
+            return new DoubleValue(result);
+          } else if(returnType.getName().equals("float")) {
+            return new FloatValue(result);
+          } else {
+            // TODO support all primitive types
+            System.out.println(returnType.isPrimitive());
+            System.out.println(returnType.getName());
+            throw new ScriptException("primitive return type '%s' not impl yet".formatted(returnType.getName()));
+          }
+        } else if(returnType.isArray()) {
+          // TODO
+          throw new ScriptException("array not impl yet");
         } else {
-          // TODO support all primitive types
-          System.out.println(returnType.isPrimitive());
-          System.out.println(returnType.getName());
-          throw new ScriptException("primitive return type '%s' not impl yet".formatted(returnType.getName()));
+          return new ObjValue(returnType, result);
         }
-      } else if(returnType.isArray()) {
-        // TODO
-        throw new ScriptException("array not impl yet");
-      } else {
-        return new ObjValue(returnType, result);
+      } catch(InvocationTargetException e) {
+        throw new ScriptException("function '%s' exception".formatted(fname), e);
+      } catch(IllegalAccessException e) {
+        throw new ScriptException("function '%s' illegal access".formatted(fname), e);
       }
     } else {
       throw new ScriptException("method '%s' with parameter types '%s' not found on target '%s'"

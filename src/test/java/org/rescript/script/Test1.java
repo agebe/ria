@@ -2,6 +2,8 @@ package org.rescript.script;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.io.PrintStream;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.rescript.Script;
@@ -10,14 +12,37 @@ import org.rescript.ScriptBuilder;
 public class Test1 {
 
   public static class TestInner1 {
+
+    public static class TestInner3 {
+      public static PrintStream out = System.out;
+      public static final String CONST = "TI3_CONST";
+    }
+
+    public static TestInner2 TI2 = new TestInner2();
+
     public static boolean f1() {
       System.out.println("f1");
       return true;
+    }
+
+    public static void f2(Object o) {
+      System.out.println("f2 with '%s'".formatted(o));
+    }
+
+    public static String functionWith2Parameters(String p1, String p2) {
+      System.out.println("ti1, p1 '%s', p2 '%s'".formatted(p1,p2));
+      return p2;
     }
   }
 
   public static class TestInner2 {
     public static final TestInner1 TI1 = new TestInner1();
+
+    public static String functionWith2Parameters(String p1, String p2) {
+      System.out.println("ti2, p1 '%s', p2 '%s'".formatted(p1,p2));
+      return p1;
+    }
+
   }
 
   public static final TestInner2 TI2 = new TestInner2();
@@ -234,6 +259,7 @@ public class Test1 {
   public void test1() {
     String script = """
         var v1 = "1";
+        assertEquals("1", v1);
         var v2 = "2";
         println(v1.equals(v2));
         println(v1);
@@ -243,11 +269,21 @@ public class Test1 {
         println(v3.equals(v1));
         var v4;
         println(v4);
-        //var v2 = foo(myVar, "myStringLiteral");
+        var v5 = %s.Test1.TI2.TI1;
+        v5.f2(v4);
+        v5 = "v5 value";
+        v5.f2(v4);
+        var v6 = foo(v5, "myStringLiteral");
+        assertEquals("myStringLiteral", v6);
         //var v3 = "12345";
         //v1 = v3;
         //return v1.equals("12345");
-          """;
-    base.setScript(script).create().run();
+          """.formatted(this.getClass().getPackage().getName());
+    base
+    .addStaticImport("org.junit.jupiter.api.Assertions.*")
+    .addFunctionAlias("foo", "org.rescript.script.Test1.TestInner1.functionWith2Parameters")
+    .setScript(script)
+    .create()
+    .run();
   }
 }

@@ -15,6 +15,7 @@ import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.parser.AstNode;
 import org.rescript.run.Value;
+import org.rescript.run.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,10 +171,11 @@ public class SymbolTable {
     if(cls == null) {
       return null;
     }
-    log.debug("found class '{}', fields to follow '{}'", cls.getName(), Arrays.toString(fields));
+    log.debug("found class '{}', inner types/fields to follow '{}'", cls.getName(), Arrays.toString(fields));
     if(fields.length == 0) {
       return null;
     }
+    // FIXME the name could also refer to an inner class
     Field f = null;
     Class<?> wcls = cls;
     for(String s : fields) {
@@ -256,7 +258,7 @@ public class SymbolTable {
   }
 
   public void defineVar(String name, Value val) {
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val));
+    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
     }
