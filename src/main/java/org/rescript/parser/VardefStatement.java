@@ -19,4 +19,9 @@ public class VardefStatement implements ParseItem, Statement {
     symbols.defineVar(name, (initial!=null?initial.eval(expr):null));
   }
 
+  @Override
+  public String toString() {
+    return "VardefStatement [name=" + name + ", initial=" + initial + "]";
+  }
+
 }

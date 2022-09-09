@@ -271,13 +271,14 @@ public class Test1 {
         println(v4);
         var v5 = %s.Test1.TI2.TI1;
         v5.f2(v4);
-        v5 = "v5 value";
-        v5.f2(v4);
-        var v6 = foo(v5, "myStringLiteral");
-        assertEquals("myStringLiteral", v6);
-        //var v3 = "12345";
-        //v1 = v3;
-        //return v1.equals("12345");
+        var v6 = "v5 value";
+        var v7 = foo(v6, "myStringLiteral");
+        assertEquals("myStringLiteral", v7);
+        org.rescript.script.Test1.TestInner1.TestInner3.out.println("test");
+        assertEquals("TI3_CONST", org.rescript.script.Test1.TestInner1.TestInner3.CONST);
+        return v1.equals("1");
+        // this should not be executed
+        assertEquals("2", v1);
           """.formatted(this.getClass().getPackage().getName());
     base
     .addStaticImport("org.junit.jupiter.api.Assertions.*")
