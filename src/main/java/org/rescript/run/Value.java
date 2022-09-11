@@ -21,16 +21,24 @@ public interface Value {
   }
 
   default boolean toBoolean() {
-    throw new ScriptException("'%s' can't be cast to boolean".formatted(type()));
+    throw new ScriptException("can't cast '%s' to boolean".formatted(this.getClass()));
   }
 
-  double toDouble();
+  default double toDouble() {
+    throw new ScriptException("can't cast '%s' to double".formatted(this.getClass()));
+  }
 
-  float toFloat();
+  default float toFloat() {
+    throw new ScriptException("can't cast '%s' to float".formatted(this.getClass()));
+  }
 
-  int toInt();
+  default int toInt() {
+    throw new ScriptException("can't cast '%s' to int".formatted(this.getClass()));
+  }
 
-  long toLong();
+  default long toLong() {
+    throw new ScriptException("can't cast '%s' to long".formatted(this.getClass()));
+  }
 
   static Value of(Class<?> cls, Object val) {
     if(Void.class.equals(cls) || (cls == void.class)) {

@@ -3,7 +3,7 @@ package org.rescript.parser;
 import org.rescript.run.Expressions;
 import org.rescript.run.Value;
 
-public class Identifier implements ParseItem, Expression {
+public class Identifier implements ParseItem, TargetExpression {
 
   private String ident;
 
@@ -23,7 +23,18 @@ public class Identifier implements ParseItem, Expression {
 
   @Override
   public Value eval(Expressions expressions) {
-    return expressions.toValue(expressions.getSymbols().resolve(ident));
+//    return expressions.toValue(expressions.getSymbols().resolve(ident));
+    return expressions.getSymbols().resolve(null, ident);
+  }
+
+  @Override
+  public Value eval(Expressions expressions, Value target) {
+    return expressions.getSymbols().resolve(target, ident);
+  }
+
+  @Override
+  public String getText() {
+    return ident;
   }
 
 }

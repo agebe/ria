@@ -18,10 +18,13 @@ public class IntLiteral implements ParseItem, Expression {
     }
   }
 
+  private String literal;
+
   private Value value;
 
   public IntLiteral(String literal) {
     super();
+    this.literal = literal;
     this.value = parse(literal);
   }
 
@@ -49,6 +52,11 @@ public class IntLiteral implements ParseItem, Expression {
   @Override
   public Value eval(Expressions expressions) {
     return value;
+  }
+
+  @Override
+  public String getText() {
+    return literal;
   }
 
 }

@@ -205,20 +205,7 @@ public class ParserListener implements ScriptListener {
   }
 
   private void dotOperator(ParseItem item1, ParseItem item2) {
-    if(item1 instanceof Identifier) {
-      Identifier i1 = (Identifier)item1;
-      if(item2 instanceof Identifier) {
-        Identifier i2 = (Identifier)item2;
-        stack.push(new Identifier(i1.getIdent() + "." + i2.getIdent()));
-      } else if(item2 instanceof FunctionCall) {
-        FunctionCall f = (FunctionCall)item2;
-        stack.push(new FunctionCall(f.getName(), f.getParameters(), i1));
-      } else {
-        fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
-      }
-    } else {
-      fail("dot operator, unimplemented case '%s'.'%s'".formatted(item1, item2));
-    }
+    stack.push(new DotOperator((Expression)item1, (TargetExpression)item2));
   }
 
   @Override
@@ -242,7 +229,9 @@ public class ParserListener implements ScriptListener {
         params.addFirst(param);
       } else if(item instanceof FunctionName) {
         FunctionName name = (FunctionName)item;
-        stack.push(new FunctionCall(name, params, null));
+        FunctionCall fcall = new FunctionCall(name, params, null);
+        log.debug("push fcall '{}' to stack", fcall);
+        stack.push(fcall);
         return;
       } else {
         fail("unexpected item on stack for function call " + item);

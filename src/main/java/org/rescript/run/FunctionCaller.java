@@ -27,10 +27,10 @@ public class FunctionCaller {
     this.expressions = expressions;
   }
 
-  public Value call(FunctionCall function) {
+  public Value call(FunctionCall function, Value target) {
     try {
-      if(function.getTarget() != null) {
-        Value target = function.getTarget().eval(expressions);
+      if(target != null) {
+        log.debug("calling function '{}' on target '{}'", function.getName().getName(), target);
         JavaMethodSymbol symbol = new JavaMethodSymbol(
             target.type(),
             function.getName().getName(),
@@ -45,7 +45,8 @@ public class FunctionCaller {
         }
       }
     } catch(Exception e) {
-      throw new ScriptException("script execution failed", e);
+      // TODO improve exception text
+      throw new ScriptException("function failed", e);
     }
   }
 

@@ -26,4 +26,9 @@ public class BoolLiteral implements ParseItem, Expression {
     return new BooleanValue(val);
   }
 
+  @Override
+  public String getText() {
+    return Boolean.toString(val);
+  }
+
 }

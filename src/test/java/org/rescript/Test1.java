@@ -1,13 +1,13 @@
-package org.rescript.script;
+package org.rescript;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.PrintStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.rescript.Script;
-import org.rescript.ScriptBuilder;
 
 public class Test1 {
 
@@ -52,7 +52,7 @@ public class Test1 {
       .addFunctionAlias("println", "System.out.println");
 
   @Test
-  public void hello() {
+  public void hello() throws Exception {
     base.setScript("java.lang.System.out.println(\"Hello World\");").create().run();
   }
 
@@ -62,13 +62,36 @@ public class Test1 {
   }
 
   @Test
+  public void importTest() {
+    System.out.println(StringUtils.substringAfterLast("abc", "."));
+    System.exit(0);
+    assertEquals("p1.A", base
+        .setScript("org.rescript.p1.A.test();")
+        .create()
+        .runReturning(String.class));
+    assertEquals("p2.A", base
+        .setScript("org.rescript.p2.A.test();")
+        .create()
+        .runReturning(String.class));
+    assertEquals("p1.A", base
+        .addImport("org.rescript.p1.A")
+        .setScript("A.test();")
+        .create()
+        .runReturning(String.class));
+    assertEquals("p2.A", base
+        .addImport("org.rescript.p1.A")
+        .setScript("org.rescript.p2.A.test();")
+        .create()
+        .runReturning(String.class));
+  }
+
+  private String pkg() {
+    return this.getClass().getPackage().getName();
+  }
+
+  @Test
   public void fcall() {
-    String pkg = this.getClass().getPackage().getName();
-    base.setScript("""
-        java.lang.System.out.println(%s.Test1.TI2.TI1.f1());
-        """.formatted(pkg))
-    .create()
-    .run();
+    new Script().run("java.lang.System.out.println(%s.Test1.TI2.TI1.f1());".formatted(pkg()));
   }
 
   @Test
@@ -272,17 +295,17 @@ public class Test1 {
         var v5 = %s.Test1.TI2.TI1;
         v5.f2(v4);
         var v6 = "v5 value";
-        var v7 = foo(v6, "myStringLiteral");
-        assertEquals("myStringLiteral", v7);
-        org.rescript.script.Test1.TestInner1.TestInner3.out.println("test");
-        assertEquals("TI3_CONST", org.rescript.script.Test1.TestInner1.TestInner3.CONST);
+        var v7 = foo(v6, "myStringLiteral").substring(2);
+        assertEquals("StringLiteral", v7);
+        org.rescript.Test1.TestInner1.TestInner3.out.println("test");
+        assertEquals("TI3_CONST", org.rescript.Test1.TestInner1.TestInner3.CONST);
         return v1.equals("1");
         // this should not be executed
-        assertEquals("2", v1);
-          """.formatted(this.getClass().getPackage().getName());
+        //assertEquals("2", v1);
+          """.formatted(pkg());
     base
     .addStaticImport("org.junit.jupiter.api.Assertions.*")
-    .addFunctionAlias("foo", "org.rescript.script.Test1.TestInner1.functionWith2Parameters")
+    .addFunctionAlias("foo", "org.rescript.Test1.TestInner1.functionWith2Parameters")
     .setScript(script)
     .create()
     .run();

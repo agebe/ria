@@ -10,8 +10,11 @@ public class FloatLiteral implements ParseItem, Expression {
 
   private Value value;
 
+  private String literal;
+
   public FloatLiteral(String literal) {
     super();
+    this.literal = literal;
     this.value = parse(literal);
   }
 
@@ -26,6 +29,11 @@ public class FloatLiteral implements ParseItem, Expression {
   @Override
   public Value eval(Expressions expressions) {
     return value;
+  }
+
+  @Override
+  public String getText() {
+    return literal;
   }
 
 }

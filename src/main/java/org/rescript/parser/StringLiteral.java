@@ -27,4 +27,9 @@ public class StringLiteral implements ParseItem, Expression {
     return new ObjValue(String.class, literal);
   }
 
+  @Override
+  public String getText() {
+    return literal;
+  }
+
 }

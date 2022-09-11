@@ -14,6 +14,9 @@ import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.parser.AstNode;
+import org.rescript.run.ClsValue;
+import org.rescript.run.FieldValue;
+import org.rescript.run.PackageValue;
 import org.rescript.run.Value;
 import org.rescript.run.VoidValue;
 import org.slf4j.Logger;
@@ -76,25 +79,94 @@ public class SymbolTable {
     this.entryPoint = entryPoint;
   }
 
-  public Symbol resolve(String name) {
-    VarSymbol variable = variables.get(name);
-    if(variable != null) {
-      return variable;
+//  public Symbol resolve(String name) {
+//    VarSymbol variable = variables.get(name);
+//    if(variable != null) {
+//      return variable;
+//    }
+//    ClassSymbol cls = cls(name);
+//    if(cls != null) {
+//      return cls;
+//    }
+//    ClassSymbol innerCls = innerClass(name);
+//    if(innerCls != null) {
+//      return innerCls;
+//    }
+//    VarSymbol sf = staticMember(name);
+//    if(sf != null) {
+//      return sf;
+//    }
+//    throw new SymbolNotFoundException(name);
+//  }
+
+  public Value resolve(Value target, String name) {
+    log.debug("enter resolve '{}' on target '{}'", name, target);
+    if(target == null) {
+      VarSymbol var = variables.get(name);
+      if(var != null) {
+        return var.getVal();
+      }
+      ClsValue cls = findImportedClass(name);
+      if(cls != null) {
+        return cls;
+      }
+      // TODO
+      // just assume it is a package for now
+      return new PackageValue(name);
+    } else if(target instanceof PackageValue) {
+      String pkg = ((PackageValue)target).getPackageName();
+      String s = pkg + "." + name;
+      ClsValue cls = cls(s);
+      if(cls != null) {
+        return cls;
+      }
+      // just assume it is a package for now
+      return new PackageValue(s);
+    } else if(target instanceof ClsValue) {
+      // name could be a static member (field or method) or an inner class
+      Class<?> cls = ((ClsValue)target).type();
+      ClsValue s = innerClass(cls, name);
+      if(s != null) {
+        return s;
+      } else {
+        return staticMember(cls, name);
+      }
+    } else if(target instanceof FieldValue) {
+      Value v = staticMember(target.type(), name);
+      if(v != null) {
+        return v;
+      }
+      throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
+    } else {
+      throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
     }
-    ClassSymbol cls = cls(name);
-    if(cls != null) {
-      return cls;
-    }
-    ClassSymbol innerCls = innerClass(name);
-    if(innerCls != null) {
-      return innerCls;
-    }
-    VarSymbol sf = staticMember(name);
-    if(sf != null) {
-      return sf;
-    }
-    throw new SymbolNotFoundException(name);
   }
+
+  private ClsValue innerClass(Class<?> cls, String name) {
+    Class<?> inner = RUtils.innerClass(cls, name);
+    return inner!=null?new ClsValue(inner):null;
+  }
+
+  private Value staticMember(Class<?> cls, String name) {
+    Field f = RUtils.findStaticField(cls, name);
+    if(f != null) {
+      log.debug("found static field '{}' on class '{}", f.getName(), cls);
+      return new FieldValue(cls, f, null);
+    }
+    return null;
+  }
+
+//  private Value memberField(Class<?> cls, String name) {
+//    Value v = staticMember(cls, name);
+//    if(v != null) {
+//      return v;
+//    }
+//    Field f = RUtils.findField(cls, name);
+//    if(f != null) {
+//      return new FieldValue(cls, f, null);
+//    }
+//    return null;
+//  }
 
   public JavaMethodSymbol resolveFunction(String name) {
     String target = functionAlias.get(name);
@@ -155,9 +227,38 @@ public class SymbolTable {
         .anyMatch(m -> StringUtils.equals(m.getName(), methodName));
   }
 
-  private ClassSymbol cls(String name) {
-    Class<?> cls = findClass(name);
-    return cls!=null?new ClassSymbol(cls):null;
+  private ClsValue cls(String name) {
+    Class<?> cls = findClassExact(name);
+    return cls!=null?new ClsValue(cls):null;
+  }
+
+  private ClsValue findImportedClass(String name) {
+    // TODO inner classes can also be imported through static imports
+    return imports().stream()
+        .map(imp -> {
+          String clsPart = substringAfterLastDot(imp);
+          if(clsPart.equals("*")) {
+            return findClassOrInner(StringUtils.chop(imp)+name);
+          } else if(clsPart.equals(name)) {
+            return findClassOrInner(imp);
+          } else {
+            return null;
+          }
+        })
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(ClsValue::new)
+        .orElse(null);
+  }
+
+  private Class<?> findClassOrInner(String s) {
+    // TODO also find inner classes
+    return findClassExact(s);
+  }
+
+  private String substringAfterLastDot(String s) {
+    // substringAfterLast returns an empty string when it doesn't contain the separator
+    return StringUtils.contains(s, '.')?StringUtils.substringAfterLast(s, '.'):s;
   }
 
   // TODO make a pair type in util package?
@@ -197,6 +298,9 @@ public class SymbolTable {
   private VarSymbol staticMember(String name) {
     // e.g. like java.lang.System.out
     TR tr = findTypeReturnRemaining(name);
+    if(tr == null) {
+      return null;
+    }
     log.debug("found class '{}', path to follow '{}'", tr.cls.getName(), Arrays.toString(tr.path));
     if(tr.path.length == 0) {
       return null;
@@ -263,18 +367,6 @@ public class SymbolTable {
       return null;
     }
     return cls;
-  }
-
-  private ClassSymbol innerClass(String name) {
-    log.debug("find inner class '{}'", name);
-    Class<?> cls = findInnerClass(name);
-    if(cls != null) {
-      log.debug("found inner class '{}', cls '{}'", name, cls);
-      return new ClassSymbol(cls);
-    } else {
-      log.debug("inner class not found '{}'", name);
-      return null;
-    }
   }
 
   private Class<?> findInnerClass(String name) {
