@@ -1,5 +1,7 @@
 package org.rescript.parser;
 
+import org.rescript.statement.Statement;
+
 public class AstNode {
 
   private Statement stmt;

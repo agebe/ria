@@ -1,6 +1,8 @@
-package org.rescript.parser;
+package org.rescript.statement;
 
+import org.rescript.parser.Expression;
 import org.rescript.run.Expressions;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
 public class ExpressionStatement implements Statement {
@@ -12,7 +14,13 @@ public class ExpressionStatement implements Statement {
     this.expression = expression;
   }
 
-  public Value execute(Expressions expressions) {
+  @Override
+  public void execute(ScriptContext ctx) {
+    ctx.setLastResult(execute(ctx.getExpressions()));
+    ctx.setCurrent(ctx.getCurrent().getTrueNode());
+  }
+
+  private Value execute(Expressions expressions) {
     return expression.eval(expressions);
   }
 

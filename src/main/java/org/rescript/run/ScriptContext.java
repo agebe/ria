@@ -9,6 +9,8 @@ public class ScriptContext {
 
   private SymbolTable symbols;
 
+  private Expressions expressions;
+
   private AstNode current;
 
   private Value lastResult = new VoidValue();
@@ -16,6 +18,8 @@ public class ScriptContext {
   public ScriptContext(SymbolTable symbols) {
     super();
     this.symbols = symbols;
+    this.expressions = new Expressions(symbols);
+    this.current = symbols.getEntryPoint();
   }
 
   public AstNode getCurrent() {
@@ -36,6 +40,10 @@ public class ScriptContext {
 
   public SymbolTable getSymbols() {
     return symbols;
+  }
+
+  public Expressions getExpressions() {
+    return expressions;
   }
 
 }
