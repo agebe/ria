@@ -1,8 +1,8 @@
 package org.rescript.parser;
 
 import org.rescript.run.Expressions;
-import org.rescript.run.ObjValue;
-import org.rescript.run.Value;
+import org.rescript.value.ObjValue;
+import org.rescript.value.Value;
 
 public class StringLiteral implements ParseItem, Expression {
 

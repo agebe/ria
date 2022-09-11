@@ -1,8 +1,8 @@
 package org.rescript.parser;
 
-import org.rescript.run.BooleanValue;
 import org.rescript.run.Expressions;
-import org.rescript.run.Value;
+import org.rescript.value.BooleanValue;
+import org.rescript.value.Value;
 
 public class BoolLiteral implements ParseItem, Expression {
 

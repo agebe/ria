@@ -2,9 +2,9 @@ package org.rescript.parser;
 
 import org.rescript.ScriptException;
 import org.rescript.run.Expressions;
-import org.rescript.run.PackageValue;
-import org.rescript.run.Value;
 import org.rescript.symbol.SymbolNotFoundException;
+import org.rescript.value.PackageValue;
+import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,10 +1,10 @@
 package org.rescript.parser;
 
 import org.apache.commons.lang3.StringUtils;
-import org.rescript.run.DoubleValue;
 import org.rescript.run.Expressions;
-import org.rescript.run.FloatValue;
-import org.rescript.run.Value;
+import org.rescript.value.DoubleValue;
+import org.rescript.value.FloatValue;
+import org.rescript.value.Value;
 
 public class FloatLiteral implements ParseItem, Expression {
 

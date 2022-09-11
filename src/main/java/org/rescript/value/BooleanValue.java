@@ -1,4 +1,4 @@
-package org.rescript.run;
+package org.rescript.value;
 
 import org.rescript.ScriptException;
 

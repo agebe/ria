@@ -1,7 +1,7 @@
 package org.rescript.parser;
 
 import org.rescript.run.Expressions;
-import org.rescript.run.Value;
+import org.rescript.value.Value;
 
 public class ExpressionStatement implements Statement {
 

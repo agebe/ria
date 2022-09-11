@@ -11,6 +11,12 @@ import org.rescript.parser.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.JavaMethodSymbol;
 import org.rescript.symbol.SymbolTable;
+import org.rescript.value.BooleanValue;
+import org.rescript.value.DoubleValue;
+import org.rescript.value.FloatValue;
+import org.rescript.value.ObjValue;
+import org.rescript.value.Value;
+import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

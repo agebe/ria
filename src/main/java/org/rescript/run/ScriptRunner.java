@@ -8,6 +8,8 @@ import org.rescript.parser.ExpressionStatement;
 import org.rescript.parser.Statement;
 import org.rescript.parser.VardefStatement;
 import org.rescript.symbol.SymbolTable;
+import org.rescript.value.Value;
+import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

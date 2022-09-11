@@ -1,6 +1,6 @@
 package org.rescript.symbol;
 
-import org.rescript.run.Value;
+import org.rescript.value.Value;
 
 public class VarSymbol implements Symbol {
 

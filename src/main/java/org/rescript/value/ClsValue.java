@@ -1,4 +1,4 @@
-package org.rescript.run;
+package org.rescript.value;
 
 // avoid clash with java.lang.ClassValue
 public class ClsValue implements Value {

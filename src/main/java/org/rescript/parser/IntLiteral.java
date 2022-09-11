@@ -2,9 +2,9 @@ package org.rescript.parser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.run.Expressions;
-import org.rescript.run.IntValue;
-import org.rescript.run.LongValue;
-import org.rescript.run.Value;
+import org.rescript.value.IntValue;
+import org.rescript.value.LongValue;
+import org.rescript.value.Value;
 
 public class IntLiteral implements ParseItem, Expression {
 

@@ -14,11 +14,11 @@ import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.parser.AstNode;
-import org.rescript.run.ClsValue;
-import org.rescript.run.FieldValue;
-import org.rescript.run.PackageValue;
-import org.rescript.run.Value;
-import org.rescript.run.VoidValue;
+import org.rescript.value.ClsValue;
+import org.rescript.value.FieldValue;
+import org.rescript.value.PackageValue;
+import org.rescript.value.Value;
+import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

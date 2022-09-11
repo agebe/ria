@@ -2,8 +2,8 @@ package org.rescript;
 
 import org.rescript.parser.Parser;
 import org.rescript.run.ScriptRunner;
-import org.rescript.run.Value;
 import org.rescript.symbol.SymbolTable;
+import org.rescript.value.Value;
 
 public class Script {
 
