@@ -63,8 +63,6 @@ public class Test1 {
 
   @Test
   public void importTest() {
-    System.out.println(StringUtils.substringAfterLast("abc", "."));
-    System.exit(0);
     assertEquals("p1.A", base
         .setScript("org.rescript.p1.A.test();")
         .create()

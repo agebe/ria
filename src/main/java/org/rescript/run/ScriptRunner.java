@@ -17,35 +17,32 @@ public class ScriptRunner {
 
   private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
 
-  private SymbolTable symbols;
-
   private Expressions expressions;
 
-  private Value lastResult;
+  private ScriptContext ctx;
 
   public ScriptRunner(SymbolTable symbols) {
     super();
-    this.symbols = symbols;
+    ctx = new ScriptContext(symbols);
     this.expressions = new Expressions(symbols);
   }
 
   public Value run() {
-    return run(symbols.getEntryPoint());
+    return run(ctx.getSymbols().getEntryPoint());
   }
 
   private Value run(AstNode current) {
     log.debug("start run at '{}'", current);
-    lastResult = new VoidValue();
     while(current != null) {
       log.debug("exec next statement '{}'", current);
       Value v = executeStatement(current.getStmt());
       if(v != null) {
-        lastResult = v;
+        ctx.setLastResult(v);
       }
       current = getPath(current, v);
     }
     log.debug("exit script run");
-    return lastResult;
+    return ctx.getLastResult();
   }
 
   private AstNode getPath(AstNode node, Value val) {
@@ -69,10 +66,9 @@ public class ScriptRunner {
 
   private Value executeStatement(Statement stmt) {
     if(stmt instanceof ExpressionStatement) {
-      //return expressions.execute(((FunctionCallStatement)stmt).getFunction());
       return ((ExpressionStatement)stmt).execute(expressions);
     } else if (stmt instanceof VardefStatement) {
-      ((VardefStatement)stmt).execute(symbols, expressions);
+      ((VardefStatement)stmt).execute(ctx.getSymbols(), expressions);
       return null;
     }
     throw new ScriptException("statement execution not implemeneted '%s'".formatted(stmt));
