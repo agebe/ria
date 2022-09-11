@@ -2,10 +2,10 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -299,13 +299,14 @@ public class Test1 {
         assertEquals("TI3_CONST", org.rescript.Test1.TestInner1.TestInner3.CONST);
         return v1.equals("1");
         // this should not be executed
-        //assertEquals("2", v1);
+        assertEquals("2", v1);
           """.formatted(pkg());
-    base
+    boolean result = base
     .addStaticImport("org.junit.jupiter.api.Assertions.*")
     .addFunctionAlias("foo", "org.rescript.Test1.TestInner1.functionWith2Parameters")
     .setScript(script)
     .create()
-    .run();
+    .evalPredicate();
+    assertTrue(result);
   }
 }

@@ -31,6 +31,7 @@ import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.VarAssignStmtContext;
 import org.rescript.antlr.ScriptParser.VardefContext;
 import org.rescript.statement.ExpressionStatement;
+import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.VardefStatement;
 import org.rescript.symbol.SymbolTable;
@@ -112,6 +113,11 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitReturnStmt(ReturnStmtContext ctx) {
     log.debug("exit return stmt '{}'", ctx.getText());
+    if(stack.isEmpty()) {
+      stack.push(new ReturnStatement(null));
+    } else {
+      stack.push(new ReturnStatement(popExpression()));
+    }
   }
 
   @Override
@@ -315,6 +321,10 @@ public class ParserListener implements ScriptListener {
       fail("expected terminal but got '%s'".formatted(terminal));
     }
     return (Terminal)terminal;
+  }
+
+  private Expression popExpression() {
+    return (Expression)stack.pop();
   }
 
   private AstNode nodes(int i) {

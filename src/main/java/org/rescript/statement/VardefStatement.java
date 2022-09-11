@@ -6,7 +6,7 @@ import org.rescript.run.Expressions;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolTable;
 
-public class VardefStatement implements ParseItem, Statement {
+public class VardefStatement implements Statement {
 
   private String name;
 
