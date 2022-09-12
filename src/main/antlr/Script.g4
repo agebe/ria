@@ -15,10 +15,20 @@ script: stmt*;
 // TODO blocks {}
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
-stmt: (expr | vardef | returnStmt) ';';
-returnStmt: 'return' expr? ;
-vardef: 'var' ident assignment?;
-//varAssignStmt: ident assignment;
+
+stmt
+  : emptyStmt
+  | exprStmt
+  | vardefStmt
+  | returnStmt
+  | block
+  ;
+emptyStmt: SEMI;
+exprStmt: expr SEMI;
+vardefStmt: 'var' ident assignment? SEMI;
+returnStmt: 'return' expr? SEMI;
+block : '{' stmt+ '}';
+
 assignment: '=' expr;
 expr: fcall | literal | ident | assignmentOp | expr DOT expr;
 assignmentOp: ident assignment;

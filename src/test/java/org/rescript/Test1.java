@@ -292,6 +292,11 @@ public class Test1 {
   }
 
   @Test
+  public void emptyStmt() {
+    new Script().run(";;;");
+  }
+
+  @Test
   public void test1() {
     String script = """
         var v1 = "1";

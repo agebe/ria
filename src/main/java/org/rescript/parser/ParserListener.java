@@ -15,8 +15,11 @@ import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
+import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
+import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
+import org.rescript.antlr.ScriptParser.ExprStmtContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
@@ -29,7 +32,7 @@ import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
-import org.rescript.antlr.ScriptParser.VardefContext;
+import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.expression.AssignmentOperator;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.DotOperator;
@@ -93,26 +96,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterStmt(StmtContext ctx) {
-    log.debug("enter stmt '{}'", ctx.getText());
+    log.debug("enterStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitStmt(StmtContext ctx) {
-    log.debug("exit stmt '{}'", ctx.getText());
-    // TODO just for now to show something
-    Terminal semi = popTerminal();
-    if(!semi.getText().equals(";")) {
-      fail("expected semicolon");
-    }
-    ParseItem pi = stack.pop();
-    log.debug("got '{}' from stack", pi);
-    if(pi instanceof Statement) {
-      stmts.add((Statement)pi);
-    } else if(pi instanceof Expression) {
-      stmts.add(new ExpressionStatement((Expression)pi));
-    } else {
-      fail("'%s' not supported yet".formatted(pi));
-    }
+    log.debug("exitStmt '{}'", ctx.getText());
   }
 
   @Override
@@ -123,39 +112,11 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitReturnStmt(ReturnStmtContext ctx) {
     log.debug("exit return stmt '{}'", ctx.getText());
+    popSemi();
     if(stack.isEmpty()) {
-      stack.push(new ReturnStatement(null));
+      stmts.add(new ReturnStatement(null));
     } else {
-      stack.push(new ReturnStatement(popExpression()));
-    }
-  }
-
-  @Override
-  public void enterVardef(VardefContext ctx) {
-    log.debug("enter vardef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitVardef(VardefContext ctx) {
-    log.debug("exit vardef '{}'", ctx.getText());
-    ParseItem pi1 = stack.pop();
-    ParseItem pi2 = stack.pop();
-    if(pi2 instanceof Terminal) {
-      String t2 = ((Terminal)pi2).getText();
-      if("var".equals(t2)) {
-        Identifier i1 = (Identifier)pi1;
-        stack.push(new VardefStatement(i1.getIdent(), null));
-      } else if( "=".equals(t2)) {
-        ParseItem pi3 = stack.pop();
-        Terminal t4 = popTerminal();
-        if(!"var".equals(t4.getText())) {
-          throw new SyntaxException("expected 'var' but got '%s'".formatted(t4.getText()));
-        }
-        Identifier i3 = (Identifier)pi3;
-        stack.push(new VardefStatement(i3.getIdent(), (Expression)pi1));
-      }
-    } else {
-      throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
+      stmts.add(new ReturnStatement(popExpression()));
     }
   }
 
@@ -332,6 +293,10 @@ public class ParserListener implements ScriptListener {
     }
   }
 
+  private void popSemi() {
+    popTerminal(";");
+  }
+
   private Expression popExpression() {
     return (Expression)stack.pop();
   }
@@ -418,6 +383,69 @@ public class ParserListener implements ScriptListener {
     popTerminal("=");
     Identifier ident = popIdentifier();
     stack.push(new AssignmentOperator(ident, expr));
+  }
+
+  @Override
+  public void enterEmptyStmt(EmptyStmtContext ctx) {
+    log.debug("enterEmptyStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitEmptyStmt(EmptyStmtContext ctx) {
+    log.debug("exitEmptyStmt '{}'", ctx.getText());
+    popSemi();
+    // TODO preserve empty statement? might be good for for loop e.g.: for(;;) {...}
+  }
+
+  @Override
+  public void enterExprStmt(ExprStmtContext ctx) {
+    log.debug("enterExprStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitExprStmt(ExprStmtContext ctx) {
+    log.debug("exitExprStmt '{}'", ctx.getText());
+    popSemi();
+    stmts.add(new ExpressionStatement(popExpression()));
+  }
+
+  @Override
+  public void enterVardefStmt(VardefStmtContext ctx) {
+    log.debug("enterVardefStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitVardefStmt(VardefStmtContext ctx) {
+    log.debug("exitVardefStmt '{}'", ctx.getText());
+    popSemi();
+    ParseItem pi1 = stack.pop();
+    ParseItem pi2 = stack.pop();
+    if(pi2 instanceof Terminal) {
+      String t2 = ((Terminal)pi2).getText();
+      if("var".equals(t2)) {
+        Identifier i1 = (Identifier)pi1;
+        stmts.add(new VardefStatement(i1.getIdent(), null));
+      } else if( "=".equals(t2)) {
+        ParseItem pi3 = stack.pop();
+        popTerminal("var");
+        Identifier i3 = (Identifier)pi3;
+        stmts.add(new VardefStatement(i3.getIdent(), (Expression)pi1));
+      }
+    } else {
+      throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
+    }
+  }
+
+  @Override
+  public void enterBlock(BlockContext ctx) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void exitBlock(BlockContext ctx) {
+    // TODO Auto-generated method stub
+    
   }
 
 }
