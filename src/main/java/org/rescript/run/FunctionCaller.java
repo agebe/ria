@@ -10,7 +10,6 @@ import org.rescript.ScriptException;
 import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.JavaMethodSymbol;
-import org.rescript.symbol.SymbolTable;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
@@ -24,13 +23,10 @@ public class FunctionCaller {
 
   private static final Logger log = LoggerFactory.getLogger(FunctionCaller.class);
 
-  private SymbolTable symbols;
+  private ScriptContext ctx;
 
-  private Expressions expressions;
-
-  public FunctionCaller(SymbolTable symbols, Expressions expressions) {
-    this.symbols = symbols;
-    this.expressions = expressions;
+  public FunctionCaller(ScriptContext ctx) {
+    this.ctx = ctx;
   }
 
   public Value call(FunctionCall function, Value target) {
@@ -43,7 +39,7 @@ public class FunctionCaller {
             target.val());
         return callJavaMethod(symbol, function);
       } else {
-        JavaMethodSymbol symbol = symbols.resolveFunction(function.getName().getName());
+        JavaMethodSymbol symbol = ctx.getSymbols().resolveFunction(function.getName().getName());
         if(symbol != null) {
           return callJavaMethod(symbol, function);
         } else {
@@ -51,8 +47,7 @@ public class FunctionCaller {
         }
       }
     } catch(Exception e) {
-      // TODO improve exception text
-      throw new ScriptException("function failed", e);
+      throw new ScriptException("function '%s' failed on target '%s'".formatted(function, target), e);
     }
   }
 
@@ -60,6 +55,7 @@ public class FunctionCaller {
     // fcall function name might have been replaced via alias
     String fname = symbol.getMethodName();
     Value[] parameters = resolveParameters(fcall.getParameters());
+    log.debug("function parameters '{}'", Arrays.toString(parameters));
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
     Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
     Class<?> cls = symbol.getTargetType();
@@ -160,7 +156,7 @@ public class FunctionCaller {
 
   private Value[] resolveParameters(List<FunctionParameter> parameters) {
     return parameters.stream()
-        .map(p -> p.getParameter().eval(expressions))
+        .map(p -> p.getParameter().eval(ctx))
         .toArray(Value[]::new);
   }
 

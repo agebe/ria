@@ -1,9 +1,9 @@
 package org.rescript.statement;
 
 import org.rescript.expression.Expression;
-import org.rescript.run.Expressions;
 import org.rescript.run.ScriptContext;
-import org.rescript.symbol.SymbolTable;
+import org.rescript.value.Value;
+import org.rescript.value.VoidValue;
 
 public class VardefStatement implements Statement {
 
@@ -19,12 +19,10 @@ public class VardefStatement implements Statement {
 
   @Override
   public void execute(ScriptContext ctx) {
-    execute(ctx.getSymbols(), ctx.getExpressions());
+    Value v = (initial!=null?initial.eval(ctx):new VoidValue());
+    ctx.setLastResult(v);
+    ctx.getSymbols().defineVar(name, v);
     ctx.setCurrent(ctx.getCurrent().getTrueNode());
-  }
-
-  private void execute(SymbolTable symbols, Expressions expr) {
-    symbols.defineVar(name, (initial!=null?initial.eval(expr):null));
   }
 
   @Override

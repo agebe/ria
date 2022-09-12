@@ -49,6 +49,7 @@ public class Test1 {
 
   private ScriptBuilder base = new ScriptBuilder()
       .addImport("java.util.Objects")
+      .addStaticImport("org.junit.jupiter.api.Assertions.*")
       .addFunctionAlias("println", "System.out.println");
 
   @Test
@@ -271,9 +272,23 @@ public class Test1 {
     Script script = new Script();
     double d = script.evalDouble("1.23d;");
     int i = script.evalInt("1;");
+    long l = script.evalLong("var l = Long.MAX_VALUE;");
+    // make sure variable l persists between script runs
+    script.run("org.junit.jupiter.api.Assertions.assertEquals(Long.MAX_VALUE, l);");
     Assertions.assertEquals(1.23, d);
     Assertions.assertEquals(1, i);
-    // TODO add more commands (var def assign to check that state persists)
+    Assertions.assertEquals(Long.MAX_VALUE, l);
+  }
+
+  @Test
+  public void varassign() {
+    boolean b = base.setScript("""
+        var b;
+        b = true;
+        """)
+        .create()
+        .evalPredicate();
+    Assertions.assertTrue(b);
   }
 
   @Test
@@ -295,6 +310,9 @@ public class Test1 {
         var v6 = "v5 value";
         var v7 = foo(v6, "myStringLiteral").substring(2);
         assertEquals("StringLiteral", v7);
+        var v8;
+        v8 = 12345;
+        assertEquals(12345, v8);
         org.rescript.Test1.TestInner1.TestInner3.out.println("test");
         assertEquals("TI3_CONST", org.rescript.Test1.TestInner1.TestInner3.CONST);
         return v1.equals("1");
@@ -302,7 +320,6 @@ public class Test1 {
         assertEquals("2", v1);
           """.formatted(pkg());
     boolean result = base
-    .addStaticImport("org.junit.jupiter.api.Assertions.*")
     .addFunctionAlias("foo", "org.rescript.Test1.TestInner1.functionWith2Parameters")
     .setScript(script)
     .create()

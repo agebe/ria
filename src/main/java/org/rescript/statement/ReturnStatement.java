@@ -22,7 +22,7 @@ public class ReturnStatement implements Statement {
   public void execute(ScriptContext ctx) {
     log.debug("execute return statement, expression " + expression);
     if(expression != null) {
-      Value v = expression.eval(ctx.getExpressions());
+      Value v = expression.eval(ctx);
       ctx.setLastResult(v);
     } else {
       ctx.setLastResult(new VoidValue());

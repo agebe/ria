@@ -9,7 +9,7 @@ public class ScriptContext {
 
   private SymbolTable symbols;
 
-  private Expressions expressions;
+  private FunctionCaller functions;
 
   private AstNode current;
 
@@ -18,7 +18,7 @@ public class ScriptContext {
   public ScriptContext(SymbolTable symbols) {
     super();
     this.symbols = symbols;
-    this.expressions = new Expressions(symbols);
+    this.functions = new FunctionCaller(this);
     this.current = symbols.getEntryPoint();
   }
 
@@ -42,8 +42,8 @@ public class ScriptContext {
     return symbols;
   }
 
-  public Expressions getExpressions() {
-    return expressions;
+  public FunctionCaller getFunctions() {
+    return functions;
   }
 
 }

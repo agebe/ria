@@ -22,4 +22,8 @@ public class VarSymbol implements Symbol {
     return val;
   }
 
+  public void setVal(Value val) {
+    this.val = val;
+  }
+
 }

@@ -1,7 +1,7 @@
 package org.rescript.expression;
 
 import org.apache.commons.lang3.StringUtils;
-import org.rescript.run.Expressions;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
 import org.rescript.value.Value;
@@ -50,13 +50,18 @@ public class IntLiteral implements Expression {
   }
 
   @Override
-  public Value eval(Expressions expressions) {
+  public Value eval(ScriptContext ctx) {
     return value;
   }
 
   @Override
   public String getText() {
     return literal;
+  }
+
+  @Override
+  public String toString() {
+    return getText();
   }
 
 }

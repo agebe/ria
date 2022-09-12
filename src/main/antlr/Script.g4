@@ -7,19 +7,21 @@ package org.rescript.antlr;
 // TODO function definition
 script: stmt*;
 // TODO if statement
+// https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for statement
 // TODO while statement
 // TODO new operator
 // TODO arithmetic operators
-// TODO scopes {}
+// TODO blocks {}
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
-stmt: (expr | vardef  | varAssignStmt | returnStmt) ';';
+stmt: (expr | vardef | returnStmt) ';';
 returnStmt: 'return' expr? ;
 vardef: 'var' ident assignment?;
-varAssignStmt: ident assignment;
+//varAssignStmt: ident assignment;
 assignment: '=' expr;
-expr: fcall | literal | ident | expr DOT expr;
+expr: fcall | literal | ident | assignmentOp | expr DOT expr;
+assignmentOp: ident assignment;
 fcall: fname LPAREN fparams RPAREN;
 fname: Identifier;
 fparams: fparam? (COMMA fparam)*;

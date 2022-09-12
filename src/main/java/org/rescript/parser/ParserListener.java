@@ -14,6 +14,7 @@ import org.rescript.ScriptException;
 import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
+import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
@@ -28,8 +29,8 @@ import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
-import org.rescript.antlr.ScriptParser.VarAssignStmtContext;
 import org.rescript.antlr.ScriptParser.VardefContext;
+import org.rescript.expression.AssignmentOperator;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.Expression;
@@ -156,16 +157,6 @@ public class ParserListener implements ScriptListener {
     } else {
       throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
     }
-  }
-
-  @Override
-  public void enterVarAssignStmt(VarAssignStmtContext ctx) {
-    log.debug("enter var assign stmt '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitVarAssignStmt(VarAssignStmtContext ctx) {
-    log.debug("exit var assign stmt '{}'", ctx.getText());
   }
 
   @Override
@@ -332,8 +323,21 @@ public class ParserListener implements ScriptListener {
     return (Terminal)terminal;
   }
 
+  private Terminal popTerminal(String expected) {
+    Terminal t = popTerminal();
+    if(t.getText().equals(expected)) {
+      return t;
+    } else {
+      throw new ScriptException("expected terminal '%s' but got '%s'".formatted(expected, t.getText()));
+    }
+  }
+
   private Expression popExpression() {
     return (Expression)stack.pop();
+  }
+
+  private Identifier popIdentifier() {
+    return (Identifier)stack.pop();
   }
 
   private AstNode nodes(int i) {
@@ -400,6 +404,20 @@ public class ParserListener implements ScriptListener {
   public void exitIntLiteral(IntLiteralContext ctx) {
     log.debug("exit intLiteral '{}'", ctx.getText());
     stack.push(new IntLiteral(popTerminal().getText()));
+  }
+
+  @Override
+  public void enterAssignmentOp(AssignmentOpContext ctx) {
+    log.debug("enter AssignmentOp '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitAssignmentOp(AssignmentOpContext ctx) {
+    log.debug("exit AssignmentOp '{}'", ctx.getText());
+    Expression expr = popExpression();
+    popTerminal("=");
+    Identifier ident = popIdentifier();
+    stack.push(new AssignmentOperator(ident, expr));
   }
 
 }

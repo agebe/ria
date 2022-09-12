@@ -1,6 +1,6 @@
 package org.rescript.expression;
 
-import org.rescript.run.Expressions;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
 
@@ -23,7 +23,7 @@ public class StringLiteral implements Expression {
   }
 
   @Override
-  public Value eval(Expressions expressions) {
+  public Value eval(ScriptContext ctx) {
     return new ObjValue(String.class, literal);
   }
 

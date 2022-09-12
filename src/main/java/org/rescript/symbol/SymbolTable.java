@@ -42,7 +42,7 @@ public class SymbolTable {
   }
 
   public SymbolTable(AstNode entryPoint) {
-    this(list(), list(), map(), entryPoint);
+    this(list(), list(), map(), entryPoint, new HashMap<>());
   }
 
   public SymbolTable(
@@ -54,17 +54,22 @@ public class SymbolTable {
         importList.insertAll(symbols.importList),
         importStaticList.insertAll(symbols.importStaticList),
         symbols.functionAlias.assignAll(functionAlias),
-        symbols.getEntryPoint()
-        );
+        symbols.getEntryPoint(),
+        new HashMap<>());
   }
 
-  public SymbolTable(JImmutableList<String> importList, JImmutableList<String> importStaticList,
-      JImmutableMap<String, String> functionAlias, AstNode entryPoint) {
+  public SymbolTable(
+      JImmutableList<String> importList,
+      JImmutableList<String> importStaticList,
+      JImmutableMap<String, String> functionAlias,
+      AstNode entryPoint,
+      Map<String, VarSymbol> variables) {
     super();
     this.importList = importList;
     this.importStaticList = importStaticList;
     this.functionAlias = functionAlias;
     this.entryPoint = entryPoint;
+    this.variables = variables;
   }
 
   private JImmutableList<String> imports() {
@@ -418,7 +423,8 @@ public class SymbolTable {
         importList.insertAll(symbols.importList),
         importStaticList.insertAll(symbols.importStaticList),
         functionAlias.insertAll(symbols.functionAlias),
-        symbols.entryPoint
+        symbols.entryPoint,
+        this.variables
         );
   }
 
@@ -426,6 +432,15 @@ public class SymbolTable {
     VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
+    }
+  }
+
+  public void assignVar(String name, Value val) {
+    VarSymbol v = variables.get(name);
+    if(v != null) {
+      v.setVal(val);
+    } else {
+      defineVar(name, val);
     }
   }
 

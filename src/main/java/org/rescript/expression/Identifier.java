@@ -1,6 +1,6 @@
 package org.rescript.expression;
 
-import org.rescript.run.Expressions;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
 public class Identifier implements TargetExpression {
@@ -22,14 +22,13 @@ public class Identifier implements TargetExpression {
   }
 
   @Override
-  public Value eval(Expressions expressions) {
-//    return expressions.toValue(expressions.getSymbols().resolve(ident));
-    return expressions.getSymbols().resolve(null, ident);
+  public Value eval(ScriptContext ctx) {
+    return ctx.getSymbols().resolve(null, ident);
   }
 
   @Override
-  public Value eval(Expressions expressions, Value target) {
-    return expressions.getSymbols().resolve(target, ident);
+  public Value eval(ScriptContext ctx, Value target) {
+    return ctx.getSymbols().resolve(target, ident);
   }
 
   @Override

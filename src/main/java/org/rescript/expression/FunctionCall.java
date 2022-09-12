@@ -5,7 +5,7 @@ import java.util.List;
 import org.rescript.ScriptException;
 import org.rescript.parser.FunctionName;
 import org.rescript.parser.FunctionParameter;
-import org.rescript.run.Expressions;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
 public class FunctionCall implements TargetExpression {
@@ -37,13 +37,13 @@ public class FunctionCall implements TargetExpression {
   }
 
   @Override
-  public Value eval(Expressions expressions) {
-    return expressions.getFunctions().call(this, null);
+  public Value eval(ScriptContext ctx) {
+    return ctx.getFunctions().call(this, null);
   }
 
   @Override
-  public Value eval(Expressions expressions, Value target) {
-    return expressions.getFunctions().call(this, target);
+  public Value eval(ScriptContext ctx, Value target) {
+    return ctx.getFunctions().call(this, target);
   }
 
   @Override
