@@ -1,7 +1,6 @@
 package org.rescript.statement;
 
-import org.rescript.parser.Expression;
-import org.rescript.parser.ParseItem;
+import org.rescript.expression.Expression;
 import org.rescript.run.Expressions;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolTable;

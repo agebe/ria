@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.rescript.ScriptException;
-import org.rescript.parser.FunctionCall;
+import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.JavaMethodSymbol;
 import org.rescript.symbol.SymbolTable;

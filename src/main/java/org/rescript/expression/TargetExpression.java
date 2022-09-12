@@ -1,4 +1,4 @@
-package org.rescript.parser;
+package org.rescript.expression;
 
 import org.rescript.run.Expressions;
 import org.rescript.value.Value;

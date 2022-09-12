@@ -1,5 +1,7 @@
 package org.rescript.parser;
 
+import org.rescript.expression.Expression;
+
 public class FunctionParameter implements ParseItem {
 
   private Expression parameter;

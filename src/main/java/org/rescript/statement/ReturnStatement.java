@@ -1,6 +1,6 @@
 package org.rescript.statement;
 
-import org.rescript.parser.Expression;
+import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
