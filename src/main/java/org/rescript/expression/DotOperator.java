@@ -1,7 +1,6 @@
 package org.rescript.expression;
 
 import org.rescript.ScriptException;
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.PackageValue;
@@ -9,7 +8,7 @@ import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DotOperator implements ParseItem, Expression {
+public class DotOperator implements Expression {
 
   private static final Logger log = LoggerFactory.getLogger(DotOperator.class);
 

@@ -5,11 +5,10 @@ import java.util.List;
 import org.rescript.ScriptException;
 import org.rescript.parser.FunctionName;
 import org.rescript.parser.FunctionParameter;
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.value.Value;
 
-public class FunctionCall implements ParseItem, TargetExpression {
+public class FunctionCall implements TargetExpression {
 
   private FunctionName name;
 

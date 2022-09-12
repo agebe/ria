@@ -1,13 +1,12 @@
 package org.rescript.expression;
 
 import org.apache.commons.lang3.StringUtils;
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
 import org.rescript.value.Value;
 
-public class IntLiteral implements ParseItem, Expression {
+public class IntLiteral implements Expression {
 
   private static class P {
     String lit;

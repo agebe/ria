@@ -1,11 +1,10 @@
 package org.rescript.expression;
 
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.Value;
 
-public class BoolLiteral implements ParseItem, Expression {
+public class BoolLiteral implements Expression {
 
   private boolean val;
 

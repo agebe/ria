@@ -1,13 +1,12 @@
 package org.rescript.expression;
 
 import org.apache.commons.lang3.StringUtils;
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.Value;
 
-public class FloatLiteral implements ParseItem, Expression {
+public class FloatLiteral implements Expression {
 
   private Value value;
 

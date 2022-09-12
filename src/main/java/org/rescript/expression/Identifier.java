@@ -1,10 +1,9 @@
 package org.rescript.expression;
 
-import org.rescript.parser.ParseItem;
 import org.rescript.run.Expressions;
 import org.rescript.value.Value;
 
-public class Identifier implements ParseItem, TargetExpression {
+public class Identifier implements TargetExpression {
 
   private String ident;
 
