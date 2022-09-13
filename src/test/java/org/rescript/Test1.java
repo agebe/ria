@@ -334,8 +334,44 @@ public class Test1 {
   }
 
   @Test
+  public void nestedIfElse() {
+    assertEquals(3, base.create().evalInt("""
+        1;
+        if(true)
+          if(false) 2; else 3;
+        else 4;
+        """
+        ));
+  }
+
+  @Test
   public void nonBooleanIfFail() {
     Assertions.assertThrows(ScriptException.class, () -> new Script().run("if(1) true;"));
+  }
+
+  @Test
+  public void emptyBlock() {
+    new Script().run("{}");
+  }
+
+  @Test
+  public void simpleBlock() {
+    new Script().run("{1;}");
+  }
+
+  @Test
+  public void multiStmtBlock() {
+    new Script().run("{1;2;}");
+  }
+
+  @Test
+  public void emptyNestedBlock() {
+    new Script().run("{{}}");
+  }
+
+  @Test
+  public void emptyNestedBlock2() {
+    new Script().run("{{}{}}");
   }
 
   @Test
