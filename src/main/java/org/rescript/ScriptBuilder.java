@@ -84,11 +84,8 @@ public class ScriptBuilder {
   }
 
   public Script create() {
-    if(symbols == null) {
-      throw new ScriptException("no script");
-    }
     return new Script(new SymbolTable(
-        symbols,
+        symbols!=null?symbols:new SymbolTable(),
         this.importList,
         this.importStaticList,
         this.functionAlias));
