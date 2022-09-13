@@ -297,6 +297,48 @@ public class Test1 {
   }
 
   @Test
+  public void simpleIfTest() {
+    assertEquals(2, new Script().evalInt("1;if(true) 2;"));
+    assertEquals(1, new Script().evalInt("1;if(false) 2;"));
+  }
+
+  @Test
+  public void simpleIfElseTest() {
+    int a = base.create().evalInt("""
+        1;
+        if(true) 2; else 3;
+        """);
+    assertEquals(2, a);
+  }
+
+  @Test
+  public void danglingElseTest() {
+    assertEquals(1, base.create().evalInt("""
+        1;
+        if(false)
+          if(false) 2; else 3;
+        """
+        ));
+    assertEquals(2, base.create().evalInt("""
+        1;
+        if(true)
+          if(true) 2; else 3;
+        """
+        ));
+    assertEquals(3, base.create().evalInt("""
+        1;
+        if(true)
+          if(false) 2; else 3;
+        """
+        ));
+  }
+
+  @Test
+  public void nonBooleanIfFail() {
+    Assertions.assertThrows(ScriptException.class, () -> new Script().run("if(1) true;"));
+  }
+
+  @Test
   public void test1() {
     String script = """
         var v1 = "1";

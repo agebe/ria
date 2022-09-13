@@ -15,6 +15,8 @@ script: stmt*;
 // TODO blocks {}
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
+// make sure ifStmt comes before ifElseStmt to take care of the dangling else problem
+// https://stackoverflow.com/a/70109996
 
 stmt
   : emptyStmt
@@ -22,12 +24,16 @@ stmt
   | vardefStmt
   | returnStmt
   | block
+  | ifStmt
+  | ifElseStmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
 vardefStmt: 'var' ident assignment? SEMI;
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt+ '}';
+ifStmt: IF LPAREN expr RPAREN stmt;
+ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 
 assignment: '=' expr;
 expr: fcall | literal | ident | assignmentOp | expr DOT expr;

@@ -26,6 +26,8 @@ import org.rescript.antlr.ScriptParser.FnameContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
+import org.rescript.antlr.ScriptParser.IfElseStmtContext;
+import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
@@ -91,7 +93,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
-    log.debug("exit script, parse done");
+    log.debug("parse done");
   }
 
   @Override
@@ -438,12 +440,42 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterBlock(BlockContext ctx) {
+    log.debug("enterBlock '{}'", ctx.getText());
     // TODO Auto-generated method stub
     
   }
 
   @Override
   public void exitBlock(BlockContext ctx) {
+    log.debug("exitBlock '{}'", ctx.getText());
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void enterIfStmt(IfStmtContext ctx) {
+    log.debug("enterIfStmt '{}'", ctx.getText());
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void exitIfStmt(IfStmtContext ctx) {
+    log.debug("exitIfStmt '{}'", ctx.getText());
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void enterIfElseStmt(IfElseStmtContext ctx) {
+    log.debug("enterIfElseStmt '{}'", ctx.getText());
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void exitIfElseStmt(IfElseStmtContext ctx) {
+    log.debug("exitIfElseStmt '{}'", ctx.getText());
     // TODO Auto-generated method stub
     
   }
