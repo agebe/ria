@@ -31,7 +31,7 @@ emptyStmt: SEMI;
 exprStmt: expr SEMI;
 vardefStmt: 'var' ident assignment? SEMI;
 returnStmt: 'return' expr? SEMI;
-block : '{' stmt+ '}';
+block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 
