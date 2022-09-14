@@ -6,13 +6,11 @@ package org.rescript.antlr;
 }
 // TODO function definition
 script: stmt*;
-// TODO if statement
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for statement
 // TODO while statement
 // TODO new operator
 // TODO arithmetic operators
-// TODO blocks {}
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
 // make sure ifStmt comes before ifElseStmt to take care of the dangling else problem

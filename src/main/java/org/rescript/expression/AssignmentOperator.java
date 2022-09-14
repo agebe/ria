@@ -1,6 +1,5 @@
 package org.rescript.expression;
 
-import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 

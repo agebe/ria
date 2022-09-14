@@ -3,7 +3,7 @@ package org.rescript.statement;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 
-public class ExpressionStatement implements Statement {
+public class ExpressionStatement extends AbstractStatement {
 
   private Expression expression;
 
@@ -15,7 +15,6 @@ public class ExpressionStatement implements Statement {
   @Override
   public void execute(ScriptContext ctx) {
     ctx.setLastResult(expression.eval(ctx));
-    ctx.setCurrent(ctx.getCurrent().getTrueNode());
   }
 
   @Override

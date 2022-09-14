@@ -7,7 +7,7 @@ import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReturnStatement implements Statement {
+public class ReturnStatement extends AbstractStatement {
 
   private static final Logger log = LoggerFactory.getLogger(ReturnStatement.class);
 
@@ -21,6 +21,7 @@ public class ReturnStatement implements Statement {
   @Override
   public void execute(ScriptContext ctx) {
     log.debug("execute return statement, expression " + expression);
+    ctx.setReturnFlag(true);
     if(expression != null) {
       Value v = expression.eval(ctx);
       ctx.setLastResult(v);
@@ -28,6 +29,11 @@ public class ReturnStatement implements Statement {
       ctx.setLastResult(new VoidValue());
     }
     ctx.setCurrent(null);
+  }
+
+  @Override
+  public String toString() {
+    return "ReturnStatement [expression=" + expression + "]";
   }
 
 }

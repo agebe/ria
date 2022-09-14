@@ -5,7 +5,7 @@ import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
 
-public class VardefStatement implements Statement {
+public class VardefStatement extends AbstractStatement {
 
   private String name;
 
@@ -22,7 +22,6 @@ public class VardefStatement implements Statement {
     Value v = (initial!=null?initial.eval(ctx):new VoidValue());
     ctx.setLastResult(v);
     ctx.getSymbols().defineVar(name, v);
-    ctx.setCurrent(ctx.getCurrent().getTrueNode());
   }
 
   @Override

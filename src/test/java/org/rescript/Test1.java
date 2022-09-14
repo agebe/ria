@@ -375,6 +375,42 @@ public class Test1 {
   }
 
   @Test
+  public void ifBlockReturn() {
+    assertEquals(3, base.create().evalInt("""
+        1;
+        if(true) {
+          if(false) {
+            2;
+          } else {
+            return 3;
+          }
+        } else {
+          4;
+        }
+        5;
+        """
+        ));
+  }
+
+  @Test
+  public void elseif() {
+    assertEquals(4, base.create().evalInt("""
+        1;
+        if(false) {
+          return 2;
+        } else if(false) {
+          return 3;
+        } else if(true) {
+          return 4;
+        } else {
+          return 5;
+        }
+        6;
+        """
+        ));
+  }
+
+  @Test
   public void test1() {
     String script = """
         var v1 = "1";

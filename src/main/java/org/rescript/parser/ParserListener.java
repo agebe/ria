@@ -1,10 +1,9 @@
 package org.rescript.parser;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -45,7 +44,10 @@ import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
 import org.rescript.expression.StringLiteral;
 import org.rescript.expression.TargetExpression;
+import org.rescript.statement.BlockStatement;
+import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
+import org.rescript.statement.IfStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.VardefStatement;
@@ -57,15 +59,15 @@ public class ParserListener implements ScriptListener {
 
   private static final Logger log = LoggerFactory.getLogger(ParserListener.class);
 
-  private Deque<ParseItem> stack = new ArrayDeque<ParseItem>();
+  private Deque<ParseItem> stack = new ArrayDeque<>();
 
-  // TODO currently just a single line of execution...
-  private List<Statement> stmts = new ArrayList<>();
+  public ParserListener() {
+    stack.push(new BlockStatement());
+  }
 
   @Override
   public void visitTerminal(TerminalNode node) {
     log.debug("visit terminal '{}'", node.getSymbol().getText());
-//    log("push terminal " + node.getSymbol().getText());
     stack.push(new Terminal(node.getSymbol()));
   }
 
@@ -93,6 +95,9 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
+    if(stack.size() != 1) {
+      log.warn("stack should have single item but has '{}', '{}'", stack.size(), stack);
+    }
     log.debug("parse done");
   }
 
@@ -104,6 +109,20 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitStmt(StmtContext ctx) {
     log.debug("exitStmt '{}'", ctx.getText());
+    log.debug("'{}'", stack);
+    Statement s = popStatement();
+    findMostRecentStatement().addStatement(s);
+  }
+
+  private Statement findMostRecentStatement() {
+    Iterator<ParseItem> iter = stack.iterator();
+    while(iter.hasNext()) {
+      ParseItem p = iter.next();
+      if(p instanceof Statement) {
+        return (Statement)p;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -115,11 +134,12 @@ public class ParserListener implements ScriptListener {
   public void exitReturnStmt(ReturnStmtContext ctx) {
     log.debug("exit return stmt '{}'", ctx.getText());
     popSemi();
-    if(stack.isEmpty()) {
-      stmts.add(new ReturnStatement(null));
-    } else {
-      stmts.add(new ReturnStatement(popExpression()));
+    Expression expr = null;
+    if(stack.getFirst() instanceof Expression) {
+      expr = popExpression();
     }
+    popTerminal("return");
+    stack.push(new ReturnStatement(expr));
   }
 
   @Override
@@ -307,17 +327,12 @@ public class ParserListener implements ScriptListener {
     return (Identifier)stack.pop();
   }
 
-  private AstNode nodes(int i) {
-    if(i < stmts.size()) {
-      Statement s = stmts.get(i);
-      return new AstNode(s, nodes(i+1), null);
-    } else {
-      return null;
-    }
+  private Statement popStatement() {
+    return (Statement)stack.pop();
   }
 
   public SymbolTable getSymbols() {
-    return new SymbolTable(nodes(0));
+    return new SymbolTable((Statement)stack.getLast());
   }
 
   @Override
@@ -396,7 +411,7 @@ public class ParserListener implements ScriptListener {
   public void exitEmptyStmt(EmptyStmtContext ctx) {
     log.debug("exitEmptyStmt '{}'", ctx.getText());
     popSemi();
-    // TODO preserve empty statement? might be good for for loop e.g.: for(;;) {...}
+    stack.push(new EmptyStatement());
   }
 
   @Override
@@ -408,7 +423,7 @@ public class ParserListener implements ScriptListener {
   public void exitExprStmt(ExprStmtContext ctx) {
     log.debug("exitExprStmt '{}'", ctx.getText());
     popSemi();
-    stmts.add(new ExpressionStatement(popExpression()));
+    stack.push(new ExpressionStatement(popExpression()));
   }
 
   @Override
@@ -426,12 +441,12 @@ public class ParserListener implements ScriptListener {
       String t2 = ((Terminal)pi2).getText();
       if("var".equals(t2)) {
         Identifier i1 = (Identifier)pi1;
-        stmts.add(new VardefStatement(i1.getIdent(), null));
+        stack.push(new VardefStatement(i1.getIdent(), null));
       } else if( "=".equals(t2)) {
         ParseItem pi3 = stack.pop();
         popTerminal("var");
         Identifier i3 = (Identifier)pi3;
-        stmts.add(new VardefStatement(i3.getIdent(), (Expression)pi1));
+        stack.push(new VardefStatement(i3.getIdent(), (Expression)pi1));
       }
     } else {
       throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
@@ -441,43 +456,51 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterBlock(BlockContext ctx) {
     log.debug("enterBlock '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    stack.push(new BlockStatement());
   }
 
   @Override
   public void exitBlock(BlockContext ctx) {
     log.debug("exitBlock '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    log.debug("stack '{}'", stack);
+    popTerminal("}");
+    popTerminal("{");
   }
 
   @Override
   public void enterIfStmt(IfStmtContext ctx) {
     log.debug("enterIfStmt '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    stack.push(new IfStatement());
   }
 
   @Override
   public void exitIfStmt(IfStmtContext ctx) {
     log.debug("exitIfStmt '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    log.debug("stack '{}'", stack);
+    popTerminal(")");
+    Expression e = popExpression();
+    popTerminal("(");
+    popTerminal("if");
+    IfStatement s = (IfStatement)stack.getFirst();
+    s.setExpression(e);
   }
 
   @Override
   public void enterIfElseStmt(IfElseStmtContext ctx) {
     log.debug("enterIfElseStmt '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    stack.push(new IfStatement());
   }
 
   @Override
   public void exitIfElseStmt(IfElseStmtContext ctx) {
     log.debug("exitIfElseStmt '{}'", ctx.getText());
-    // TODO Auto-generated method stub
-    
+    popTerminal("else");
+    popTerminal(")");
+    Expression e = popExpression();
+    popTerminal("(");
+    popTerminal("if");
+    IfStatement s = (IfStatement)stack.getFirst();
+    s.setExpression(e);
   }
 
 }

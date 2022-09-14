@@ -1,6 +1,6 @@
 package org.rescript.run;
 
-import org.rescript.parser.AstNode;
+import org.rescript.statement.Statement;
 import org.rescript.symbol.SymbolTable;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
@@ -11,9 +11,11 @@ public class ScriptContext {
 
   private FunctionCaller functions;
 
-  private AstNode current;
+  private Statement current;
 
   private Value lastResult = new VoidValue();
+
+  private boolean returnFlag;
 
   public ScriptContext(SymbolTable symbols) {
     super();
@@ -22,11 +24,11 @@ public class ScriptContext {
     this.current = symbols.getEntryPoint();
   }
 
-  public AstNode getCurrent() {
+  public Statement getCurrent() {
     return current;
   }
 
-  public void setCurrent(AstNode current) {
+  public void setCurrent(Statement current) {
     this.current = current;
   }
 
@@ -44,6 +46,14 @@ public class ScriptContext {
 
   public FunctionCaller getFunctions() {
     return functions;
+  }
+
+  public boolean isReturnFlag() {
+    return returnFlag;
+  }
+
+  public void setReturnFlag(boolean returnFlag) {
+    this.returnFlag = returnFlag;
   }
 
 }

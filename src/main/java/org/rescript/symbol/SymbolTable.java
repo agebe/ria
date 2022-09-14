@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
-import org.rescript.parser.AstNode;
+import org.rescript.statement.Statement;
 import org.rescript.value.ClsValue;
 import org.rescript.value.FieldValue;
 import org.rescript.value.PackageValue;
@@ -35,13 +35,13 @@ public class SymbolTable {
 
   private Map<String, VarSymbol> variables = new HashMap<>();
 
-  private AstNode entryPoint;
+  private Statement entryPoint;
 
   public SymbolTable() {
     this(null);
   }
 
-  public SymbolTable(AstNode entryPoint) {
+  public SymbolTable(Statement entryPoint) {
     this(list(), list(), map(), entryPoint, new HashMap<>());
   }
 
@@ -62,7 +62,7 @@ public class SymbolTable {
       JImmutableList<String> importList,
       JImmutableList<String> importStaticList,
       JImmutableMap<String, String> functionAlias,
-      AstNode entryPoint,
+      Statement entryPoint,
       Map<String, VarSymbol> variables) {
     super();
     this.importList = importList;
@@ -76,11 +76,11 @@ public class SymbolTable {
     return importList.insertFirst("java.lang.*");
   }
 
-  public AstNode getEntryPoint() {
+  public Statement getEntryPoint() {
     return entryPoint;
   }
 
-  public void setEntryPoint(AstNode entryPoint) {
+  public void setEntryPoint(Statement entryPoint) {
     this.entryPoint = entryPoint;
   }
 
