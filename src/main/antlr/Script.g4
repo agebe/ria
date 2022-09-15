@@ -28,13 +28,26 @@ stmt
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
 vardefStmt: 'var' ident assignment? SEMI;
+// TODO add support for multiple return expressions?
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 
-assignment: '=' expr;
-expr: fcall | literal | ident | assignmentOp | expr DOT expr;
+assignment: ASSIGN expr;
+
+expr
+// do operators first, order by precedence
+// https://introcs.cs.princeton.edu/java/11precedence/
+  : LPAREN expr RPAREN
+  | expr DOT expr
+  | assignmentOp
+// other expressions below
+  | fcall
+  | literal
+  | ident
+  ;
+
 assignmentOp: ident assignment;
 fcall: fname LPAREN fparams RPAREN;
 fname: Identifier;

@@ -163,41 +163,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitExpr(ExprContext ctx) {
     log.debug("exit expr '{}'", ctx.getText());
-    LinkedList<ParseItem> items = new LinkedList<>();
-    for(;;) {
-      ParseItem item = stack.pop();
-      if(item instanceof ExpressionStartMarker) {
-        ExpressionStartMarker expr = (ExpressionStartMarker)item;
-        if(expr.getCtx().equals(ctx)) {
-          break;
-        }
-      }
-      items.addFirst(item);
-    }
-//    log("on exitExpr got items '%s'".formatted(items));
-    // only 1 item on the stack, we just push that back as there is nothing else to do
-    if(items.size() == 1) {
-      stack.push(items.get(0));
-    } else if(items.size() == 3) {
-      // do we have an operator?
-      if(items.get(1) instanceof Terminal) {
-        Terminal operator = (Terminal)items.get(1);
-        String op = operator.getToken().getText();
-        if(".".equals(op)) {
-          dotOperator(items.get(0), items.get(2));
-        } else {
-          fail("unknown operator '%s'".formatted(items));
-        }
-      } else {
-        fail("exit expression, unimplemented case '%s'".formatted(items));
-      }
-    } else {
-      fail("exit expression, unimplemented case '%s'".formatted(items));
-    }
-  }
-
-  private void dotOperator(ParseItem item1, ParseItem item2) {
-    stack.push(new DotOperator((Expression)item1, (TargetExpression)item2));
+    new ExpressionParser(ctx, stack).parse();
   }
 
   @Override
