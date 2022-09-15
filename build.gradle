@@ -48,3 +48,8 @@ test {
   useJUnitPlatform()
 }
 
+tasks.register('grammar') {
+  group 'Build'
+  description 'shorter name for generateGrammarSource'
+  dependsOn 'generateGrammarSource'
+}
