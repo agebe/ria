@@ -41,6 +41,8 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
   | expr DOT expr
+  | expr AND expr
+  | expr OR expr
   | assignmentOp
 // other expressions below
   | fcall

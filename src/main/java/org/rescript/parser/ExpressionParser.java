@@ -8,6 +8,8 @@ import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.Expression;
+import org.rescript.expression.LogicalAndOp;
+import org.rescript.expression.LogicalOrOp;
 import org.rescript.expression.TargetExpression;
 
 public class ExpressionParser {
@@ -78,8 +80,20 @@ public class ExpressionParser {
     return isTerminal(0, "(") && isExpression(1) && isTerminal(2, ")");
   }
 
+  private boolean isMiddleOp(String op) {
+    return isExpression(0) && isTerminal(1, op) && isExpression(2);
+  }
+
   private boolean isDotOp() {
-    return isExpression(0) && isTerminal(1, ".") && isExpression(2);
+    return isMiddleOp(".");
+  }
+
+  private boolean isLogicalAnd() {
+    return isMiddleOp("&&");
+  }
+
+  private boolean isLogicalOr() {
+    return isMiddleOp("||");
   }
 
   private Expression exp(int i) {
@@ -102,15 +116,15 @@ public class ExpressionParser {
       // FIXME
       fail("not implemented");
     } else if(isTriple()) {
-//parentheses
       if(isParens()) {
         stack.push(getExpression(1));
-      } else
-// dot (member) operator
-      if(isDotOp()) {
+      } else if(isDotOp()) {
         stack.push(new DotOperator(exp(0), texp(2)));
-      } else
-        fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
+      } else if(isLogicalAnd()) {
+        stack.push(new LogicalAndOp(exp(0), exp(2)));
+      } else if(isLogicalOr()) {
+        stack.push(new LogicalOrOp(exp(0), exp(2)));
+      } else fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
     }

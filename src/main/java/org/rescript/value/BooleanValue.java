@@ -4,6 +4,9 @@ import org.rescript.ScriptException;
 
 public class BooleanValue implements Value {
 
+  public static final BooleanValue TRUE = new BooleanValue(true);
+  public static final BooleanValue FALSE = new BooleanValue(false);
+
   private boolean val;
 
   public BooleanValue(Object o) {
@@ -59,6 +62,10 @@ public class BooleanValue implements Value {
   @Override
   public long toLong() {
     throw new ScriptException("boolean can't be cast to long");
+  }
+
+  public static BooleanValue valueOf(boolean bool) {
+    return bool?BooleanValue.TRUE:BooleanValue.FALSE;
   }
 
 }
