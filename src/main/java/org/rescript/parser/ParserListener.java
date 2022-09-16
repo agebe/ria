@@ -93,6 +93,10 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
+    if(stack.size() == 2) {
+      // assume single expression script
+      findMostRecentStatement().addStatement(new ExpressionStatement(popExpression()));
+    }
     if(stack.size() != 1) {
       log.warn("stack should have single item but has '{}', '{}'", stack.size(), stack);
     }

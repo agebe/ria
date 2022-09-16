@@ -54,22 +54,22 @@ public class Test1 {
 
   @Test
   public void hello() throws Exception {
-    base.setScript("java.lang.System.out.println(\"Hello World\");").create().run();
+    base.setScript("java.lang.System.out.println(\"Hello World\")").create().run();
   }
 
   @Test
   public void helloWithDefaultImport() {
-    base.setScript("System.out.println(\"Hello World\");").create().run();
+    base.setScript("System.out.println(\"Hello World\")").create().run();
   }
 
   @Test
   public void importTest() {
     assertEquals("p1.A", base
-        .setScript("org.rescript.p1.A.test();")
+        .setScript("org.rescript.p1.A.test()")
         .create()
         .runReturning(String.class));
     assertEquals("p2.A", base
-        .setScript("org.rescript.p2.A.test();")
+        .setScript("org.rescript.p2.A.test()")
         .create()
         .runReturning(String.class));
     assertEquals("p1.A", base
@@ -79,7 +79,7 @@ public class Test1 {
         .runReturning(String.class));
     assertEquals("p2.A", base
         .addImport("org.rescript.p1.A")
-        .setScript("org.rescript.p2.A.test();")
+        .setScript("org.rescript.p2.A.test()")
         .create()
         .runReturning(String.class));
   }
@@ -90,13 +90,13 @@ public class Test1 {
 
   @Test
   public void fcall() {
-    new Script().run("java.lang.System.out.println(%s.Test1.TI2.TI1.f1());".formatted(pkg()));
+    new Script().run("java.lang.System.out.println(%s.Test1.TI2.TI1.f1())".formatted(pkg()));
   }
 
   @Test
   public void multiParamFCallTrue() {
     boolean result = base.setScript("""
-        Objects.equals("123", "123");
+        Objects.equals("123", "123")
         """)
     .create()
     .evalPredicate();
@@ -106,7 +106,7 @@ public class Test1 {
   @Test
   public void multiParamFCallFalse() {
     boolean result = base.setScript("""
-        Objects.equals("foo", "bar");
+        Objects.equals("foo", "bar")
         """)
     .create()
     .evalPredicate();
@@ -116,7 +116,7 @@ public class Test1 {
   @Test
   public void printNow() {
     base.setScript("""
-        System.out.println(LocalDateTime.now());
+        System.out.println(LocalDateTime.now())
         """)
     .addImport("java.time.*")
     .create()
@@ -126,7 +126,7 @@ public class Test1 {
 //  @Test
   public void importedHello() {
     base
-    .setScript("println(\"Hello World\");")
+    .setScript("println(\"Hello World\")")
     .create()
     .run();
   }
@@ -134,7 +134,7 @@ public class Test1 {
   @Test
   public void isBlank() {
     boolean result = base.setScript("""
-            org.apache.commons.lang3.StringUtils.isBlank("123");
+            org.apache.commons.lang3.StringUtils.isBlank("123")
             """)
         .create()
         .evalPredicate();
@@ -158,14 +158,14 @@ public class Test1 {
   public void runDouble() {
     double pi = base.setScript("Math.PI;").create().evalDouble();
     Assertions.assertEquals(3.14, pi, 0.01);
-    double sqrt2 = base.setScript("Math.sqrt(2d);").create().evalDouble();
+    double sqrt2 = base.setScript("Math.sqrt(2d)").create().evalDouble();
     Assertions.assertEquals(1.4142, sqrt2, 0.01);
   }
 
   @Test
   public void runFloat() {
     float f = base.setScript("""
-        Float.parseFloat("1.23");
+        Float.parseFloat("1.23")
         """)
         .create()
         .evalFloat();
@@ -175,7 +175,7 @@ public class Test1 {
   @Test
   public void boolLiteralTrue() {
     boolean b = base.setScript("""
-        true;
+        true
         """)
         .create()
         .evalPredicate();
@@ -185,7 +185,7 @@ public class Test1 {
   @Test
   public void boolLiteralFalse() {
     boolean b = base.setScript("""
-        false;
+        false
         """)
         .create()
         .evalPredicate();
@@ -195,7 +195,7 @@ public class Test1 {
   @Test
   public void boolLiteral() {
     boolean b = base.setScript("""
-        Boolean.valueOf(true);
+        Boolean.valueOf(true)
         """)
         .create()
         .evalPredicate();
@@ -205,7 +205,7 @@ public class Test1 {
   @Test
   public void floatLiteral() {
     float f = base
-        .setScript("1.2345f;")
+        .setScript("1.2345f")
         .create()
         .evalFloat();
     Assertions.assertEquals(1.2345f, f);
@@ -214,7 +214,7 @@ public class Test1 {
   @Test
   public void floatLiteral2() {
     float f = base
-        .setScript("1.2345f;")
+        .setScript("1.2345f")
         .create()
         .evalFloat();
     Assertions.assertEquals(1.2345f, f);
@@ -224,7 +224,7 @@ public class Test1 {
   @Test
   public void doubleLiteral() {
     double d = base
-        .setScript("12_34.5_6d;")
+        .setScript("12_34.5_6d")
         .create()
         .evalDouble();
     Assertions.assertEquals(1234.56, d);
@@ -232,49 +232,49 @@ public class Test1 {
 
   @Test
   public void intLiteral() {
-    Assertions.assertEquals(42, new Script().evalInt("4_2;"));
+    Assertions.assertEquals(42, new Script().evalInt("4_2"));
   }
 
   @Test
   public void intLiteralHex() {
-    Assertions.assertEquals(0xABC, new Script().evalInt("0xabc;"));
+    Assertions.assertEquals(0xABC, new Script().evalInt("0xabc"));
   }
 
   @Test
   public void intLiteralOct() {
-    Assertions.assertEquals(19, new Script().evalInt("023;"));
+    Assertions.assertEquals(19, new Script().evalInt("023"));
   }
 
   @Test
   public void intLiteralBin() {
-    Assertions.assertEquals(42, new Script().evalInt("0b101010;"));
+    Assertions.assertEquals(42, new Script().evalInt("0b101010"));
   }
 
   @Test
   public void longLiteral() {
     Assertions.assertEquals(9223372036854775807l,
-        new Script().evalLong("9__223_372_036_854_775_807l;"));
+        new Script().evalLong("9__223_372_036_854_775_807l"));
   }
 
   @Test
   public void longMax() {
-    Assertions.assertEquals(Long.MAX_VALUE, new Script().evalLong("Long.MAX_VALUE;"));
+    Assertions.assertEquals(Long.MAX_VALUE, new Script().evalLong("Long.MAX_VALUE"));
   }
 
   @Test
   public void runReturning() {
-    String s = new Script().runReturning("\"foo\";", String.class);
+    String s = new Script().runReturning("\"foo\"", String.class);
     Assertions.assertEquals("foo", s);
   }
 
   @Test
   public void repl() {
     Script script = new Script();
-    double d = script.evalDouble("1.23d;");
-    int i = script.evalInt("1;");
+    double d = script.evalDouble("1.23d");
+    int i = script.evalInt("1");
     long l = script.evalLong("var l = Long.MAX_VALUE;");
     // make sure variable l persists between script runs
-    script.run("org.junit.jupiter.api.Assertions.assertEquals(Long.MAX_VALUE, l);");
+    script.run("org.junit.jupiter.api.Assertions.assertEquals(Long.MAX_VALUE, l)");
     Assertions.assertEquals(1.23, d);
     Assertions.assertEquals(1, i);
     Assertions.assertEquals(Long.MAX_VALUE, l);
@@ -408,6 +408,11 @@ public class Test1 {
         6;
         """
         ));
+  }
+
+  @Test
+  public void singleExpression() {
+    assertEquals(42, new Script().evalInt("42"));
   }
 
   @Test

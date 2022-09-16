@@ -4,13 +4,19 @@ grammar Script;
 @header {
 package org.rescript.antlr;
 }
-// TODO function definition
-script: stmt*;
+
+// script can either be a list of statements or a single expression (no need for semicolon in this case)
+script
+  : stmt*
+  | expr
+  ;
+
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for statement
 // TODO while statement
 // TODO new operator
 // TODO arithmetic operators
+// TODO function definition
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
 // make sure ifStmt comes before ifElseStmt to take care of the dangling else problem
