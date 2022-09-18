@@ -1,6 +1,9 @@
 package org.rescript;
 
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,23 +11,27 @@ import org.junit.jupiter.api.Test;
 public class NewOpTest {
 
   public static class Concat2 {
-    Object o1;
-    Object o2;
+    private ConcatAll all;
     public Concat2(Object o1, Object o2) {
-      this.o1 = o1;
-      this.o2 = o2;
+      all = new ConcatAll(o1, o2);
     }
     @Override
     public String toString() {
-      if((o1 != null) && (o2 != null)) {
-        return o1.toString() + o2.toString();
-      } else if(o1 != null) {
-        return o1.toString();
-      } else if(o2 != null) {
-        return o2.toString();
-      } else {
-        return null;
-      }
+      return all.toString();
+    }
+  }
+
+  public static class ConcatAll {
+    private Object[] o;
+    public ConcatAll(Object... objects) {
+      this.o = objects;
+    }
+    @Override
+    public String toString() {
+      return Arrays.stream(o)
+          .filter(Objects::nonNull)
+          .map(Object::toString)
+          .collect(Collectors.joining());
     }
   }
 
@@ -68,6 +75,17 @@ public class NewOpTest {
     new NewOpTest.Concat2("12", "34").toString();
     """, String.class);
     Assertions.assertEquals("1234", s);
+  }
+
+  @Test
+  public void concatAll() throws Exception {
+    String s = new ScriptBuilder()
+    .addImport(this.getClass().getPackageName()+".*")
+    .create()
+    .runReturning("""
+    new NewOpTest.ConcatAll("12", "34", "56").toString();
+    """, String.class);
+    Assertions.assertEquals("123456", s);
   }
 
 }
