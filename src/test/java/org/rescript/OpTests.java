@@ -57,4 +57,9 @@ public class OpTests {
     Assertions.assertFalse(new Script().evalPredicate("false || true && false"));
   }
 
+  @Test
+  public void arith1() {
+    Assertions.assertEquals(7, new Script().evalInt("1+2*3"));
+  }
+
 }
