@@ -47,6 +47,7 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
   | expr DOT expr
+  | ccall
   | expr AND expr
   | expr OR expr
   | assignmentOp
@@ -56,10 +57,12 @@ expr
   | ident
   ;
 
+ccall : NEW cname fparams;
+cname : Identifier (DOT Identifier)*;
 assignmentOp: ident assignment;
-fcall: fname LPAREN fparams RPAREN;
+fcall: fname fparams;
 fname: Identifier;
-fparams: fparam? (COMMA fparam)*;
+fparams: LPAREN fparam? (COMMA fparam)* RPAREN;
 fparam: expr;
 literal: strLiteral | boolLiteral | intLiteral | floatLiteral;
 strLiteral: StringLiteral ;

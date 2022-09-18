@@ -4,12 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import org.rescript.ScriptException;
 import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.JavaMethodSymbol;
+import org.rescript.symbol.RUtils;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
@@ -59,10 +59,13 @@ public class FunctionCaller {
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
     Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
     Class<?> cls = symbol.getTargetType();
-    Method m = matchMethod(findMethods(cls, fname), paramTypes);
+    Method m = RUtils.matchSignature(paramTypes, findMethods(cls, fname));
     if(m != null) {
       try {
-        log.debug("invoke method '{}' with parameter types '{}'", m.getName(), Arrays.toString(paramTypes));
+        log.debug("invoke method '{}' with parameter types '{}', '{}'",
+            m.getName(),
+            Arrays.toString(paramTypes),
+            Arrays.toString(params));
         Object result = m.invoke(symbol.getTarget(), params);
         Class<?> returnType = m.getReturnType();
         if(returnType.equals(Void.class) || returnType.equals(void.class)) {
@@ -98,60 +101,11 @@ public class FunctionCaller {
   }
 
   private List<Method> findMethods(Class<?> cls, String name) {
-    return Arrays.stream(cls.getMethods())
+    List<Method> methods = Arrays.stream(cls.getMethods())
         .filter(m -> m.getName().equals(name))
         .toList();
-  }
-
-  private Method matchMethod(List<Method> methods, Class<?>[] paramTypes) {
-    return methods.stream()
-        .filter(m -> matchesParametersExactly(m, paramTypes))
-        .findFirst()
-        .orElseGet(() -> matchMethodFuzzy(methods, paramTypes));
-  }
-
-  private boolean matchesParametersExactly(Method m, Class<?>[] paramTypes) {
-    if(m.getParameterTypes().length != paramTypes.length) {
-      return false;
-    }
-    for(int i=0;i<paramTypes.length;i++) {
-      Class<?> mp = m.getParameterTypes()[i];
-      Class<?> pt = paramTypes[i];
-      if(!Objects.equals(mp, pt)) {
-        log.debug("match parameters exactly failed '{}', method parameter type '{}', supplied types '{}'",
-            m.getName(), Arrays.toString(m.getParameterTypes()), Arrays.toString(paramTypes));
-        return false;
-      }
-    }
-    log.debug("match parameters exactly success '{}', method parameter type '{}', supplied types '{}'",
-        m.getName(), Arrays.toString(m.getParameterTypes()), Arrays.toString(paramTypes));
-    return true;
-  }
-
-  private Method matchMethodFuzzy(List<Method> methods, Class<?>[] paramTypes) {
-    return methods.stream()
-        .filter(m -> matchesMethodFuzzy(m, paramTypes))
-        .findFirst()
-        .orElse(null);
-  }
-
-  private boolean matchesMethodFuzzy(Method m, Class<?>[] paramTypes) {
-    Class<?>[] methodParams = m.getParameterTypes();
-    if(methodParams.length != paramTypes.length) {
-      return false;
-    }
-    for(int i=0;i<paramTypes.length;i++) {
-      Class<?> mp = methodParams[i];
-      Class<?> pt = paramTypes[i];
-      if(!mp.isAssignableFrom(pt)) {
-        log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",
-            m.getName(), Arrays.toString(m.getParameterTypes()), Arrays.toString(paramTypes));
-        return false;
-      }
-    }
-    log.debug("match parameters fuzzy success '{}', method parameter type '{}', supplied types '{}'",
-        m.getName(), Arrays.toString(m.getParameterTypes()), Arrays.toString(paramTypes));
-    return true;
+    log.debug("findMethods for '{}', '{}'", name, methods);
+    return methods;
   }
 
   private Value[] resolveParameters(List<FunctionParameter> parameters) {

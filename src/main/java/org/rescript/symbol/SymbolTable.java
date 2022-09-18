@@ -202,6 +202,18 @@ public class SymbolTable {
         .orElse(null);
   }
 
+  public Class<?> resolveType(String name) {
+    ClsValue cls = cls(name);
+    if(cls != null) {
+      return cls.type();
+    }
+    cls = findImportedClass(name);
+    if(cls != null) {
+      return cls.type();
+    }
+    return null;
+  }
+
   private Class<?> findClassOrInnerClass(String name) {
     Class<?> cls = findClass(name);
     return cls!=null?cls:findInnerClass(name);

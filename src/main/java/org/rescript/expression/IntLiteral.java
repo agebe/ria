@@ -38,7 +38,9 @@ public class IntLiteral implements Expression {
   }
 
   private P withBase(String literal) {
-    if(StringUtils.startsWithIgnoreCase(literal, "0x")) {
+    if(literal.equals("0")) {
+      return new P(literal, 10);
+    } else if(StringUtils.startsWithIgnoreCase(literal, "0x")) {
       return new P(literal.substring(2), 16);
     } else if(StringUtils.startsWithIgnoreCase(literal, "0b")) {
       return new P(literal.substring(2), 2);

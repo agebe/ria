@@ -111,6 +111,7 @@ public class Test1 {
     .create()
     .evalPredicate();
     Assertions.assertFalse(result);
+    Assertions.assertTrue(base.create().evalPredicate("Objects.equals(\"foo\", \"foo\")"));
   }
 
   @Test
@@ -413,6 +414,26 @@ public class Test1 {
   @Test
   public void singleExpression() {
     assertEquals(42, new Script().evalInt("42"));
+  }
+
+  @Test
+  public void varargs() {
+    assertEquals("varargs",
+        base.setScript("""
+        String.format("var%s", "args")
+        """)
+        .create()
+        .runReturning(String.class));
+  }
+
+  @Test
+  public void twoMethods() {
+    assertEquals("StringLiteral",
+        base.setScript("""
+        "myStringLiteral".substring(0).substring(2)
+        """)
+        .create()
+        .runReturning(String.class));
   }
 
   @Test

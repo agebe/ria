@@ -1,9 +1,13 @@
 package org.rescript.parser;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -16,6 +20,8 @@ import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
+import org.rescript.antlr.ScriptParser.CcallContext;
+import org.rescript.antlr.ScriptParser.CnameContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.ExprStmtContext;
@@ -41,6 +47,7 @@ import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;
 import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
+import org.rescript.expression.NewOp;
 import org.rescript.expression.StringLiteral;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.EmptyStatement;
@@ -176,27 +183,9 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitFcall(FcallContext ctx) {
     log.debug("exit fcall '{}'", ctx.getText());
-    // get rid of right parenthesis
-    String rp = popTerminal().getToken().getText();
-    if(!StringUtils.equals(rp, ")")) {
-      fail("expected right parenthesis but got " + rp);
-    }
-    LinkedList<FunctionParameter> params = new LinkedList<>();
-    for(;;) {
-      ParseItem item = stack.pop();
-      if(item instanceof FunctionParameter) {
-        FunctionParameter param = (FunctionParameter)item;
-        params.addFirst(param);
-      } else if(item instanceof FunctionName) {
-        FunctionName name = (FunctionName)item;
-        FunctionCall fcall = new FunctionCall(name, params, null);
-        log.debug("push fcall '{}' to stack", fcall);
-        stack.push(fcall);
-        return;
-      } else {
-        fail("unexpected item on stack for function call " + item);
-      }
-    }
+    FunctionParameters params = (FunctionParameters)stack.pop();
+    FunctionName name = (FunctionName)stack.pop();
+    stack.push(new FunctionCall(name, params.getParameters(), null));
   }
 
   @Override
@@ -213,26 +202,36 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterFparams(FparamsContext ctx) {
     log.debug("enter fparams '{}'", ctx.getText());
-    // get rid of initial left parenthesis
-    String s = popTerminal().getToken().getText();
-    if(!StringUtils.equals(s, "(")) {
-      fail("expected left parenthesis " + s);
-    }
   }
 
   @Override
   public void exitFparams(FparamsContext ctx) {
     log.debug("exit fparams '{}'", ctx.getText());
+    List<FunctionParameter> l = new ArrayList<>();
+    popTerminal(")");
+    for(;;) {
+      ParseItem pi = stack.pop();
+      if(pi instanceof Terminal) {
+        String t = ((Terminal)pi).getText();
+        if("(".equals(t)) {
+          break;
+        }
+        if(!",".equals(t)) {
+          throw new ScriptException("unexpected terminal '%s' in parameter list, %s".formatted(t, ctx.getText()));
+        }
+      } else if(pi instanceof FunctionParameter) {
+        l.add((FunctionParameter)pi);
+      } else {
+        throw new ScriptException("unexpected stack item '%s' in parameter list, %s".formatted(pi, ctx.getText()));
+      }
+    }
+    Collections.reverse(l);
+    stack.push(new FunctionParameters(l));
   }
 
   @Override
   public void enterFparam(FparamContext ctx) {
     log.debug("enter fparam '{}'", ctx.getText());
- // get rid of initial comma separating parameters, this does not work for the first parameter though
-    ParseItem item = stack.peek();
-    if((item instanceof Terminal) && ((Terminal) item).getToken().getText().equals(",")) {
-      popTerminal();
-    }
   }
 
   @Override
@@ -264,6 +263,14 @@ public class ParserListener implements ScriptListener {
 
   private void fail(String msg) {
     throw new ScriptException(msg);
+  }
+
+  private ParseItem peek() {
+    return stack.peek();
+  }
+
+  private boolean peekExpression() {
+    return peek() instanceof Expression;
   }
 
   private Terminal popTerminal() {
@@ -469,6 +476,39 @@ public class ParserListener implements ScriptListener {
     popTerminal("if");
     IfStatement s = (IfStatement)stack.getFirst();
     s.setExpression(e);
+  }
+
+  @Override
+  public void enterCcall(CcallContext ctx) {
+    log.debug("enterCcall '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitCcall(CcallContext ctx) {
+    log.debug("exitCcall '{}'", ctx.getText());
+    FunctionParameters params = (FunctionParameters)stack.pop();
+    TypeName name = (TypeName)stack.pop();
+    // exitCname already popped the the 'new' terminal of the stack
+    stack.push(new NewOp(name.getName(), params.getParameters()));
+  }
+
+  @Override
+  public void enterCname(CnameContext ctx) {
+    log.debug("enterCname '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitCname(CnameContext ctx) {
+    log.debug("exitCname '{}'", ctx.getText());
+    LinkedList<String> l = new LinkedList<>();
+    for(;;) {
+      String t = popTerminal().getText();
+      if("new".equals(t)) {
+        break;
+      }
+      l.addFirst(t);
+    }
+    stack.push(new TypeName(l.stream().collect(Collectors.joining())));
   }
 
 }
