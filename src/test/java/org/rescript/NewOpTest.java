@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,24 @@ public class NewOpTest {
           .filter(Objects::nonNull)
           .map(Object::toString)
           .collect(Collectors.joining());
+    }
+  }
+
+  public static class ConcatAllPrefixRepeat {
+    private String prefix;
+    private int repeat;
+    private String[] o;
+    public ConcatAllPrefixRepeat(String prefix, int repeat, String... objects) {
+      this.prefix = prefix;
+      this.repeat = repeat;
+      this.o = objects;
+    }
+    @Override
+    public String toString() {
+      String s = Arrays.stream(o)
+          .filter(Objects::nonNull)
+          .collect(Collectors.joining());
+      return prefix + StringUtils.repeat(s, repeat);
     }
   }
 
@@ -105,6 +124,28 @@ public class NewOpTest {
     new NewOpTest.ConcatAll("12", "34", "56").toString();
     """, String.class);
     Assertions.assertEquals("123456", s);
+  }
+
+  @Test
+  public void concatRepeat() throws Exception {
+    String s = new ScriptBuilder()
+    .addImport(this.getClass().getPackageName()+".*")
+    .create()
+    .runReturning("""
+    new NewOpTest.ConcatAllPrefixRepeat("foo:", 3, "12", "34", "56").toString();
+    """, String.class);
+    Assertions.assertEquals("foo:123456123456123456", s);
+  }
+
+  @Test
+  public void concatRepeat2() throws Exception {
+    String s = new ScriptBuilder()
+    .addImport(this.getClass().getPackageName()+".*")
+    .create()
+    .runReturning("""
+    new NewOpTest.ConcatAllPrefixRepeat("foo:", 3).toString();
+    """, String.class);
+    Assertions.assertEquals("foo:", s);
   }
 
 }

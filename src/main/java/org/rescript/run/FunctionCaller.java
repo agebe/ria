@@ -66,7 +66,7 @@ public class FunctionCaller {
             m.getName(),
             Arrays.toString(paramTypes),
             Arrays.toString(params));
-        Object result = m.invoke(symbol.getTarget(), params);
+        Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, params));
         Class<?> returnType = m.getReturnType();
         if(returnType.equals(Void.class) || returnType.equals(void.class)) {
           return new VoidValue();

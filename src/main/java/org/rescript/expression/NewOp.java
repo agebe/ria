@@ -43,7 +43,7 @@ public class NewOp implements Expression {
         throw new ScriptException("no constructor matching parameters found " + Arrays.toString(paramTypes));
       }
       log.debug("using constructor " + c);
-      Object o = c.newInstance(params);
+      Object o = c.newInstance(RUtils.prepareParamsForInvoke(c, params));
       return new ObjValue(cls, o);
     } catch(Exception e) {
       // FIXME improve message
