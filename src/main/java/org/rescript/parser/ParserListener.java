@@ -265,14 +265,6 @@ public class ParserListener implements ScriptListener {
     throw new ScriptException(msg);
   }
 
-  private ParseItem peek() {
-    return stack.peek();
-  }
-
-  private boolean peekExpression() {
-    return peek() instanceof Expression;
-  }
-
   private Terminal popTerminal() {
     ParseItem terminal = stack.pop();
     if(!(terminal instanceof Terminal)) {

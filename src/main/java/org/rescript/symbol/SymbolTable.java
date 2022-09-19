@@ -6,8 +6,10 @@ import static org.javimmutable.collections.util.JImmutables.map;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
@@ -203,14 +205,31 @@ public class SymbolTable {
   }
 
   public Class<?> resolveType(String name) {
-    ClsValue cls = cls(name);
+    log.debug("enter resolveType '{}'", name);
+    log.debug("probing '{}'...", name);
+    Class<?> cls = RUtils.findClass(name);
     if(cls != null) {
-      return cls.type();
+      log.debug("found '{}' for name '{}'", cls.getName(), name);
+      return cls;
     }
-    cls = findImportedClass(name);
-    if(cls != null) {
-      return cls.type();
+    for(String im : imports()) {
+      LinkedList<String> split = RUtils.splitTypeName(im);
+      if(StringUtils.equals(name, split.getLast())) {
+        Class<?> c = RUtils.findClass(im);
+        log.debug("found '{}' for name '{}'", c.getName(), im);
+        return c;
+      } else if(StringUtils.equals("*", split.getLast())) {
+        split.removeLast();
+        String joined = split.stream().collect(Collectors.joining("."));
+        log.debug("probing '{}.{}", joined, name);
+        Class<?> c = RUtils.findClass(joined, name);
+        if(c != null) {
+          log.debug("found '{}'", c.getName());
+          return c;
+        }
+      }
     }
+    // TODO also check static imports?
     return null;
   }
 

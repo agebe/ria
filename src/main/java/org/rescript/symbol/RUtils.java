@@ -3,10 +3,12 @@ package org.rescript.symbol;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,52 @@ public class RUtils {
         .filter(c -> c.getSimpleName().equals(name))
         .findFirst()
         .orElse(null);
+  }
+
+  public static LinkedList<String> splitTypeName(String name) {
+    return new LinkedList<>(List.of(StringUtils.split(name, ".")));
+  }
+
+  public static Class<?> findClass(String prefix, String name) {
+    return findClass(prefix + "." + name);
+  }
+
+  /**
+   * finds the class of the given name. The name can also be an inner class
+   * @param name - name of the class separated by dots
+   * @return
+   */
+  public static Class<?> findClass(String name) {
+    Class<?> cls = forName(name);
+    if(cls != null) {
+      return cls;
+    }
+    LinkedList<String> split = splitTypeName(name);
+    String outer = "";
+    for(;;) {
+      if(split.isEmpty()) {
+        break;
+      }
+      if(cls == null) {
+        // find outer class
+        outer = StringUtils.isBlank(outer)?split.removeFirst():outer + "." +split.removeFirst();
+        cls = forName(outer);
+      } else {
+        cls = innerClass(cls, split.removeFirst());
+        if(cls == null) {
+          return null;
+        }
+      }
+    }
+    return cls;
+  }
+
+  public static Class<?> forName(String name) {
+    try {
+      return Class.forName(name);
+    } catch(Exception e) {
+      return null;
+    }
   }
 
   public static <T extends Executable> T matchSignature(Class<?>[] params, List<T> executables) {
