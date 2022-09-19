@@ -35,6 +35,25 @@ public class NewOpTest {
     }
   }
 
+  public static class Base {
+    public void foo() {
+    }
+    public static void base() {
+      System.out.println("base");
+    }
+    public static void base2() {
+      System.out.println("base2");
+    }
+  }
+
+  public static class A extends Base {
+    public void foo() {
+    }
+    public static void base() {
+      System.out.println("a");
+    }
+  }
+
   @Test
   public void new1() {
     new Script().run("new java.lang.Object()");

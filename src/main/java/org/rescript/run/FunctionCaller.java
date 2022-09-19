@@ -87,7 +87,11 @@ public class FunctionCaller {
           // TODO
           throw new ScriptException("array not impl yet");
         } else {
-          return new ObjValue(returnType, result);
+          if(result != null) {
+            return new ObjValue(result.getClass(), result);
+          } else {
+            return new ObjValue(returnType, null);
+          }
         }
       } catch(InvocationTargetException e) {
         throw new ScriptException("function '%s' exception".formatted(fname), e);
