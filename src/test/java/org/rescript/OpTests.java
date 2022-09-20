@@ -62,4 +62,29 @@ public class OpTests {
     Assertions.assertEquals(7, new Script().evalInt("1+2*3"));
   }
 
+  @Test
+  public void arith2() {
+    Assertions.assertEquals(8.5, new Script().evalFloat("1+2.5*3"), 0.01);
+  }
+
+  @Test
+  public void divOp() {
+    Assertions.assertEquals(5, new Script().evalInt("10/2"));
+  }
+
+  @Test
+  public void modOp() {
+    Assertions.assertEquals(1, new Script().evalInt("10%3"));
+  }
+
+  @Test
+  public void subOp() {
+    Assertions.assertEquals(9, new Script().evalDouble("10d-1"), 0.01);
+  }
+
+  @Test
+  public void subOp2() {
+    Assertions.assertEquals(0, new Script().evalDouble("Double.MAX_VALUE - Double.MAX_VALUE"), 0.01);
+  }
+
 }

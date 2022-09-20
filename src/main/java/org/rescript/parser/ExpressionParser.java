@@ -4,12 +4,18 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptParser.ExprContext;
+import org.rescript.expression.AddOp;
+import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.Expression;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
+import org.rescript.expression.ModOp;
+import org.rescript.expression.MulOp;
+import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
 
 public class ExpressionParser {
@@ -43,13 +49,20 @@ public class ExpressionParser {
     throw new ScriptException(msg);
   }
 
+  private boolean isTerminal(int index) {
+    return items.get(index) instanceof Terminal;
+  }
+
   private boolean isTerminal(int index, String text) {
-    if(items.get(index) instanceof Terminal) {
-      Terminal t = (Terminal)items.get(index);
-      return text.equals(t.getText());
-    } else {
-      return false;
-    }
+    return isTerminalAnyOf(index, text);
+  }
+
+  private boolean isTerminalAnyOf(int index, String... text) {
+    return isTerminal(index)?StringUtils.equalsAny(terminal(index), text):false;
+  }
+
+  private String terminal(int index) {
+    return ((Terminal)items.get(index)).getText();
   }
 
   private boolean isExpression(int index) {
@@ -80,6 +93,10 @@ public class ExpressionParser {
     return isTerminal(0, "(") && isExpression(1) && isTerminal(2, ")");
   }
 
+  private boolean isMiddleOp(String... op) {
+    return isExpression(0) && isTerminalAnyOf(1, op) && isExpression(2);
+  }
+
   private boolean isMiddleOp(String op) {
     return isExpression(0) && isTerminal(1, op) && isExpression(2);
   }
@@ -96,12 +113,36 @@ public class ExpressionParser {
     return isMiddleOp("||");
   }
 
+  private boolean isArith() {
+    return isMiddleOp("*", "/", "%", "+", "-");
+  }
+
   private Expression exp(int i) {
     return getExpression(i);
   }
 
   private TargetExpression texp(int i) {
     return (TargetExpression)getExpression(i);
+  }
+
+  private Expression parseArith() {
+    Expression exp1 = exp(0);
+    Expression exp2 = exp(2);
+    String op = terminal(1);
+    if(op.equals("*")) {
+      return new MulOp(exp1, exp2);
+    } else if(op.equals("/")) {
+      return new DivOp(exp1, exp2);
+    } else if(op.equals("%")) {
+      return new ModOp(exp1, exp2);
+    } else if(op.equals("+")) {
+      return new AddOp(exp1, exp2);
+    } else if(op.equals("-")) {
+      return new SubOp(exp1, exp2);
+    } else {
+      fail("unknown operator '%s'".formatted(op));
+      return null;
+    }
   }
 
   public void parse() {
@@ -120,6 +161,8 @@ public class ExpressionParser {
         stack.push(getExpression(1));
       } else if(isDotOp()) {
         stack.push(new DotOperator(exp(0), texp(2)));
+      } else if(isArith()) {
+        stack.push(parseArith());
       } else if(isLogicalAnd()) {
         stack.push(new LogicalAndOp(exp(0), exp(2)));
       } else if(isLogicalOr()) {

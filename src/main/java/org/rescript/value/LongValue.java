@@ -44,4 +44,14 @@ public class LongValue implements Value {
     return val;
   }
 
+  @Override
+  public boolean isNumber() {
+    return true;
+  }
+
+  @Override
+  public boolean isLong() {
+    return true;
+  }
+
 }

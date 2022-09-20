@@ -43,4 +43,20 @@ public class IntValue implements Value {
   public long toLong() {
     return val;
   }
+
+  @Override
+  public boolean isNumber() {
+    return true;
+  }
+
+  @Override
+  public boolean isInteger() {
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return Integer.toString(val);
+  }
+
 }

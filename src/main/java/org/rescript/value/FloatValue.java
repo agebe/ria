@@ -44,4 +44,14 @@ public class FloatValue implements Value {
     return (long)val;
   }
 
+  @Override
+  public boolean isNumber() {
+    return true;
+  }
+
+  @Override
+  public boolean isFloat() {
+    return true;
+  }
+
 }

@@ -56,4 +56,14 @@ public class DoubleValue implements Value {
     return (long)val;
   }
 
+  @Override
+  public boolean isNumber() {
+    return true;
+  }
+
+  @Override
+  public boolean isDouble() {
+    return true;
+  }
+
 }

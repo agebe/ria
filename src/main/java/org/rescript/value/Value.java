@@ -20,6 +20,26 @@ public interface Value {
     return false;
   }
 
+  default boolean isNumber() {
+    return false;
+  }
+
+  default boolean isDouble() {
+    return false;
+  }
+
+  default boolean isFloat() {
+    return false;
+  }
+
+  default boolean isLong() {
+    return false;
+  }
+
+  default boolean isInteger() {
+    return false;
+  }
+
   default boolean toBoolean() {
     throw new ScriptException("can't cast '%s' to boolean".formatted(this.getClass()));
   }

@@ -48,6 +48,8 @@ expr
   : LPAREN expr RPAREN
   | expr DOT expr
   | ccall
+  | expr ( MUL | DIV | MOD ) expr
+  | expr ( ADD | SUB ) expr
   | expr AND expr
   | expr OR expr
   | assignmentOp
