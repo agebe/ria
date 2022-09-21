@@ -44,10 +44,7 @@ public class ObjValue implements Value {
 
   @Override
   public boolean isNumber() {
-    return Double.class.equals(type) ||
-        Float.class.equals(type) ||
-        Long.class.equals(type) ||
-        Integer.class.equals(type);
+    return isDouble() || isFloat() || isLong() || isInteger();
   }
 
   @Override
@@ -87,22 +84,22 @@ public class ObjValue implements Value {
 
   @Override
   public boolean isDouble() {
-    return Double.class.equals(type);
+    return Double.class.equals(type) || double.class.equals(type);
   }
 
   @Override
   public boolean isFloat() {
-    return Float.class.equals(type);
+    return Float.class.equals(type) || float.class.equals(type);
   }
 
   @Override
   public boolean isLong() {
-    return Long.class.equals(type);
+    return Long.class.equals(type) || long.class.equals(type);
   }
 
   @Override
   public boolean isInteger() {
-    return Integer.class.equals(type);
+    return Integer.class.equals(type) || int.class.equals(type);
   }
 
   @Override

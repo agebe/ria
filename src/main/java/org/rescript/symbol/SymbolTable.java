@@ -17,7 +17,7 @@ import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.statement.Statement;
 import org.rescript.value.ClsValue;
-import org.rescript.value.FieldValue;
+import org.rescript.value.ObjValue;
 import org.rescript.value.PackageValue;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
@@ -138,12 +138,12 @@ public class SymbolTable {
       } else {
         return staticMember(cls, name);
       }
-    } else if(target instanceof FieldValue) {
+    } else if(target instanceof ObjValue) {
       Value v = staticMember(target.type(), name);
       if(v != null) {
         return v;
       }
-      throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
+      throw new ScriptException("failed to resolve '%s', on target '%s'".formatted(name, target));
     } else {
       throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
     }
@@ -155,12 +155,16 @@ public class SymbolTable {
   }
 
   private Value staticMember(Class<?> cls, String name) {
-    Field f = RUtils.findStaticField(cls, name);
-    if(f != null) {
-      log.debug("found static field '{}' on class '{}", f.getName(), cls);
-      return new FieldValue(cls, f, null);
+    try {
+      Field f = RUtils.findStaticField(cls, name);
+      if(f != null) {
+        log.debug("found static field '{}' on class '{}", f.getName(), cls);
+        return new ObjValue(f.getType(), f.get(null));
+      }
+      return null;
+    } catch(Exception e) {
+      throw new ScriptException("failed on static member '%s' of class '%s'".formatted(name, cls));
     }
-    return null;
   }
 
 //  private Value memberField(Class<?> cls, String name) {
