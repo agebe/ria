@@ -54,4 +54,14 @@ public class FloatValue implements Value {
     return true;
   }
 
+  @Override
+  public String getText() {
+    return Float.toString(val);
+  }
+
+  @Override
+  public String toString() {
+    return getText();
+  }
+
 }

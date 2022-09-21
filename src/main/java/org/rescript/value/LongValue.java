@@ -54,4 +54,13 @@ public class LongValue implements Value {
     return true;
   }
 
+  @Override
+  public String getText() {
+    return Long.toString(val);
+  }
+
+  @Override
+  public String toString() {
+    return getText();
+  }
 }

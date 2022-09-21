@@ -6,6 +6,7 @@ import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
+import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ public class AddOp extends TripleOp {
     Value v1 = getExp1().eval(ctx);
     Value v2 = getExp2().eval(ctx);
     log.debug("eval '{}' + '{}'", v1, v2);
-    // TODO string concat
     if(v1.isNumber() && v2.isNumber()) {
       if(v1.isDouble() || v2.isDouble()) {
         return new DoubleValue(v1.toDouble() + v2.toDouble());
@@ -36,8 +36,10 @@ public class AddOp extends TripleOp {
       } else 
         throw new ScriptException("unexpected case on '%s', types '%s' and '%s'"
             .formatted(getOp(), v1.type(), v2.type()));
+    } else if(v1.isString() || v2.isString()) {
+      return new ObjValue(String.class, v1.getText() + v2.getText());
     } else {
-      throw new ScriptException("operation '%s' requires numbers but got '%s' and '%s'"
+      throw new ScriptException("operation '%s' requires numbers/strings but got '%s' and '%s'"
           .formatted(getOp(), v1.type(), v2.type()));
     }
   }

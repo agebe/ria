@@ -64,6 +64,11 @@ public class BooleanValue implements Value {
     throw new ScriptException("boolean can't be cast to long");
   }
 
+  @Override
+  public String getText() {
+    return val?"true":"false";
+  }
+
   public static BooleanValue valueOf(boolean bool) {
     return bool?BooleanValue.TRUE:BooleanValue.FALSE;
   }

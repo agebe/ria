@@ -55,8 +55,13 @@ public class IntValue implements Value {
   }
 
   @Override
-  public String toString() {
+  public String getText() {
     return Integer.toString(val);
+  }
+
+  @Override
+  public String toString() {
+    return getText();
   }
 
 }

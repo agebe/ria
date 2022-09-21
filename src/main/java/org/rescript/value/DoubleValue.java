@@ -66,4 +66,14 @@ public class DoubleValue implements Value {
     return true;
   }
 
+  @Override
+  public String getText() {
+    return Double.toString(val);
+  }
+
+  @Override
+  public String toString() {
+    return getText();
+  }
+
 }

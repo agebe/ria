@@ -40,6 +40,14 @@ public interface Value {
     return false;
   }
 
+  default boolean isString() {
+    return false;
+  }
+
+  default String getText() {
+    throw new ScriptException("no text representation implemented");
+  }
+
   default boolean toBoolean() {
     throw new ScriptException("can't cast '%s' to boolean".formatted(this.getClass()));
   }

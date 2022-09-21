@@ -49,6 +49,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public boolean isString() {
+    return String.class.equals(type);
+  }
+
+  @Override
   public boolean toBoolean() {
     return (Boolean)val;
   }
@@ -96,6 +101,11 @@ public class ObjValue implements Value {
   @Override
   public boolean isInteger() {
     return Integer.class.equals(type);
+  }
+
+  @Override
+  public String getText() {
+    return isNotNull()?val.toString():null;
   }
 
 }

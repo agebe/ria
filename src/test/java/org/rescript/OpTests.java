@@ -87,4 +87,10 @@ public class OpTests {
     Assertions.assertEquals(0, new Script().evalDouble("Double.MAX_VALUE - Double.MAX_VALUE"), 0.01);
   }
 
+  @Test
+  public void concat() {
+    Assertions.assertEquals("foo0", new Script().runReturning("\"foo\" + 0", String.class));
+    Assertions.assertEquals("11.0s1 s21", new Script().runReturning("5.5 * 2 + \"s1 \" + \"s2\" + 1", String.class));
+  }
+
 }
