@@ -89,8 +89,12 @@ public class OpTests {
 
   @Test
   public void concat() {
+    System.out.println(null+"foo");
+    System.out.println("foo"+null);
     Assertions.assertEquals("foo0", new Script().runReturning("\"foo\" + 0", String.class));
     Assertions.assertEquals("11.0s1 s21", new Script().runReturning("5.5 * 2 + \"s1 \" + \"s2\" + 1", String.class));
+    Assertions.assertEquals("nulls1", new Script().runReturning("null + \"s1\"", String.class));
+    Assertions.assertEquals("s1null", new Script().runReturning("\"s1\" + null", String.class));
   }
 
 }

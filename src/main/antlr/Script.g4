@@ -66,11 +66,19 @@ fcall: fname fparams;
 fname: Identifier;
 fparams: LPAREN fparam? (COMMA fparam)* RPAREN;
 fparam: expr;
-literal: strLiteral | boolLiteral | intLiteral | floatLiteral;
+
+literal
+  : strLiteral
+  | boolLiteral
+  | intLiteral
+  | floatLiteral
+  | nullLiteral
+  ;
 strLiteral: StringLiteral ;
 boolLiteral: BooleanLiteral ;
 intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
+nullLiteral: NullLiteral;
 ident : Identifier;
 // from https://stackoverflow.com/a/24559773
 //StringLiteral : UnterminatedStringLiteral '"';

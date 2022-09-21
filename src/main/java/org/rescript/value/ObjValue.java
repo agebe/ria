@@ -2,6 +2,8 @@ package org.rescript.value;
 
 public class ObjValue implements Value {
 
+  public static final ObjValue NULL = new ObjValue(Object.class, null);
+
   private Class<?> type;
 
   private Object val;

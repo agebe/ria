@@ -35,6 +35,7 @@ import org.rescript.antlr.ScriptParser.IfElseStmtContext;
 import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
+import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
@@ -48,6 +49,7 @@ import org.rescript.expression.FunctionCall;
 import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
 import org.rescript.expression.NewOp;
+import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.EmptyStatement;
@@ -501,6 +503,18 @@ public class ParserListener implements ScriptListener {
       l.addFirst(t);
     }
     stack.push(new TypeName(l.stream().collect(Collectors.joining())));
+  }
+
+  @Override
+  public void enterNullLiteral(NullLiteralContext ctx) {
+    log.debug("enterNullLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitNullLiteral(NullLiteralContext ctx) {
+    log.debug("exitNullLiteral '{}'", ctx.getText());
+    popTerminal("null");
+    stack.push(new NullLiteral());
   }
 
 }
