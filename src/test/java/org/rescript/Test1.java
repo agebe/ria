@@ -2,6 +2,7 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintStream;
@@ -434,6 +435,14 @@ public class Test1 {
         """)
         .create()
         .runReturning(String.class));
+  }
+
+  @Test
+  public void keyword() {
+    // the antlr parser already throws an exception
+    // TODO might need to get rid of some keywords in the lexer as java allows
+    // variable names like transitive, module etc...
+    assertThrows(ScriptException.class, () -> new Script().run("var abstract = 1;"));
   }
 
   @Test
