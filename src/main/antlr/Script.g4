@@ -30,6 +30,7 @@ stmt
   | block
   | ifStmt
   | ifElseStmt
+  | whileStmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
@@ -39,6 +40,7 @@ returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
+whileStmt: WHILE LPAREN expr RPAREN stmt;
 
 assignment: ASSIGN expr;
 

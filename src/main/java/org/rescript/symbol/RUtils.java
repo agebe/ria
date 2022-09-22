@@ -176,7 +176,7 @@ public class RUtils {
     for(int i=0;i<params.length;i++) {
       Class<?> mp = methodParams[i];
       Class<?> pt = params[i];
-      if(!mp.isAssignableFrom(pt)) {
+      if(!isParameterTypeMatch(mp, pt)) {
         log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",
             executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
         return false;
@@ -185,6 +185,26 @@ public class RUtils {
     log.debug("match parameters fuzzy success '{}', method parameter type '{}', supplied types '{}'",
         executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
     return true;
+  }
+
+  public static boolean isParameterTypeMatch(Class<?> target, Class<?> from) {
+    if(target.equals(Object.class)) {
+      return true;
+    }
+    if(target.isAssignableFrom(from)) {
+      return true;
+    }
+    // FIXME all of the following are false but should be ok for function calling
+//    System.out.println(Object.class.isAssignableFrom(int.class));
+//    System.out.println(Integer.class.isAssignableFrom(int.class));
+//    System.out.println(int.class.isAssignableFrom(Integer.class));
+//    System.out.println(int.class.isAssignableFrom(long.class));
+//    System.out.println(long.class.isAssignableFrom(int.class));
+//    System.out.println(Integer.class.isAssignableFrom(Long.class));
+//    System.out.println(Long.class.isAssignableFrom(Integer.class));
+//    https://stackoverflow.com/questions/12559634/java-autoboxing-rules
+//    https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
+    return false;
   }
 
   public static Object[] prepareParamsForInvoke(Executable executable, Object[] params) {

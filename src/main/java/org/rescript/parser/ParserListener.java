@@ -41,6 +41,7 @@ import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
+import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.AssignmentOperator;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.Expression;
@@ -58,6 +59,7 @@ import org.rescript.statement.IfStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.VardefStatement;
+import org.rescript.statement.WhileStatement;
 import org.rescript.symbol.SymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -515,6 +517,23 @@ public class ParserListener implements ScriptListener {
     log.debug("exitNullLiteral '{}'", ctx.getText());
     popTerminal("null");
     stack.push(new NullLiteral());
+  }
+
+  @Override
+  public void enterWhileStmt(WhileStmtContext ctx) {
+    log.debug("enterWhileStmt '{}'", ctx.getText());
+    stack.push(new WhileStatement());
+  }
+
+  @Override
+  public void exitWhileStmt(WhileStmtContext ctx) {
+    log.debug("exitWhileStmt '{}'", ctx.getText());
+    popTerminal(")");
+    Expression e = popExpression();
+    popTerminal("(");
+    popTerminal("while");
+    WhileStatement ws = (WhileStatement)findMostRecentStatement();
+    ws.setExpression(e);
   }
 
 }
