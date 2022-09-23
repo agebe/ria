@@ -3,6 +3,9 @@ package org.rescript.symbol;
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -225,6 +228,63 @@ public class RUtils {
     } else {
       return params;
     }
+  }
+
+  public static List<Method> findAccessibleMethods(Class<?> cls, Object target, String name) {
+    // TODO we don't have to scan the entire class/interface tree as we only require 1 accessible
+    // method that matches the signature
+    // for now we walk the entire tree and select the accessible methods with a matching name
+    // method signature checks comes after...
+    log.debug("enter findAccessibleMethods, class '{}', name '{}', '{}'", cls.getName(), name);
+    List<Method> l = findAccessibleMethods(cls, target, name, new ArrayList<>());
+    log.debug("found methods on class '{}', name '{}', '{}'", cls.getName(), name, l);
+    return l;
+  }
+
+  private static List<Method> findAccessibleMethods(Class<?> cls, Object target, String name, List<Method> acc) {
+    log.debug("enter findAccessibleMethods, class '{}', name '{}', '{}'", cls.getName(), name, acc);
+    for(Method m : cls.getDeclaredMethods()) {
+      if(!m.getName().equals(name)) {
+        continue;
+      }
+      // it does not matter if the method is abstract as we are calling it on the target object
+      // it only has to be accessible
+      // also there are no static abstract methods in java AFAIK
+      // TODO not sure about static methods though
+//      if(Modifier.isAbstract(m.getModifiers())) {
+//        log.debug("can't access '{}' (abstract), class '{}', name '{}', '{}', continue", name, cls.getName(), name);
+//        continue;
+//      }
+      if(Modifier.isStatic(m.getModifiers())) {
+        // static methods can be accessed through an object reference in java but the canAccess method does not like it
+        if(!m.canAccess(null)) {
+          log.debug("can't access '{}' (static), class '{}', name '{}', '{}', continue", name, cls.getName(), name);
+          continue;
+        }
+      } else {
+        if(target == null) {
+          log.debug("can't access '{}' (instance method, null target), class '{}', name '{}', '{}', continue",
+              name, cls.getName(), name);
+          continue;
+        }
+        if(!m.canAccess(target)) {
+          log.debug("can't access '{}', class '{}', name '{}', '{}', continue", name, cls.getName(), name);
+          continue;
+        }
+      }
+      log.debug("found method '{}'", m);
+      acc.add(m);
+    }
+    log.debug("super class of '{}' is '{}'", cls, cls.getSuperclass());
+    if(cls.getSuperclass() != null) {
+      findAccessibleMethods(cls.getSuperclass(), target, name, acc);
+    }
+    // I think we also have to scan all interfaces in case of default implementations that are not on any class?!
+    log.debug("interfaces of class '{}' are '{}'", cls, Arrays.toString(cls.getInterfaces()));
+    for(Class<?> interf : cls.getInterfaces()) {
+      findAccessibleMethods(interf, target, name, acc);
+    }
+    return acc;
   }
 
 }

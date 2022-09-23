@@ -1,11 +1,30 @@
 package org.rescript;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 public class Test2 {
+
+  public static interface I {
+    default void foo() {
+      System.out.println("I");
+    }
+  }
+
+  public abstract static class Base {
+    public void foo() {
+      System.out.println("Base");
+    }
+    public static void bar() {
+      System.out.println("bar");
+    }
+  }
+
+  public static class A extends Base implements I {
+  }
 
   @Test
   public void test() {
@@ -29,13 +48,14 @@ public class Test2 {
 //    System.out.println(Long.class.isAssignableFrom(Long.class));
   }
 
+  @SuppressWarnings("static-access")
   @Test
-  public void ref() throws Exception {
-    List<?> l = List.of(1, 2, 3);
-    System.out.println(l.getClass().getName());
-    Method m = List.class.getMethod("iterator");
-    Object o = m.invoke(l);
-    System.out.println(o);
+  public void method() {
+    A a = new A();
+    a.foo();
+    a.bar();
+    A.bar();
+    Base.bar();
   }
 
 }

@@ -59,7 +59,7 @@ public class FunctionCaller {
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
     Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
     Class<?> cls = symbol.getTargetType();
-    Method m = RUtils.matchSignature(paramTypes, findMethods(cls, fname));
+    Method m = RUtils.matchSignature(paramTypes, RUtils.findAccessibleMethods(cls, symbol.getTarget(), fname));
     if(m != null) {
       try {
         log.debug("invoke method '{}' with parameter types '{}', '{}'",
@@ -102,14 +102,6 @@ public class FunctionCaller {
       throw new ScriptException("method '%s' with parameter types '%s' not found on target '%s'"
           .formatted(fname, Arrays.toString(paramTypes), cls.getName()));
     }
-  }
-
-  private List<Method> findMethods(Class<?> cls, String name) {
-    List<Method> methods = Arrays.stream(cls.getMethods())
-        .filter(m -> m.getName().equals(name))
-        .toList();
-    log.debug("findMethods for '{}', '{}'", name, methods);
-    return methods;
   }
 
   private Value[] resolveParameters(List<FunctionParameter> parameters) {

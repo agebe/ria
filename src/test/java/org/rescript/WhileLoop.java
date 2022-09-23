@@ -10,8 +10,6 @@ public class WhileLoop {
   @Test
   public void iteratorLoop() {
     int i = new ScriptBuilder().addImport("java.util.*").create().evalInt("""
-        // FIXME this gives an IllegalAccessException:
-        // Caused by: java.lang.IllegalAccessException: class org.rescript.run.FunctionCaller cannot access a member of class java.util.ImmutableCollections$AbstractImmutableList (in module java.base) with modifiers "public"
         var iter = List.of(1,2,3).iterator();
         while(iter.hasNext()) {
           iter.next();
