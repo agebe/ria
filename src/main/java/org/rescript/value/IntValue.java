@@ -64,4 +64,14 @@ public class IntValue implements Value {
     return getText();
   }
 
+  @Override
+  public boolean isPrimitive() {
+    return true;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    return this.val == other.toInt();
+  }
+
 }

@@ -25,4 +25,14 @@ public class ClsValue implements Value {
     return "ClassValue [cls=" + cls + "]";
   }
 
+  @Override
+  public boolean isPrimitive() {
+    return false;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    return this.cls == ((ClsValue)other).cls;
+  }
+
 }

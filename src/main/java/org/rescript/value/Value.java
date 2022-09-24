@@ -44,6 +44,10 @@ public interface Value {
     return false;
   }
 
+  boolean isPrimitive();
+
+  boolean equalsOp(Value other);
+
   default String getText() {
     throw new ScriptException("no text representation implemented");
   }
@@ -66,6 +70,10 @@ public interface Value {
 
   default long toLong() {
     throw new ScriptException("can't cast '%s' to long".formatted(this.getClass()));
+  }
+
+  default Value unbox() {
+    return this;
   }
 
   static Value of(Class<?> cls, Object val) {

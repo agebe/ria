@@ -1,5 +1,7 @@
 package org.rescript.value;
 
+import org.rescript.ScriptException;
+
 public class ObjValue implements Value {
 
   public static final ObjValue NULL = new ObjValue(Object.class, null);
@@ -39,7 +41,7 @@ public class ObjValue implements Value {
 
   @Override
   public boolean isBoolean() {
-    return Boolean.class.equals(type);
+    return Boolean.class.equals(type) || boolean.class.equals(type);
   }
 
   @Override
@@ -59,12 +61,12 @@ public class ObjValue implements Value {
 
   @Override
   public double toDouble() {
-    return (Double)val;
+    return ((Number)val).doubleValue();
   }
 
   @Override
   public float toFloat() {
-    return (Float)val;
+    return ((Number)val).floatValue();
   }
 
   @Override
@@ -74,12 +76,12 @@ public class ObjValue implements Value {
 
   @Override
   public int toInt() {
-    return (Integer)val;
+    return ((Number)val).intValue();
   }
 
   @Override
   public long toLong() {
-    return (Long)val;
+    return ((Number)val).longValue();
   }
 
   @Override
@@ -105,6 +107,43 @@ public class ObjValue implements Value {
   @Override
   public String getText() {
     return isNotNull()?val.toString():null;
+  }
+
+  @Override
+  public boolean isPrimitive() {
+    return boolean.class.equals(type) ||
+        double.class.equals(type) ||
+        float.class.equals(type) ||
+        long.class.equals(type) ||
+        int.class.equals(type);
+  }
+
+  @Override
+  public Value unbox() {
+    if(isBoolean()) {
+      return new BooleanValue(toBoolean());
+    } else if(isDouble()) {
+      return new DoubleValue(toDouble());
+    } else if(isFloat()) {
+      return new FloatValue(toFloat());
+    } else if(isLong()) {
+      return new LongValue(toLong());
+    } else if(isInteger()) {
+      return new IntValue(toInt());
+    } else {
+      throw new ScriptException("can't unbox type '%s'".formatted(type));
+    }
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    if(this.isPrimitive()) {
+      return unbox().equalsOp(other);
+    } else if(other instanceof ObjValue) {
+      return this.val == ((ObjValue)other).val;
+    } else {
+      throw new ScriptException("equals op not implemented with other being '%s'".formatted(other.getClass()));
+    }
   }
 
 }

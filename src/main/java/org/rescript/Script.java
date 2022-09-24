@@ -18,7 +18,11 @@ public class Script {
   }
 
   public Value run() {
-    return new ScriptRunner(symbols).run();
+    try {
+      return new ScriptRunner(symbols).run();
+    } catch(Exception e) {
+      throw new ScriptException("script execution failed", e);
+    }
   }
 
   public Value run(String script) {

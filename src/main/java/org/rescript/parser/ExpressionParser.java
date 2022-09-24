@@ -10,6 +10,7 @@ import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
+import org.rescript.expression.EqualityOp;
 import org.rescript.expression.Expression;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
@@ -117,6 +118,10 @@ public class ExpressionParser {
     return isMiddleOp("*", "/", "%", "+", "-");
   }
 
+  private boolean isEquality() {
+    return isMiddleOp("==", "!=");
+  }
+
   private Expression exp(int i) {
     return getExpression(i);
   }
@@ -167,6 +172,8 @@ public class ExpressionParser {
         stack.push(new LogicalAndOp(exp(0), exp(2)));
       } else if(isLogicalOr()) {
         stack.push(new LogicalOrOp(exp(0), exp(2)));
+      } else if(isEquality()) {
+        stack.push(new EqualityOp(exp(0), exp(2), terminal(1)));
       } else fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));

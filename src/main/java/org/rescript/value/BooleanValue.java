@@ -69,8 +69,18 @@ public class BooleanValue implements Value {
     return val?"true":"false";
   }
 
+  @Override
+  public boolean isPrimitive() {
+    return true;
+  }
+
   public static BooleanValue valueOf(boolean bool) {
     return bool?BooleanValue.TRUE:BooleanValue.FALSE;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    return this.val == other.toBoolean();
   }
 
 }

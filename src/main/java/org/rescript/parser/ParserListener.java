@@ -320,7 +320,8 @@ public class ParserListener implements ScriptListener {
       if(s.length() == 1) {
         fail("invalid string literal " + s);
       }
-      stack.push(new StringLiteral(StringUtils.substring(s, 1, s.length()-1)));
+      String literal = StringUtils.substring(s, 1, s.length()-1).intern();
+      stack.push(new StringLiteral(literal));
     } else {
       fail("unsupported literal " + s);
     }

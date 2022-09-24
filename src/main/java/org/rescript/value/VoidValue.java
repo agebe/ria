@@ -44,4 +44,14 @@ public class VoidValue implements Value {
     throw new ScriptException("void can't be cast to long");
   }
 
+  @Override
+  public boolean isPrimitive() {
+    return true;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    throw new ScriptException("no equalsOp on void");
+  }
+
 }

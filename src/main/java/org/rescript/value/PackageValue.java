@@ -50,4 +50,14 @@ public class PackageValue implements Value {
     return "PackageValue [packageName=" + packageName + "]";
   }
 
+  @Override
+  public boolean isPrimitive() {
+    return false;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    throw new ScriptException("no equalsOp implements on PackageValue");
+  }
+
 }

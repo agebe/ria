@@ -63,4 +63,15 @@ public class LongValue implements Value {
   public String toString() {
     return getText();
   }
+
+  @Override
+  public boolean isPrimitive() {
+    return true;
+  }
+
+  @Override
+  public boolean equalsOp(Value other) {
+    return this.val == other.toLong();
+  }
+
 }

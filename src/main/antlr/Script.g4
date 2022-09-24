@@ -52,6 +52,7 @@ expr
   | ccall
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
+  | expr ( EQUAL | NOTEQUAL) expr
   | expr AND expr
   | expr OR expr
   | assignmentOp
