@@ -12,8 +12,12 @@ import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.EqualityOp;
 import org.rescript.expression.Expression;
+import org.rescript.expression.GeOp;
+import org.rescript.expression.GtOp;
+import org.rescript.expression.LeOp;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
+import org.rescript.expression.LtOp;
 import org.rescript.expression.ModOp;
 import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
@@ -122,6 +126,10 @@ public class ExpressionParser {
     return isMiddleOp("==", "!=");
   }
 
+  private boolean isRelational() {
+    return isMiddleOp(">", "<", ">=", "<=");
+  }
+
   private Expression exp(int i) {
     return getExpression(i);
   }
@@ -150,6 +158,24 @@ public class ExpressionParser {
     }
   }
 
+  private Expression parseRelational() {
+    Expression exp1 = exp(0);
+    Expression exp2 = exp(2);
+    String op = terminal(1);
+    if(op.equals(">")) {
+      return new GtOp(exp1, exp2);
+    } else if(op.equals("<")) {
+      return new LtOp(exp1, exp2);
+    } else if(op.equals(">=")) {
+      return new GeOp(exp1, exp2);
+    } else if(op.equals("<=")) {
+      return new LeOp(exp1, exp2);
+    } else {
+      fail("unknown relational operator '%s'".formatted(op));
+      return null;
+    }
+  }
+
   public void parse() {
     // only 1 item on the stack, we just push that back as there is nothing else to do
     if(isSingle()) {
@@ -174,6 +200,8 @@ public class ExpressionParser {
         stack.push(new LogicalOrOp(exp(0), exp(2)));
       } else if(isEquality()) {
         stack.push(new EqualityOp(exp(0), exp(2), terminal(1)));
+      } else if(isRelational()) {
+        stack.push(parseRelational());
       } else fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
