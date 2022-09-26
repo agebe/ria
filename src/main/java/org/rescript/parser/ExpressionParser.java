@@ -22,6 +22,7 @@ import org.rescript.expression.ModOp;
 import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
+import org.rescript.expression.UnaryLogicalNotOp;
 import org.rescript.expression.UnaryMinusOp;
 import org.rescript.expression.UnaryPlusOp;
 
@@ -229,7 +230,7 @@ public class ExpressionParser {
         } else if(isUnaryMinus()) {
           stack.push(new UnaryMinusOp(exp(1)));
         } else if(isUnaryLogicalNot()) {
-          fail("not implemented yet");
+          stack.push(new UnaryLogicalNotOp(exp(1)));
         } else if(isUnaryBinaryNot()) {
           fail("not implemented yet");
         } else if(isUnaryPreInc()) {
