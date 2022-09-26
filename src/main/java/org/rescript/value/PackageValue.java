@@ -60,4 +60,9 @@ public class PackageValue implements Value {
     throw new ScriptException("no equalsOp implements on PackageValue");
   }
 
+  @Override
+  public Value unbox() {
+    throw new ScriptException("can't unbox package");
+  }
+
 }

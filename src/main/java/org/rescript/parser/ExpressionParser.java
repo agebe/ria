@@ -22,6 +22,8 @@ import org.rescript.expression.ModOp;
 import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
+import org.rescript.expression.UnaryMinusOp;
+import org.rescript.expression.UnaryPlusOp;
 
 public class ExpressionParser {
 
@@ -52,6 +54,10 @@ public class ExpressionParser {
 
   private void fail(String msg) {
     throw new ScriptException(msg);
+  }
+
+  private void failUnknownExpression() {
+    fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
   }
 
   private boolean isTerminal(int index) {
@@ -130,6 +136,38 @@ public class ExpressionParser {
     return isMiddleOp(">", "<", ">=", "<=");
   }
 
+  private boolean isUnaryPlus() {
+    return isTerminal(0, "+");
+  }
+
+  private boolean isUnaryMinus() {
+    return isTerminal(0, "-");
+  }
+
+  private boolean isUnaryLogicalNot() {
+    return isTerminal(0, "!");
+  }
+
+  private boolean isUnaryBinaryNot() {
+    return isTerminal(0, "~");
+  }
+
+  private boolean isUnaryPreInc() {
+    return isTerminal(0, "++");
+  }
+
+  private boolean isUnaryPreDec() {
+    return isTerminal(0, "--");
+  }
+
+  private boolean isUnaryPostInc() {
+    return isTerminal(1, "++");
+  }
+
+  private boolean isUnaryPostDec() {
+    return isTerminal(1, "--");
+  }
+
   private Expression exp(int i) {
     return getExpression(i);
   }
@@ -185,8 +223,33 @@ public class ExpressionParser {
         fail("expected expression but got '%s'".formatted(items));
       }
     } else if(isDouble()) {
-      // FIXME
-      fail("not implemented");
+      if(isTerminal(0)) {
+        if(isUnaryPlus()) {
+          stack.push(new UnaryPlusOp(exp(1)));
+        } else if(isUnaryMinus()) {
+          stack.push(new UnaryMinusOp(exp(1)));
+        } else if(isUnaryLogicalNot()) {
+          fail("not implemented yet");
+        } else if(isUnaryBinaryNot()) {
+          fail("not implemented yet");
+        } else if(isUnaryPreInc()) {
+          fail("not implemented yet");
+        } else if(isUnaryPreDec()) {
+          fail("not implemented yet");
+        } else {
+          failUnknownExpression();
+        }
+      } else if(isTerminal(1)) {
+        if(isUnaryPostInc()) {
+          fail("not implemented yet");
+        } else if(isUnaryPostDec()) {
+          fail("not implemented yet");
+        } else {
+          failUnknownExpression();
+        }
+      } else {
+        failUnknownExpression();
+      }
     } else if(isTriple()) {
       if(isParens()) {
         stack.push(getExpression(1));

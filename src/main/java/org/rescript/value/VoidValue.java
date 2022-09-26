@@ -54,4 +54,9 @@ public class VoidValue implements Value {
     throw new ScriptException("no equalsOp on void");
   }
 
+  @Override
+  public Value unbox() {
+    throw new ScriptException("can't unbox void");
+  }
+
 }

@@ -1,5 +1,7 @@
 package org.rescript.value;
 
+import org.rescript.ScriptException;
+
 // avoid clash with java.lang.ClassValue
 public class ClsValue implements Value {
 
@@ -33,6 +35,11 @@ public class ClsValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     return this.cls == ((ClsValue)other).cls;
+  }
+
+  @Override
+  public Value unbox() {
+    throw new ScriptException("can't unbox class");
   }
 
 }
