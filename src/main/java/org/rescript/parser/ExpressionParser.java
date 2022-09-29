@@ -25,6 +25,8 @@ import org.rescript.expression.TargetExpression;
 import org.rescript.expression.UnaryLogicalNotOp;
 import org.rescript.expression.UnaryMinusOp;
 import org.rescript.expression.UnaryPlusOp;
+import org.rescript.expression.UnaryPostDecOp;
+import org.rescript.expression.UnaryPostIncOp;
 
 public class ExpressionParser {
 
@@ -242,9 +244,9 @@ public class ExpressionParser {
         }
       } else if(isTerminal(1)) {
         if(isUnaryPostInc()) {
-          fail("not implemented yet");
+          stack.push(new UnaryPostIncOp(exp(0)));
         } else if(isUnaryPostDec()) {
-          fail("not implemented yet");
+          stack.push(new UnaryPostDecOp(exp(0)));
         } else {
           failUnknownExpression();
         }

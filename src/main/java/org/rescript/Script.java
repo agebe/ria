@@ -80,6 +80,20 @@ public class Script {
     return parse(script).evalInt();
   }
 
+  public void setVariable(String name, Object val) {
+    if(val != null) {
+      symbols.assignVar(name, Value.of(val.getClass(), val));
+    } else {
+      // FIXME support null values
+      throw new ScriptException("null values not supported");
+    }
+  }
+
+  public Object getVariable(String name) {
+    Value val = symbols.getVariable(name);
+    return val!=null?val.val():null;
+  }
+
   private Script parse(String script) {
     symbols = this.symbols.merge(new Parser().parse(script));
     return this;

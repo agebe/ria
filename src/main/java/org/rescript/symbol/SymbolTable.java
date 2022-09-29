@@ -479,4 +479,9 @@ public class SymbolTable {
     }
   }
 
+  public Value getVariable(String name) {
+    VarSymbol sym = variables.get(name);
+    return sym!=null?sym.getVal():null;
+  }
+
 }

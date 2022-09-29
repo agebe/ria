@@ -49,6 +49,7 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
   | expr DOT expr
+  | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall
   | expr ( MUL | DIV | MOD ) expr
