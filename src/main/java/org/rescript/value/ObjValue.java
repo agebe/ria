@@ -141,6 +141,8 @@ public class ObjValue implements Value {
       return unbox().equalsOp(other);
     } else if(other instanceof ObjValue) {
       return this.val == ((ObjValue)other).val;
+    } else if(other instanceof EvaluatedFromValue) {
+      return this.val == ((EvaluatedFromValue)other).getWrapped().val();
     } else {
       throw new ScriptException("equals op not implemented with other being '%s'".formatted(other.getClass()));
     }

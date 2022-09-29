@@ -20,6 +20,7 @@ import org.rescript.value.ClsValue;
 import org.rescript.value.ObjValue;
 import org.rescript.value.PackageValue;
 import org.rescript.value.Value;
+import org.rescript.value.VariableValue;
 import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class SymbolTable {
     if(target == null) {
       VarSymbol var = variables.get(name);
       if(var != null) {
-        return var.getVal();
+        return new VariableValue(var);
       }
       ClsValue cls = findImportedClass(name);
       if(cls != null) {
