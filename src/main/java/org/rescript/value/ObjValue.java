@@ -6,9 +6,9 @@ public class ObjValue implements Value {
 
   public static final ObjValue NULL = new ObjValue(Object.class, null);
 
-  private Class<?> type;
+  private final Class<?> type;
 
-  private Object val;
+  private final Object val;
 
   public ObjValue(Class<?> type, Object val) {
     super();
@@ -145,6 +145,26 @@ public class ObjValue implements Value {
       return this.val == ((EvaluatedFromValue)other).getWrapped().val();
     } else {
       throw new ScriptException("equals op not implemented with other being '%s'".formatted(other.getClass()));
+    }
+  }
+
+  @Override
+  public Value inc() {
+    if(isNumber()) {
+      // TODO if the value was an object wrapper, autobox before return
+      return unbox().inc();
+    } else {
+      throw new ScriptException("inc requires number, " + type());
+    }
+  }
+
+  @Override
+  public Value dec() {
+    if(isNumber()) {
+      // TODO if the value was an object wrapper, autobox before return
+      return unbox().dec();
+    } else {
+      throw new ScriptException("dec requires number, " + type());
     }
   }
 

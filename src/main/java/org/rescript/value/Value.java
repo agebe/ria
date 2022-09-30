@@ -76,6 +76,14 @@ public interface Value {
     return this;
   }
 
+  default Value inc() {
+    throw new ScriptException("increment not supported");
+  }
+
+  default Value dec() {
+    throw new ScriptException("decrement not supported");
+  }
+
   static Value of(Class<?> cls, Object val) {
     if(Void.class.equals(cls) || (cls == void.class)) {
       return new VoidValue();

@@ -26,4 +26,18 @@ public class VarSymbol implements Symbol {
     this.val = val;
   }
 
+  @Override
+  public Value inc() {
+    Value v = val.inc();
+    this.val = v;
+    return v;
+  }
+
+  @Override
+  public Value dec() {
+    Value v = val.dec();
+    this.val = v;
+    return v;
+  }
+
 }

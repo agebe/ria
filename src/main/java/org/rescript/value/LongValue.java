@@ -2,7 +2,7 @@ package org.rescript.value;
 
 public class LongValue implements Value {
 
-  private long val;
+  private final long val;
 
   public LongValue(long val) {
     super();
@@ -72,6 +72,16 @@ public class LongValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     return this.val == other.toLong();
+  }
+
+  @Override
+  public Value inc() {
+    return new LongValue(this.val+1);
+  }
+
+  @Override
+  public Value dec() {
+    return new LongValue(this.val-1);
   }
 
 }

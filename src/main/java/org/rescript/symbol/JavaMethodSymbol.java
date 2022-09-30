@@ -1,5 +1,8 @@
 package org.rescript.symbol;
 
+import org.rescript.ScriptException;
+import org.rescript.value.Value;
+
 public class JavaMethodSymbol implements Symbol {
 
   private Class<?> targetType;
@@ -30,6 +33,16 @@ public class JavaMethodSymbol implements Symbol {
   @Override
   public String toString() {
     return "JavaMethodSymbol [targetType=" + targetType + ", methodName=" + methodName + ", target=" + target + "]";
+  }
+
+  @Override
+  public Value inc() {
+    throw new ScriptException("inc not supported");
+  }
+
+  @Override
+  public Value dec() {
+    throw new ScriptException("dec not supported");
   }
 
 }

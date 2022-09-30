@@ -2,7 +2,7 @@ package org.rescript.value;
 
 public class FloatValue implements Value {
 
-  private float val;
+  private final float val;
 
   public FloatValue(Object o) {
     super();
@@ -72,6 +72,16 @@ public class FloatValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     return this.val == other.toFloat();
+  }
+
+  @Override
+  public Value inc() {
+    return new FloatValue(this.val+1);
+  }
+
+  @Override
+  public Value dec() {
+    return new FloatValue(this.val-1);
   }
 
 }

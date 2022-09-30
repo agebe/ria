@@ -19,13 +19,10 @@ public class UnaryPostIncOp implements Expression {
     Value val = expr.eval(ctx);
     if(val.isNumber()) {
       if(val instanceof EvaluatedFromValue) {
-        
+        ((EvaluatedFromValue)val).getSymbol().inc();
       } else {
         throw new ScriptException("invalid argument to unary post increment, "+val);
       }
-      // here we need the object the expression was evaluated from
-      // could have been a (global or local) script variable or
-      // a (static or non-static) member field of a java object
       return val;
     } else {
       throw new ScriptException("unary post incremenet requires number, " + val);

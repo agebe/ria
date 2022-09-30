@@ -2,6 +2,7 @@ package org.rescript.expression;
 
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.EvaluatedFromValue;
 import org.rescript.value.Value;
 
 public class UnaryPostDecOp implements Expression {
@@ -17,9 +18,11 @@ public class UnaryPostDecOp implements Expression {
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
     if(val.isNumber()) {
-      // here we need the object the expression was evaluated from
-      // could have been a (global or local) script variable or
-      // a (static or non-static) member field of a java object
+      if(val instanceof EvaluatedFromValue) {
+        ((EvaluatedFromValue)val).getSymbol().dec();
+      } else {
+        throw new ScriptException("invalid argument to unary post decrement, "+val);
+      }
       return val;
     } else {
       throw new ScriptException("unary post decrement requires number, " + val);

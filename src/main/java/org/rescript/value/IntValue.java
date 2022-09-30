@@ -2,7 +2,7 @@ package org.rescript.value;
 
 public class IntValue implements Value {
 
-  private int val;
+  private final int val;
 
   public IntValue(int val) {
     super();
@@ -72,6 +72,16 @@ public class IntValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     return this.val == other.toInt();
+  }
+
+  @Override
+  public Value inc() {
+    return new IntValue(this.val+1);
+  }
+
+  @Override
+  public Value dec() {
+    return new IntValue(this.val-1);
   }
 
 }

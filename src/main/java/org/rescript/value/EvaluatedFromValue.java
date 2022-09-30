@@ -1,8 +1,12 @@
 package org.rescript.value;
 
+import org.rescript.symbol.Symbol;
+
 public abstract class EvaluatedFromValue implements Value {
 
   protected abstract Value getWrapped();
+
+  public abstract Symbol getSymbol();
 
   @Override
   public Class<?> type() {

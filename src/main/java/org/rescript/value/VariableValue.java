@@ -1,5 +1,6 @@
 package org.rescript.value;
 
+import org.rescript.symbol.Symbol;
 import org.rescript.symbol.VarSymbol;
 
 public class VariableValue extends EvaluatedFromValue {
@@ -13,6 +14,10 @@ public class VariableValue extends EvaluatedFromValue {
 
   protected Value getWrapped() {
     return var.getVal();
+  }
+
+  public Symbol getSymbol() {
+    return var;
   }
 
 }

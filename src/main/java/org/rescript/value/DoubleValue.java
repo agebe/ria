@@ -4,7 +4,7 @@ import org.rescript.ScriptException;
 
 public class DoubleValue implements Value {
 
-  private double val;
+  private final double val;
 
   public DoubleValue(Object o) {
     super();
@@ -86,5 +86,14 @@ public class DoubleValue implements Value {
     return this.val == other.toDouble();
   }
 
+  @Override
+  public Value inc() {
+    return new DoubleValue(this.val+1);
+  }
+
+  @Override
+  public Value dec() {
+    return new DoubleValue(this.val-1);
+  }
 
 }
