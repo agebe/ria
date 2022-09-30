@@ -55,6 +55,7 @@ expr
   | expr ( EQUAL | NOTEQUAL) expr
   | expr AND expr
   | expr OR expr
+  | expr '?' expr ':' expr
   | assignmentOp
 // other expressions below
   | fcall

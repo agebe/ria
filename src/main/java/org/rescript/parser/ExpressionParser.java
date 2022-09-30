@@ -22,6 +22,7 @@ import org.rescript.expression.ModOp;
 import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
+import org.rescript.expression.TernaryOp;
 import org.rescript.expression.UnaryLogicalNotOp;
 import org.rescript.expression.UnaryMinusOp;
 import org.rescript.expression.UnaryPlusOp;
@@ -173,6 +174,14 @@ public class ExpressionParser {
     return isTerminal(1, "--");
   }
 
+  private boolean isTernaryOp() {
+    return isExpression(0) &&
+        isTerminal(1, "?") &&
+        isExpression(2) &&
+        isTerminal(3, ":") &&
+        isExpression(4);
+  }
+
   private Expression exp(int i) {
     return getExpression(i);
   }
@@ -271,6 +280,8 @@ public class ExpressionParser {
       } else if(isRelational()) {
         stack.push(parseRelational());
       } else fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
+    } else if(isTernaryOp()) {
+      stack.push(new TernaryOp(exp(0), exp(2), exp(4)));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
     }
