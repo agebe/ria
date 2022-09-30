@@ -13,7 +13,16 @@ script
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for statement
+// TODO break/continue
+// TODO instanceof operator
+// TODO bit operators?
+// TODO other assign operator e.g. +=, -= etc.
 // TODO function definition
+// TODO arrays
+// TODO lambda
+// script imports/aliases
+// script dependencies
+
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
 // make sure ifStmt comes before ifElseStmt to take care of the dangling else problem
