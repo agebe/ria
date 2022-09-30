@@ -13,9 +13,6 @@ script
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for statement
-// TODO while statement
-// TODO new operator
-// TODO arithmetic operators
 // TODO function definition
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
