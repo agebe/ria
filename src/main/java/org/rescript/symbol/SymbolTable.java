@@ -17,10 +17,11 @@ import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.statement.Statement;
 import org.rescript.value.ClsValue;
+import org.rescript.value.EvaluatedFromValue;
 import org.rescript.value.ObjValue;
 import org.rescript.value.PackageValue;
+import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
-import org.rescript.value.VariableValue;
 import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,10 +110,14 @@ public class SymbolTable {
 
   public Value resolve(Value target, String name) {
     log.debug("enter resolve '{}' on target '{}'", name, target);
+    // FIXME don't use instanceof on Value as it breaks with wrappers
+    if(target instanceof EvaluatedFromValue) {
+      target = ((EvaluatedFromValue)target).getSymbol().get();
+    }
     if(target == null) {
       VarSymbol var = variables.get(name);
       if(var != null) {
-        return new VariableValue(var);
+        return new SymbolValue(var);
       }
       ClsValue cls = findImportedClass(name);
       if(cls != null) {
@@ -160,7 +165,8 @@ public class SymbolTable {
       Field f = RUtils.findStaticField(cls, name);
       if(f != null) {
         log.debug("found static field '{}' on class '{}", f.getName(), cls);
-        return new ObjValue(f.getType(), f.get(null));
+        return new SymbolValue(new FieldSymbol(f, null));
+        //return new ObjValue(f.getType(), f.get(null));
       }
       return null;
     } catch(Exception e) {

@@ -45,4 +45,9 @@ public class JavaMethodSymbol implements Symbol {
     throw new ScriptException("dec not supported");
   }
 
+  @Override
+  public Value get() {
+    throw new ScriptException("get not supported");
+  }
+
 }

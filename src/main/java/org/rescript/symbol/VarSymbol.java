@@ -40,4 +40,9 @@ public class VarSymbol implements Symbol {
     return v;
   }
 
+  @Override
+  public Value get() {
+    return getVal();
+  }
+
 }
