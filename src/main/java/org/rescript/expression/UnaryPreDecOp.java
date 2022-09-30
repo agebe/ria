@@ -5,11 +5,11 @@ import org.rescript.run.ScriptContext;
 import org.rescript.value.EvaluatedFromValue;
 import org.rescript.value.Value;
 
-public class UnaryPostIncOp implements Expression {
+public class UnaryPreDecOp implements Expression {
 
   private Expression expr;
 
-  public UnaryPostIncOp(Expression expr) {
+  public UnaryPreDecOp(Expression expr) {
     super();
     this.expr = expr;
   }
@@ -19,20 +19,18 @@ public class UnaryPostIncOp implements Expression {
     Value val = expr.eval(ctx);
     if(val.isNumber()) {
       if(val instanceof EvaluatedFromValue) {
-        Value evalResult = ((EvaluatedFromValue)val).getSymbol().get();
-        ((EvaluatedFromValue)val).getSymbol().inc();
-        return evalResult;
+        return ((EvaluatedFromValue)val).getSymbol().dec();
       } else {
-        throw new ScriptException("invalid argument to unary post increment, "+val);
+        throw new ScriptException("invalid argument to unary pre decrement, "+val);
       }
     } else {
-      throw new ScriptException("unary post incremenet requires number, " + val);
+      throw new ScriptException("unary pre decrement requires number, " + val);
     }
   }
 
   @Override
   public String getText() {
-    return expr.getText() + "++";
+    return "--" + expr.getText();
   }
 
   @Override

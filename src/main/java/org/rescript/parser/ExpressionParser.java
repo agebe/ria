@@ -27,6 +27,8 @@ import org.rescript.expression.UnaryMinusOp;
 import org.rescript.expression.UnaryPlusOp;
 import org.rescript.expression.UnaryPostDecOp;
 import org.rescript.expression.UnaryPostIncOp;
+import org.rescript.expression.UnaryPreDecOp;
+import org.rescript.expression.UnaryPreIncOp;
 
 public class ExpressionParser {
 
@@ -236,9 +238,9 @@ public class ExpressionParser {
         } else if(isUnaryBinaryNot()) {
           fail("not implemented yet");
         } else if(isUnaryPreInc()) {
-          fail("not implemented yet");
+          stack.push(new UnaryPreIncOp(exp(1)));
         } else if(isUnaryPreDec()) {
-          fail("not implemented yet");
+          stack.push(new UnaryPreDecOp(exp(1)));
         } else {
           failUnknownExpression();
         }
