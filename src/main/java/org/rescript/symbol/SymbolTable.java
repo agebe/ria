@@ -149,6 +149,10 @@ public class SymbolTable {
       if(v != null) {
         return v;
       }
+      v = memberField(target.type(), name, ((ObjValue)target).val());
+      if(v != null) {
+        return v;
+      }
       throw new ScriptException("failed to resolve '%s', on target '%s'".formatted(name, target));
     } else {
       throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
@@ -166,7 +170,6 @@ public class SymbolTable {
       if(f != null) {
         log.debug("found static field '{}' on class '{}", f.getName(), cls);
         return new SymbolValue(new FieldSymbol(f, null));
-        //return new ObjValue(f.getType(), f.get(null));
       }
       return null;
     } catch(Exception e) {
@@ -174,17 +177,13 @@ public class SymbolTable {
     }
   }
 
-//  private Value memberField(Class<?> cls, String name) {
-//    Value v = staticMember(cls, name);
-//    if(v != null) {
-//      return v;
-//    }
-//    Field f = RUtils.findField(cls, name);
-//    if(f != null) {
-//      return new FieldValue(cls, f, null);
-//    }
-//    return null;
-//  }
+  private Value memberField(Class<?> cls, String name, Object owner) {
+    Field f = RUtils.findField(cls, name);
+    if(f != null) {
+      return new SymbolValue(new FieldSymbol(f, owner));
+    }
+    return null;
+  }
 
   public JavaMethodSymbol resolveFunction(String name) {
     String target = functionAlias.get(name);
