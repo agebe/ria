@@ -20,8 +20,9 @@ script
 // TODO function definition
 // TODO arrays
 // TODO lambda
-// script imports/aliases
-// script dependencies
+// TODO script imports/aliases
+// TODO script dependencies
+// TODO character literal
 
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
