@@ -58,6 +58,7 @@ import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
+import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
 import org.rescript.statement.WhileStatement;
 import org.rescript.symbol.SymbolTable;
@@ -406,23 +407,37 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitVardefStmt(VardefStmtContext ctx) {
     log.debug("exitVardefStmt '{}'", ctx.getText());
+    LinkedList<VarDef> vars = new LinkedList<>();
     popSemi();
-    ParseItem pi1 = stack.pop();
-    ParseItem pi2 = stack.pop();
-    if(pi2 instanceof Terminal) {
-      String t2 = ((Terminal)pi2).getText();
-      if("var".equals(t2)) {
-        Identifier i1 = (Identifier)pi1;
-        stack.push(new VardefStatement(i1.getIdent(), null));
-      } else if( "=".equals(t2)) {
-        ParseItem pi3 = stack.pop();
-        popTerminal("var");
-        Identifier i3 = (Identifier)pi3;
-        stack.push(new VardefStatement(i3.getIdent(), (Expression)pi1));
+    for(;;) {
+      ParseItem pi1 = stack.pop();
+      ParseItem pi2 = stack.pop();
+      if(pi2 instanceof Terminal) {
+        String t2 = ((Terminal)pi2).getText();
+        if("var".equals(t2) || ",".equals(t2)) {
+          Identifier i1 = (Identifier)pi1;
+          vars.addFirst(new VarDef(i1.getIdent(), null));
+          if("var".equals(t2)) {
+            break;
+          }
+        } else if( "=".equals(t2)) {
+          ParseItem pi3 = stack.pop();
+          String t4 = popTerminal().getText();
+          Identifier i3 = (Identifier)pi3;
+          vars.addFirst(new VarDef(i3.getIdent(), (Expression)pi1));
+          if("var".equals(t4)) {
+            break;
+          } else if(!",".equals(t4)) {
+            throw new ScriptException("expected terminals var or , but got '%s'".formatted(t4));
+          }
+        } else {
+          throw new ScriptException("expected 'var' or ',' or '=', but got '%s'".formatted(((Terminal)pi2).getText()));
+        }
+      } else {
+        throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
       }
-    } else {
-      throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
     }
+    stack.push(new VardefStatement(vars));
   }
 
   @Override

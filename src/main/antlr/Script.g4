@@ -37,17 +37,23 @@ stmt
   | ifStmt
   | ifElseStmt
   | whileStmt
+//  | forStmt
+//  | forEachStmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
-vardefStmt: 'var' ident assignment? SEMI;
+vardefStmt: 'var' ident assignment? ( ',' ident assignment? )* SEMI;
 // TODO add support for multiple return expressions?
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 whileStmt: WHILE LPAREN expr RPAREN stmt;
-
+//forStmt: FOR LPAREN forInit SEMI expr SEMI forInc RPAREN stmt;
+//forInit : 
+//forInc :
+//forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
+ 
 assignment: ASSIGN expr;
 
 expr

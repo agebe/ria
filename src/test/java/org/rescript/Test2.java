@@ -52,6 +52,45 @@ public class Test2 {
     a.bar();
     A.bar();
     Base.bar();
+    
+  }
+
+  @Test
+  public void forLoop() {
+    int i = 1, kk = 4;
+    for(int k=1,j=2;i<10;i++,j+=2,kk=k*2,k--) {
+      System.out.println("%s, %s, %s, %s".formatted(i, j, k, kk));
+    }
+    //System.out.println("%s, %s, %s, %s".formatted(i, j, k, kk));
+  }
+
+  @Test
+  public void forLoop2() {
+    int i = 1, kk = 4;
+    int k = 1, ii;
+    ii = 0;
+    System.out.println(ii);
+    System.out.println(k);
+    System.out.println(kk);
+//    for(i=2,int k=1;i<10;i++) {
+//      System.out.println("%s, %s, %s, %s".formatted(i, j, k, kk));
+//    }
+    //System.out.println("%s, %s, %s, %s".formatted(i, j, k, kk));
+    for(int jj=1;;i++,k=i>10?i:k) {
+      System.out.println(i);
+      if(i > 100) {
+        System.out.println(jj);
+        break;
+      }
+    }
+  }
+
+
+  @Test
+  public void forEachLoop() {
+    for(var i2 : new int[] {1,2,3}) {
+      System.out.println(i2);
+    }
   }
 
 }

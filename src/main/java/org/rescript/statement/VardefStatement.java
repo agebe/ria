@@ -1,32 +1,21 @@
 package org.rescript.statement;
 
-import org.rescript.expression.Expression;
+import java.util.List;
+
 import org.rescript.run.ScriptContext;
-import org.rescript.value.Value;
-import org.rescript.value.VoidValue;
 
 public class VardefStatement extends AbstractStatement {
 
-  private String name;
+  private List<VarDef> vars;
 
-  private Expression initial;
-
-  public VardefStatement(String name, Expression initial) {
+  public VardefStatement(List<VarDef> vars) {
     super();
-    this.name = name;
-    this.initial = initial;
+    this.vars = vars;
   }
 
   @Override
   public void execute(ScriptContext ctx) {
-    Value v = (initial!=null?initial.eval(ctx):new VoidValue());
-    ctx.setLastResult(v);
-    ctx.getSymbols().defineVar(name, v);
-  }
-
-  @Override
-  public String toString() {
-    return "VardefStatement [name=" + name + ", initial=" + initial + "]";
+    vars.forEach(v -> v.execute(ctx));
   }
 
 }
