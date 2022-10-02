@@ -80,6 +80,10 @@ public class SymbolTable {
     return importList.insertFirst("java.lang.*");
   }
 
+  private JImmutableMap<String, String> functionAlias() {
+    return functionAlias.assign("println", "System.out.println");
+  }
+
   public Statement getEntryPoint() {
     return entryPoint;
   }
@@ -186,7 +190,7 @@ public class SymbolTable {
   }
 
   public JavaMethodSymbol resolveFunction(String name) {
-    String target = functionAlias.get(name);
+    String target = functionAlias().get(name);
     if(target != null) {
       log.debug("found function alias for '{}', '{}'", name, target);
       String className = StringUtils.substringBeforeLast(target, ".");

@@ -12,7 +12,8 @@ script
   ;
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
-// TODO for statement
+// TODO for each statement
+// TODO do while statement
 // TODO break/continue
 // TODO instanceof operator
 // TODO bit operators?
@@ -38,7 +39,7 @@ stmt
   | ifStmt
   | ifElseStmt
   | whileStmt
-//  | forStmt
+  | forStmt
 //  | forEachStmt
   ;
 emptyStmt: SEMI;
@@ -50,9 +51,10 @@ block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 whileStmt: WHILE LPAREN expr RPAREN stmt;
-//forStmt: FOR LPAREN forInit SEMI expr SEMI forInc RPAREN stmt;
-//forInit : 
-//forInc :
+forStmt: FOR LPAREN forInit forTerm forInc RPAREN stmt;
+forInit: vardefStmt | emptyStmt | assignmentOp ( ',' assignmentOp )* SEMI;
+forTerm: expr? SEMI;
+forInc: expr? ( ',' expr )*;
 //forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
  
 assignment: ASSIGN expr;

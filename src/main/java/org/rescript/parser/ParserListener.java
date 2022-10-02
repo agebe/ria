@@ -28,6 +28,10 @@ import org.rescript.antlr.ScriptParser.ExprStmtContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
+import org.rescript.antlr.ScriptParser.ForIncContext;
+import org.rescript.antlr.ScriptParser.ForInitContext;
+import org.rescript.antlr.ScriptParser.ForStmtContext;
+import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
@@ -55,6 +59,9 @@ import org.rescript.expression.StringLiteral;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
+import org.rescript.statement.ForInitStatement;
+import org.rescript.statement.ForStatement;
+import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
@@ -287,6 +294,16 @@ public class ParserListener implements ScriptListener {
     }
   }
 
+  private Terminal popTerminalIfExists(String expected) {
+    ParseItem p = stack.peek();
+    if(p instanceof Terminal) {
+      if(((Terminal) p).getText().equals(expected)) {
+        return popTerminal();
+      }
+    }
+    return null;
+  }
+
   private void popSemi() {
     popTerminal(";");
   }
@@ -301,6 +318,10 @@ public class ParserListener implements ScriptListener {
 
   private Statement popStatement() {
     return (Statement)stack.pop();
+  }
+
+  private void printStack() {
+    log.debug("stack '{}'", stack);
   }
 
   public SymbolTable getSymbols() {
@@ -550,6 +571,94 @@ public class ParserListener implements ScriptListener {
     popTerminal("while");
     WhileStatement ws = (WhileStatement)findMostRecentStatement();
     ws.setExpression(e);
+  }
+
+  @Override
+  public void enterForStmt(ForStmtContext ctx) {
+    log.debug("enterForStmt '{}'", ctx.getText());
+    stack.push(new ForStatementBuilder());
+  }
+
+  @Override
+  public void exitForStmt(ForStmtContext ctx) {
+    log.debug("exitForStmt '{}'", ctx.getText());
+    printStack();
+    popTerminal(")");
+    ForStatementBuilder b = (ForStatementBuilder)stack.pop();
+    var forStmt = new ForStatement(b.getForInit(), b.getForTerm(), b.getForInc(), b.getStatement());
+    log.debug("adding '{}' to stack", forStmt);
+    stack.push(forStmt);
+  }
+
+  @Override
+  public void enterForInit(ForInitContext ctx) {
+    log.debug("enterForInit '{}'", ctx.getText());
+    // get rid of terminals so the ForStatementBuilder is the next
+    popTerminal("(");
+    popTerminal("for");
+    if(!(stack.peek() instanceof ForStatementBuilder)) {
+      throw new ScriptException("expected ForStatementBuilder");
+    }
+  }
+
+  @Override
+  public void exitForInit(ForInitContext ctx) {
+    log.debug("exitForInit '{}'", ctx.getText());
+    if(stack.peek() instanceof Terminal) {
+      popTerminal(";");
+      List<AssignmentOperator> l = new LinkedList<>();
+      for(;stack.peek() instanceof AssignmentOperator;) {
+        l.add((AssignmentOperator)stack.pop());
+        popTerminalIfExists(",");
+      }
+      printStack();
+      ((ForStatementBuilder)stack.peek()).setForInit(new ForInitStatement(l));
+    } else {
+      Statement s = popStatement();
+      if(s instanceof VardefStatement) {
+        ((ForStatementBuilder)stack.peek()).setForInit(new ForInitStatement((VardefStatement)s));
+      } else if(!(s instanceof EmptyStatement)) {
+        throw new ScriptException("expected var def or empty statement but got, " + s);
+      }
+    }
+  }
+
+  @Override
+  public void enterForTerm(ForTermContext ctx) {
+    log.debug("enterForTerm '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitForTerm(ForTermContext ctx) {
+    log.debug("exitForTerm '{}'", ctx.getText());
+    popTerminal(";");
+    if(stack.peek() instanceof Expression) {
+      Expression expr = popExpression();
+      ((ForStatementBuilder)stack.peek()).setForTerm(expr);
+    }
+  }
+
+  @Override
+  public void enterForInc(ForIncContext ctx) {
+    log.debug("enterForInc '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitForInc(ForIncContext ctx) {
+    log.debug("exitForInc '{}'", ctx.getText());
+    LinkedList<Expression> l = new LinkedList<>();
+    for(;;) {
+      if(stack.peek() instanceof ForStatementBuilder) {
+        ((ForStatementBuilder)stack.peek()).setForInc(l);
+        break;
+      } else if(stack.peek() instanceof Expression) {
+        l.addFirst(popExpression());
+      } else if(stack.peek() instanceof Terminal) {
+        popTerminal(",");
+      } else {
+        throw new ScriptException("unexpected item on top of stack, " + stack.peek());
+      }
+    }
   }
 
 }

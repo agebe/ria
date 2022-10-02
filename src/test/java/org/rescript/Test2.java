@@ -85,12 +85,4 @@ public class Test2 {
     }
   }
 
-
-  @Test
-  public void forEachLoop() {
-    for(var i2 : new int[] {1,2,3}) {
-      System.out.println(i2);
-    }
-  }
-
 }
