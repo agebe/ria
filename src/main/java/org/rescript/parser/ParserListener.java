@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
+import org.javimmutable.collections.util.JImmutables;
 import org.rescript.ScriptException;
 import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
@@ -34,9 +36,12 @@ import org.rescript.antlr.ScriptParser.ForStmtContext;
 import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
+import org.rescript.antlr.ScriptParser.HeaderContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
 import org.rescript.antlr.ScriptParser.IfElseStmtContext;
 import org.rescript.antlr.ScriptParser.IfStmtContext;
+import org.rescript.antlr.ScriptParser.ImportStmtContext;
+import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
@@ -77,6 +82,10 @@ public class ParserListener implements ScriptListener {
   private static final Logger log = LoggerFactory.getLogger(ParserListener.class);
 
   private Deque<ParseItem> stack = new ArrayDeque<>();
+
+  private List<String> imports = new ArrayList<>();
+
+  private List<String> importStatics = new ArrayList<>();
 
   public ParserListener() {
     stack.push(new BlockStatement());
@@ -308,6 +317,21 @@ public class ParserListener implements ScriptListener {
     popTerminal(";");
   }
 
+  private boolean nextTerminalIs(String text) {
+    ParseItem p = stack.peek();
+    if(p instanceof Terminal) {
+      Terminal t = (Terminal)p;
+      return t.getText().equals(text);
+    } else {
+      return false;
+    }
+  }
+
+  private boolean nextItemIs(Class<?> cls) {
+    ParseItem p = stack.peek();
+    return p!=null?cls.equals(p.getClass()):false;
+  }
+
   private Expression popExpression() {
     return (Expression)stack.pop();
   }
@@ -325,7 +349,12 @@ public class ParserListener implements ScriptListener {
   }
 
   public SymbolTable getSymbols() {
-    return new SymbolTable((Statement)stack.getLast());
+    return new SymbolTable(
+        JImmutables.list(imports),
+        JImmutables.list(importStatics),
+        JImmutables.map(),
+        (Statement)stack.getLast(),
+        new HashMap<>());
   }
 
   @Override
@@ -659,6 +688,55 @@ public class ParserListener implements ScriptListener {
         throw new ScriptException("unexpected item on top of stack, " + stack.peek());
       }
     }
+  }
+
+  @Override
+  public void enterHeader(HeaderContext ctx) {
+    log.debug("enterHeader '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitHeader(HeaderContext ctx) {
+    log.debug("exitHeader '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterImportStmt(ImportStmtContext ctx) {
+    log.debug("enterImportStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitImportStmt(ImportStmtContext ctx) {
+    log.debug("exitImportStmt '{}'", ctx.getText());
+    popSemi();
+    ImportType type = (ImportType)stack.pop();
+    if(nextTerminalIs("static")) {
+      popTerminal("static");
+      importStatics.add(type.getType());
+    } else {
+      imports.add(type.getType());
+    }
+    popTerminal("import");
+  }
+
+  @Override
+  public void enterImportType(ImportTypeContext ctx) {
+    log.debug("enterImportType '{}'", ctx.getText());
+    stack.push(new ImportTypeStartMarker());
+  }
+
+  @Override
+  public void exitImportType(ImportTypeContext ctx) {
+    log.debug("exitImportType '{}'", ctx.getText());
+    String type = "";
+    for(;;) {
+      if(nextItemIs(ImportTypeStartMarker.class)) {
+        stack.pop();
+        break;
+      }
+      type = popTerminal().getText() + type;
+    }
+    stack.push(new ImportType(type));
   }
 
 }

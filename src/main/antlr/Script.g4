@@ -7,8 +7,19 @@ package org.rescript.antlr;
 
 // script can either be a list of statements or a single expression (no need for semicolon in this case)
 script
-  : stmt*
-  | expr
+  : header ( stmt* | expr )
+  ;
+
+header
+  : importStmt*
+  ;
+
+importStmt
+  : IMPORT STATIC? importType SEMI
+  ;
+
+importType
+  : Identifier ( '.' Identifier )* ( '.' '*' )?
   ;
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
