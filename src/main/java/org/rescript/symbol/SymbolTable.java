@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -16,10 +17,7 @@ import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.JImmutableMap;
 import org.rescript.ScriptException;
 import org.rescript.statement.Statement;
-import org.rescript.value.ClsValue;
-import org.rescript.value.EvaluatedFromValue;
 import org.rescript.value.ObjValue;
-import org.rescript.value.PackageValue;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
@@ -80,6 +78,10 @@ public class SymbolTable {
     return importList.insertFirst("java.lang.*");
   }
 
+  private JImmutableList<String> staticImports() {
+    return importStaticList;
+  }
+
   private JImmutableMap<String, String> functionAlias() {
     return functionAlias.assign("println", "System.out.println");
   }
@@ -92,104 +94,192 @@ public class SymbolTable {
     this.entryPoint = entryPoint;
   }
 
-//  public Symbol resolve(String name) {
-//    VarSymbol variable = variables.get(name);
-//    if(variable != null) {
-//      return variable;
-//    }
-//    ClassSymbol cls = cls(name);
-//    if(cls != null) {
-//      return cls;
-//    }
-//    ClassSymbol innerCls = innerClass(name);
-//    if(innerCls != null) {
-//      return innerCls;
-//    }
-//    VarSymbol sf = staticMember(name);
-//    if(sf != null) {
-//      return sf;
-//    }
-//    throw new SymbolNotFoundException(name);
-//  }
+  public SymbolTable merge(SymbolTable symbols) {
+    return new SymbolTable(
+        importList.insertAll(symbols.importList),
+        importStaticList.insertAll(symbols.importStaticList),
+        functionAlias.insertAll(symbols.functionAlias),
+        symbols.entryPoint,
+        this.variables
+        );
+  }
 
-  public Value resolve(Value target, String name) {
-    log.debug("enter resolve '{}' on target '{}'", name, target);
-    // FIXME don't use instanceof on Value as it breaks with wrappers
-    if(target instanceof EvaluatedFromValue) {
-      target = ((EvaluatedFromValue)target).getSymbol().get();
+  public void defineVar(String name, Value val) {
+    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
+    if(v != null) {
+      throw new ScriptException("variable '%s' already defined".formatted(name));
     }
-    if(target == null) {
-      VarSymbol var = variables.get(name);
-      if(var != null) {
-        return new SymbolValue(var);
-      }
-      ClsValue cls = findImportedClass(name);
-      if(cls != null) {
-        return cls;
-      }
-      // TODO
-      // just assume it is a package for now
-      return new PackageValue(name);
-    } else if(target instanceof PackageValue) {
-      String pkg = ((PackageValue)target).getPackageName();
-      String s = pkg + "." + name;
-      ClsValue cls = cls(s);
-      if(cls != null) {
-        return cls;
-      }
-      // just assume it is a package for now
-      return new PackageValue(s);
-    } else if(target instanceof ClsValue) {
-      // name could be a static member (field or method) or an inner class
-      Class<?> cls = ((ClsValue)target).type();
-      ClsValue s = innerClass(cls, name);
-      if(s != null) {
-        return s;
-      } else {
-        return staticMember(cls, name);
-      }
-    } else if(target instanceof ObjValue) {
-      Value v = staticMember(target.type(), name);
-      if(v != null) {
-        return v;
-      }
-      v = memberField(target.type(), name, ((ObjValue)target).val());
-      if(v != null) {
-        return v;
-      }
-      throw new ScriptException("failed to resolve '%s', on target '%s'".formatted(name, target));
+  }
+
+  public void assignVar(String name, Value val) {
+    VarSymbol v = variables.get(name);
+    if(v != null) {
+      v.setVal(val);
     } else {
-      throw new ScriptException("resolve not implemented '%s', on target '%s'".formatted(name, target));
+      defineVar(name, val);
     }
   }
 
-  private ClsValue innerClass(Class<?> cls, String name) {
-    Class<?> inner = RUtils.innerClass(cls, name);
-    return inner!=null?new ClsValue(inner):null;
+  public Value getVariable(String name) {
+    VarSymbol sym = variables.get(name);
+    return sym!=null?sym.getVal():null;
   }
 
-  private Value staticMember(Class<?> cls, String name) {
-    try {
-      Field f = RUtils.findStaticField(cls, name);
-      if(f != null) {
-        log.debug("found static field '{}' on class '{}", f.getName(), cls);
-        return new SymbolValue(new FieldSymbol(f, null));
+  // ----------------------------------------------------------------------
+  // resolve from here ----------------------------------------------------
+  // ----------------------------------------------------------------------
+
+  public Value resolveVarOrTypeOrStaticMember(String ident) {
+    // the ident string is something like Boolean.TRUE
+    // or variable.counter or java.lang.System or just System (resolve from imports)
+    // so it seem we have to resolve the first part of the identifier
+    // which could be
+    // 1. variable
+    // 2. class name (also imported)
+    // 3. static member (static import)
+    // after the first part is resolved following the dotted identifiers should be the same for all 3 cases
+    // what follows could be
+    // - fields
+    // - static fields
+    // - inner classes
+    // in case of a variable we have a type and an object otherwise just a type
+    // in any order
+
+    // TODO not sure in which order the resolve needs to be done...
+    log.debug("resolve '{}'", ident);
+    List<String> split = RUtils.splitTypeName(ident);
+    String s0 = split.get(0);
+    // check variable
+    VarSymbol var = variables.get(s0);
+    if(var != null) {
+      return resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(var));
+    }
+    // check FQCN
+    Class<?> fqcn = RUtils.forName(ident);
+    if(fqcn != null) {
+      // in this case there is nothing remaining
+      return new ObjValue(fqcn, null);
+    }
+    for(int i=1;i<split.size();i++) {
+      String s = split.stream().limit(i).collect(Collectors.joining("."));
+      Class<?> cls = RUtils.forName(s);
+      if(cls != null) {
+        return resolveRemaining(split.stream().skip(i).toList(), new ObjValue(cls, null));
       }
-      return null;
-    } catch(Exception e) {
-      throw new ScriptException("failed on static member '%s' of class '%s'".formatted(name, cls));
     }
-  }
-
-  private Value memberField(Class<?> cls, String name, Object owner) {
-    Field f = RUtils.findField(cls, name);
-    if(f != null) {
-      return new SymbolValue(new FieldSymbol(f, owner));
+    // check type from imports
+    for(String imp : imports()) {
+      LinkedList<String> impSplit = RUtils.splitTypeName(imp);
+      String impLast = impSplit.getLast();
+      if("*".equals(impLast)) {
+        impSplit.removeLast();
+        String probe = impSplit.stream().collect(Collectors.joining(".")) + "." + s0;
+        Class<?> cls = RUtils.forName(probe);
+        if(cls != null) {
+          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+        }
+      } else if(StringUtils.equals(s0, impLast)) {
+        Class<?> cls = RUtils.forName(imp);
+        if(cls != null) {
+          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+        } else {
+          throw new ScriptException("class import '%s' not found".formatted(imp));
+        }
+      }
+    }
+    // check static imports
+    // TODO DRY
+    for(String imp : staticImports()) {
+      log.debug("static import '{}'", imp);
+      LinkedList<String> impSplit = RUtils.splitTypeName(imp);
+      String impLast = impSplit.getLast();
+      if("*".equals(impLast)) {
+        impSplit.removeLast();
+        String probe = impSplit.stream().collect(Collectors.joining("."));
+        Class<?> cls = RUtils.forName(probe);
+        if(cls != null) {
+          // it could be a static field or a static inner type, check both
+          Field f = RUtils.findStaticField(cls, s0);
+          if(f != null) {
+            return resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(new FieldSymbol(f, null)));
+          }
+          Class<?> innerCls = RUtils.innerClass(cls, s0);
+          if(innerCls != null) {
+            return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(innerCls, null));
+          }
+        } else {
+          throw new ScriptException("static import '%s', class '%s' not found".formatted(imp, probe));
+        }
+      } else if(StringUtils.equals(s0, impLast)) {
+        log.debug("XXX");
+        impSplit.removeLast();
+        String probe = impSplit.stream().collect(Collectors.joining("."));
+        Class<?> cls = RUtils.forName(probe);
+        log.debug("probe '{}', '{}'", probe, cls);
+        if(cls != null) {
+          Field f = RUtils.findStaticField(cls, s0);
+          log.debug("static field for '{}', '{}'", s0, f);
+          if(f != null) {
+            return resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(new FieldSymbol(f, null)));
+          }
+          Class<?> innerCls = RUtils.innerClass(cls, s0);
+          if(innerCls != null) {
+            return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(innerCls, null));
+          }
+          throw new ScriptException("static import '%s' does not have static field/type '%s'".formatted(cls.getName(), s0));
+        } else {
+          throw new ScriptException("static import class '%s' not found".formatted(probe));
+        }
+      }
     }
     return null;
   }
 
+  private Value resolveRemaining(List<String> ident, Value val) {
+    if(ident.isEmpty()) {
+      return val;
+    }
+    Value current = val;
+    for(String s : ident) {
+      log.debug("resolve remaining '{}' on type '{}'", s, current.type());
+      Field staticField = RUtils.findStaticField(current.type(), s);
+      if(staticField != null) {
+        log.debug("found static field '{}' on type '{}'", s, current.type());
+        current = new SymbolValue(new FieldSymbol(staticField, null));
+        continue;
+      }
+      if(current.val() != null) {
+        Field field = RUtils.findField(current.type(), s);
+        if(field != null) {
+          log.debug("found field '{}' on type '{}'", s, current.type());
+          current = new SymbolValue(new FieldSymbol(field, current.val()));
+          continue;
+        }
+      }
+      Class<?> inner = RUtils.innerClass(current.type(), s);
+      if(inner != null) {
+        current = new ObjValue(inner, null);
+        continue;
+      }
+      log.debug("could not resolve '{}' on type '{}'", s, current.type());
+      return null;
+    }
+    log.debug("resolved to '{}'", current);
+    return current;
+  }
+
+  public Class<?> resolveType(String identifier) {
+    return resolveTypeInternal(identifier);
+  }
+
   public JavaMethodSymbol resolveFunction(String name) {
+    return resolveFunctionInternal(name);
+  }
+
+  // ----------------------------------------------------------------------
+  // resolve function here ------------------------------------------------
+  // ----------------------------------------------------------------------
+  public JavaMethodSymbol resolveFunctionInternal(String name) {
     String target = functionAlias().get(name);
     if(target != null) {
       log.debug("found function alias for '{}', '{}'", name, target);
@@ -216,35 +306,6 @@ public class SymbolTable {
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
-  }
-
-  public Class<?> resolveType(String name) {
-    log.debug("enter resolveType '{}'", name);
-    log.debug("probing '{}'...", name);
-    Class<?> cls = RUtils.findClass(name);
-    if(cls != null) {
-      log.debug("found '{}' for name '{}'", cls.getName(), name);
-      return cls;
-    }
-    for(String im : imports()) {
-      LinkedList<String> split = RUtils.splitTypeName(im);
-      if(StringUtils.equals(name, split.getLast())) {
-        Class<?> c = RUtils.findClass(im);
-        log.debug("found '{}' for name '{}'", c.getName(), im);
-        return c;
-      } else if(StringUtils.equals("*", split.getLast())) {
-        split.removeLast();
-        String joined = split.stream().collect(Collectors.joining("."));
-        log.debug("probing '{}.{}", joined, name);
-        Class<?> c = RUtils.findClass(joined, name);
-        if(c != null) {
-          log.debug("found '{}'", c.getName());
-          return c;
-        }
-      }
-    }
-    // TODO also check static imports?
-    return null;
   }
 
   private Class<?> findClassOrInnerClass(String name) {
@@ -275,40 +336,6 @@ public class SymbolTable {
   private boolean hasMethod(Class<?> cls, String methodName) {
     return Arrays.stream(cls.getMethods())
         .anyMatch(m -> StringUtils.equals(m.getName(), methodName));
-  }
-
-  private ClsValue cls(String name) {
-    Class<?> cls = findClassExact(name);
-    return cls!=null?new ClsValue(cls):null;
-  }
-
-  private ClsValue findImportedClass(String name) {
-    // TODO inner classes can also be imported through static imports
-    return imports().stream()
-        .map(imp -> {
-          String clsPart = substringAfterLastDot(imp);
-          if(clsPart.equals("*")) {
-            return findClassOrInner(StringUtils.chop(imp)+name);
-          } else if(clsPart.equals(name)) {
-            return findClassOrInner(imp);
-          } else {
-            return null;
-          }
-        })
-        .filter(Objects::nonNull)
-        .findFirst()
-        .map(ClsValue::new)
-        .orElse(null);
-  }
-
-  private Class<?> findClassOrInner(String s) {
-    // TODO also find inner classes
-    return findClassExact(s);
-  }
-
-  private String substringAfterLastDot(String s) {
-    // substringAfterLast returns an empty string when it doesn't contain the separator
-    return StringUtils.contains(s, '.')?StringUtils.substringAfterLast(s, '.'):s;
   }
 
   // TODO make a pair type in util package?
@@ -463,35 +490,36 @@ public class SymbolTable {
     }
   }
 
-  public SymbolTable merge(SymbolTable symbols) {
-    return new SymbolTable(
-        importList.insertAll(symbols.importList),
-        importStaticList.insertAll(symbols.importStaticList),
-        functionAlias.insertAll(symbols.functionAlias),
-        symbols.entryPoint,
-        this.variables
-        );
-  }
-
-  public void defineVar(String name, Value val) {
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
-    if(v != null) {
-      throw new ScriptException("variable '%s' already defined".formatted(name));
+// ------------------------------------------------------
+// resolve type -----------------------------------------
+// ------------------------------------------------------
+  private Class<?> resolveTypeInternal(String name) {
+    log.debug("enter resolveType '{}'", name);
+    log.debug("probing '{}'...", name);
+    Class<?> cls = RUtils.findClass(name);
+    if(cls != null) {
+      log.debug("found '{}' for name '{}'", cls.getName(), name);
+      return cls;
     }
-  }
-
-  public void assignVar(String name, Value val) {
-    VarSymbol v = variables.get(name);
-    if(v != null) {
-      v.setVal(val);
-    } else {
-      defineVar(name, val);
+    for(String im : imports()) {
+      LinkedList<String> split = RUtils.splitTypeName(im);
+      if(StringUtils.equals(name, split.getLast())) {
+        Class<?> c = RUtils.findClass(im);
+        log.debug("found '{}' for name '{}'", c.getName(), im);
+        return c;
+      } else if(StringUtils.equals("*", split.getLast())) {
+        split.removeLast();
+        String joined = split.stream().collect(Collectors.joining("."));
+        log.debug("probing '{}.{}", joined, name);
+        Class<?> c = RUtils.findClass(joined, name);
+        if(c != null) {
+          log.debug("found '{}'", c.getName());
+          return c;
+        }
+      }
     }
-  }
-
-  public Value getVariable(String name) {
-    VarSymbol sym = variables.get(name);
-    return sym!=null?sym.getVal():null;
+    // TODO also check static imports?
+    return null;
   }
 
 }

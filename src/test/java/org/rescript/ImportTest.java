@@ -27,7 +27,7 @@ public class ImportTest {
   @Test
   public void importStaticTest() {
     int i = new Script().evalInt("""
-        import static java.math.BigIntger.TEN;
+        import static java.math.BigInteger.TEN;
         TEN
         """);
     assertEquals(10, i);
@@ -36,7 +36,7 @@ public class ImportTest {
   @Test
   public void importStaticAsteriksTest() {
     int i = new Script().evalInt("""
-        import static java.math.BigIntger.*;
+        import static java.math.BigInteger.*;
         TEN
         """);
     assertEquals(10, i);

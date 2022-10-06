@@ -15,6 +15,7 @@ public class Terminal implements ParseItem {
     return token;
   }
 
+  @Override
   public String getText() {
     return token.getText();
   }

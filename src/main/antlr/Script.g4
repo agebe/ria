@@ -74,6 +74,7 @@ expr
 // do operators first, order by precedence
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
+  | ident DOT ident ( DOT ident )*
   | expr DOT expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr

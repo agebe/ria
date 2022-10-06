@@ -3,6 +3,7 @@ package org.rescript.parser;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
@@ -10,10 +11,12 @@ import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
+import org.rescript.expression.DottedIdentifier;
 import org.rescript.expression.EqualityOp;
 import org.rescript.expression.Expression;
 import org.rescript.expression.GeOp;
 import org.rescript.expression.GtOp;
+import org.rescript.expression.Identifier;
 import org.rescript.expression.LeOp;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
@@ -228,9 +231,38 @@ public class ExpressionParser {
     }
   }
 
+  private boolean isDottedIdentifier() {
+    if(items.size() < 3) {
+      return false;
+    }
+    for(int i=0;i<items.size();i++) {
+      if((i % 2) == 0) {
+        if(!(items.get(i) instanceof Identifier)) {
+          return false;
+        }
+      } else {
+        // odd needs to be a dot terminal
+        if(!isTerminal(i, ".")) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private DottedIdentifier dottedIdentifier() {
+    return new DottedIdentifier(
+        items
+        .stream()
+        .map(ParseItem::getText)
+        .collect(Collectors.joining()));
+  }
+
   public void parse() {
-    // only 1 item on the stack, we just push that back as there is nothing else to do
-    if(isSingle()) {
+    if(isDottedIdentifier()) {
+      stack.push(dottedIdentifier());
+    } else if(isSingle()) {
+   // only 1 item on the stack, we just push that back as there is nothing else to do
       if(isSingleExpression()) {
         stack.push(getExpression(0));
       } else {

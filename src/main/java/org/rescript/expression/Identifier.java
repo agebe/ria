@@ -3,7 +3,7 @@ package org.rescript.expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class Identifier implements TargetExpression {
+public class Identifier implements Expression {
 
   private String ident;
 
@@ -23,12 +23,7 @@ public class Identifier implements TargetExpression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    return ctx.getSymbols().resolve(null, ident);
-  }
-
-  @Override
-  public Value eval(ScriptContext ctx, Value target) {
-    return ctx.getSymbols().resolve(target, ident);
+    return ctx.getSymbols().resolveVarOrTypeOrStaticMember(ident);
   }
 
   @Override

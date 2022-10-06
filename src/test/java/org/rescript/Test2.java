@@ -11,6 +11,13 @@ public class Test2 {
   }
 
   public abstract static class Base {
+
+    public static class Inner {
+      public static class Inner2 {
+        
+      }
+    }
+
     public void foo() {
       System.out.println("Base");
     }
@@ -20,6 +27,17 @@ public class Test2 {
   }
 
   public static class A extends Base implements I {
+  }
+
+  public static class B {
+    public static class D {
+      public static final int MY_INT = 1;
+      public final int MY_CONST = 2;
+    }
+  }
+
+  public static class C {
+    public static final B.D MY_D = new B.D();
   }
 
   @Test

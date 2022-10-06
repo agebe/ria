@@ -6,5 +6,4 @@ import org.rescript.value.Value;
 
 public interface Expression extends ParseItem {
   Value eval(ScriptContext ctx);
-  String getText();
 }
