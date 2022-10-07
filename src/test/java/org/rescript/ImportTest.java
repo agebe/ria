@@ -1,6 +1,7 @@
 package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,15 @@ public class ImportTest {
         TEN
         """);
     assertEquals(10, i);
+  }
+
+  @Test
+  public void importStaticAsteriksTest2() {
+    boolean b = new Script().evalPredicate("""
+        import static org.apache.commons.lang3.StringUtils.*;
+        isBlank("");
+        """);
+    assertTrue(b);
   }
 
 }

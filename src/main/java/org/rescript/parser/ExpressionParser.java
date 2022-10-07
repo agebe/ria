@@ -26,6 +26,7 @@ import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
 import org.rescript.expression.TernaryOp;
+import org.rescript.expression.TypeOfOp;
 import org.rescript.expression.UnaryLogicalNotOp;
 import org.rescript.expression.UnaryMinusOp;
 import org.rescript.expression.UnaryPlusOp;
@@ -258,6 +259,10 @@ public class ExpressionParser {
         .collect(Collectors.joining()));
   }
 
+  private boolean isTypeOf() {
+    return isTerminal(0, "typeof") && isExpression(1);
+  }
+
   public void parse() {
     if(isDottedIdentifier()) {
       stack.push(dottedIdentifier());
@@ -282,6 +287,8 @@ public class ExpressionParser {
           stack.push(new UnaryPreIncOp(exp(1)));
         } else if(isUnaryPreDec()) {
           stack.push(new UnaryPreDecOp(exp(1)));
+        } else if(isTypeOf()) {
+          stack.push(new TypeOfOp(exp(1)));
         } else {
           failUnknownExpression();
         }
