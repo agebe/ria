@@ -1,35 +1,27 @@
 package org.rescript;
 
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
-import org.javimmutable.collections.JImmutableMap;
 import org.javimmutable.collections.util.JImmutables;
-import org.rescript.parser.Parser;
-import org.rescript.symbol.SymbolTable;
 
 public class ScriptBuilder {
 
-  private SymbolTable symbols;
+  private JImmutableList<String> header = JImmutables.list();
 
-  private JImmutableList<String> importList = JImmutables.list();
-
-  private JImmutableList<String> importStaticList = JImmutables.list();
-
-  private JImmutableMap<String, String> functionAlias = JImmutables.map();
+  private String script;
 
   public ScriptBuilder() {
     super();
   }
 
   private ScriptBuilder(
-      SymbolTable symbols,
-      JImmutableList<String> importList,
-      JImmutableList<String> importStaticList,
-      JImmutableMap<String, String> functionAlias) {
+      JImmutableList<String> header,
+      String script) {
     super();
-    this.symbols = symbols;
-    this.importList = importList;
-    this.importStaticList = importStaticList;
-    this.functionAlias = functionAlias;
+    this.header = header;
+    this.script = script;
   }
 
   // TODO set variables
@@ -48,47 +40,29 @@ public class ScriptBuilder {
 //  }
 
   public ScriptBuilder setScript(String script) {
-    return setScript(script, false);
-  }
-
-  public ScriptBuilder setScript(String script, boolean showErrorsOnConsole) {
-    return new ScriptBuilder(
-        new Parser(showErrorsOnConsole).parse(script),
-        importList,
-        importStaticList,
-        functionAlias);
+    return new ScriptBuilder(header, script);
   }
 
   public ScriptBuilder addImport(String imp) {
     return new ScriptBuilder(
-        symbols,
-        importList.insert(imp),
-        importStaticList,
-        functionAlias);
+        header.insert("import " + imp + ";"),
+        script);
   }
 
   public ScriptBuilder addStaticImport(String imp) {
     return new ScriptBuilder(
-        symbols,
-        importList,
-        importStaticList.insert(imp),
-        functionAlias);
+        header.insert("import static " + imp + ";"),
+        script);
   }
 
   public ScriptBuilder addFunctionAlias(String alias, String target) {
-    return new ScriptBuilder(
-        symbols,
-        importList,
-        importStaticList,
-        functionAlias.assign(alias, target));
+    throw new ScriptException("not implemented");
   }
 
   public Script create() {
-    return new Script(new SymbolTable(
-        symbols!=null?symbols:new SymbolTable(),
-        this.importList,
-        this.importStaticList,
-        this.functionAlias));
+    String header = this.header.stream().collect(Collectors.joining());
+    String s = header + (StringUtils.isNotBlank(script)?script:"");
+    return new Script(s);
   }
 
 }

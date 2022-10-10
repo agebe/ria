@@ -7,7 +7,7 @@ import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReturnStatement extends AbstractStatement {
+public class ReturnStatement implements Statement {
 
   private static final Logger log = LoggerFactory.getLogger(ReturnStatement.class);
 

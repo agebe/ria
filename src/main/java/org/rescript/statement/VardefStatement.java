@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.rescript.run.ScriptContext;
 
-public class VardefStatement extends AbstractStatement {
+public class VardefStatement implements Statement {
 
   private List<VarDef> vars;
 

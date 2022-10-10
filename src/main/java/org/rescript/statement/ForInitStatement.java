@@ -33,9 +33,4 @@ public class ForInitStatement implements Statement {
     }
   }
 
-  @Override
-  public void addStatement(Statement statement) {
-    throw new ScriptException("not supported");
-  }
-
 }

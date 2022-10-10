@@ -6,7 +6,7 @@ import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 
-public class ForStatementBuilder implements Statement {
+public class ForStatementBuilder implements ContainerStatement {
 
   private ForInitStatement forInit;
 

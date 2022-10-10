@@ -21,7 +21,7 @@ public class ScriptContext {
     super();
     this.symbols = symbols;
     this.functions = new FunctionCaller(this);
-    this.current = symbols.getEntryPoint();
+    this.current = symbols.getScriptSymbols().getEntryPoint();
   }
 
   public Statement getCurrent() {

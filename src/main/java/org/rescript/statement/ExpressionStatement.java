@@ -2,8 +2,12 @@ package org.rescript.statement;
 
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ExpressionStatement extends AbstractStatement {
+public class ExpressionStatement implements Statement {
+
+  private static final Logger log = LoggerFactory.getLogger(ExpressionStatement.class);
 
   private Expression expression;
 
@@ -14,6 +18,7 @@ public class ExpressionStatement extends AbstractStatement {
 
   @Override
   public void execute(ScriptContext ctx) {
+    log.debug("execute expression '{}'", expression);
     ctx.setLastResult(expression.eval(ctx));
   }
 

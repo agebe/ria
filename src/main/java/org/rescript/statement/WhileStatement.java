@@ -4,7 +4,7 @@ import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 
-public class WhileStatement extends AbstractStatement {
+public class WhileStatement implements ContainerStatement {
 
   private Expression expression;
 

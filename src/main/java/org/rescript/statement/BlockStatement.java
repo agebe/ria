@@ -7,7 +7,7 @@ import org.rescript.run.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BlockStatement extends AbstractStatement {
+public class BlockStatement implements ContainerStatement {
 
   private static final Logger log = LoggerFactory.getLogger(BlockStatement.class);
 

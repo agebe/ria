@@ -10,7 +10,7 @@ import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IfStatement extends AbstractStatement {
+public class IfStatement implements ContainerStatement {
 
   private static final Logger log = LoggerFactory.getLogger(IfStatement.class);
 

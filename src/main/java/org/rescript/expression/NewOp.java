@@ -33,7 +33,7 @@ public class NewOp implements Expression {
       Value[] parameters = resolveParameters(plist, ctx);
       Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
       Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
-      Class<?> cls = ctx.getSymbols().resolveType(type);
+      Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
       if(cls == null) {
         throw new ScriptException("class not found " + type);
       }

@@ -39,7 +39,7 @@ public class FunctionCaller {
             target.val());
         return callJavaMethod(symbol, function);
       } else {
-        JavaMethodSymbol symbol = ctx.getSymbols().resolveFunction(function.getName().getName());
+        JavaMethodSymbol symbol = ctx.getSymbols().getJavaSymbols().resolveFunction(function.getName().getName());
         if(symbol != null) {
           return callJavaMethod(symbol, function);
         } else {

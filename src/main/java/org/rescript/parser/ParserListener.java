@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +13,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import org.javimmutable.collections.util.JImmutables;
 import org.rescript.ScriptException;
 import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
@@ -62,18 +60,20 @@ import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
 import org.rescript.statement.BlockStatement;
+import org.rescript.statement.ContainerStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatement;
 import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.IfStatement;
+import org.rescript.statement.ImportStatement;
+import org.rescript.statement.ImportStaticStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
 import org.rescript.statement.WhileStatement;
-import org.rescript.symbol.SymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,10 +82,6 @@ public class ParserListener implements ScriptListener {
   private static final Logger log = LoggerFactory.getLogger(ParserListener.class);
 
   private Deque<ParseItem> stack = new ArrayDeque<>();
-
-  private List<String> imports = new ArrayList<>();
-
-  private List<String> importStatics = new ArrayList<>();
 
   public ParserListener() {
     stack.push(new BlockStatement());
@@ -144,12 +140,12 @@ public class ParserListener implements ScriptListener {
     findMostRecentStatement().addStatement(s);
   }
 
-  private Statement findMostRecentStatement() {
+  private ContainerStatement findMostRecentStatement() {
     Iterator<ParseItem> iter = stack.iterator();
     while(iter.hasNext()) {
       ParseItem p = iter.next();
-      if(p instanceof Statement) {
-        return (Statement)p;
+      if(p instanceof ContainerStatement) {
+        return (ContainerStatement)p;
       }
     }
     return null;
@@ -348,13 +344,8 @@ public class ParserListener implements ScriptListener {
     log.debug("stack '{}'", stack);
   }
 
-  public SymbolTable getSymbols() {
-    return new SymbolTable(
-        JImmutables.list(imports),
-        JImmutables.list(importStatics),
-        JImmutables.map(),
-        (Statement)stack.getLast(),
-        new HashMap<>());
+  public Statement getEntryPoint() {
+    return (Statement)stack.getLast();
   }
 
   @Override
@@ -712,9 +703,9 @@ public class ParserListener implements ScriptListener {
     ImportType type = (ImportType)stack.pop();
     if(nextTerminalIs("static")) {
       popTerminal("static");
-      importStatics.add(type.getType());
+      findMostRecentStatement().addStatement(new ImportStaticStatement(type.getType()));
     } else {
-      imports.add(type.getType());
+      findMostRecentStatement().addStatement(new ImportStatement(type.getType()));
     }
     popTerminal("import");
   }

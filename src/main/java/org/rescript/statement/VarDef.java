@@ -20,7 +20,7 @@ public class VarDef {
   public void execute(ScriptContext ctx) {
     Value v = (initial!=null?initial.eval(ctx):new VoidValue());
     ctx.setLastResult(v);
-    ctx.getSymbols().defineVar(name, v);
+    ctx.getSymbols().getScriptSymbols().defineVar(name, v);
   }
 
 }

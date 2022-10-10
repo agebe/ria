@@ -2,7 +2,6 @@ package org.rescript.statement;
 
 import java.util.List;
 
-import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
@@ -45,11 +44,6 @@ public class ForStatement implements Statement {
         forInc.forEach(inc -> inc.eval(ctx));
       }
     }
-  }
-
-  @Override
-  public void addStatement(Statement statement) {
-    throw new ScriptException("not supported, use ForStatementBuilder");
   }
 
 }

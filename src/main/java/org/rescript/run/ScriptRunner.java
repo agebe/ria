@@ -13,7 +13,7 @@ public class ScriptRunner {
   }
 
   public Value run() {
-    ctx.getSymbols().getEntryPoint().execute(ctx);
+    ctx.getSymbols().getScriptSymbols().getEntryPoint().execute(ctx);
     return ctx.getLastResult();
   }
 

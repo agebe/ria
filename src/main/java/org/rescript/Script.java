@@ -2,23 +2,30 @@ package org.rescript;
 
 import org.rescript.parser.Parser;
 import org.rescript.run.ScriptRunner;
+import org.rescript.statement.Statement;
 import org.rescript.symbol.SymbolTable;
 import org.rescript.value.Value;
 
 public class Script {
 
-  private SymbolTable symbols;
+  private SymbolTable symbols = new SymbolTable();
+
+  private String script;
 
   public Script() {
-    symbols = new SymbolTable();
+    super();
   }
 
-  public Script(SymbolTable symbols) {
-    this.symbols = symbols;
+  public Script(String script) {
+    this.script = script;
   }
 
   public Value run() {
     try {
+      if(script != null) {
+        parse(script);
+        script=null;
+      }
       return new ScriptRunner(symbols).run();
     } catch(Exception e) {
       throw new ScriptException("script execution failed", e);
@@ -82,7 +89,7 @@ public class Script {
 
   public void setVariable(String name, Object val) {
     if(val != null) {
-      symbols.assignVar(name, Value.of(val.getClass(), val));
+      symbols.getScriptSymbols().assignVar(name, Value.of(val.getClass(), val));
     } else {
       // FIXME support null values
       throw new ScriptException("null values not supported");
@@ -90,12 +97,19 @@ public class Script {
   }
 
   public Object getVariable(String name) {
-    Value val = symbols.getVariable(name);
+    Value val = symbols.getScriptSymbols().getVariable(name);
     return val!=null?val.val():null;
   }
 
+  public Object unsetVariable(String name) {
+    // FIXME implement
+    return null;
+  }
+
   private Script parse(String script) {
-    symbols = this.symbols.merge(new Parser().parse(script));
+    Statement entry = new Parser().parse((this.script!=null?this.script:"")+script);
+    this.symbols.getScriptSymbols().setEntryPoint(entry);
+    this.script = null;
     return this;
   }
 

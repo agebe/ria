@@ -18,7 +18,7 @@ public class AssignmentOperator implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value v = expression.eval(ctx);
-    ctx.getSymbols().assignVar(ident.getText(), v);
+    ctx.getSymbols().getScriptSymbols().assignVar(ident.getText(), v);
     return v;
   }
 

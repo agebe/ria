@@ -50,8 +50,7 @@ public class Test1 {
 
   private ScriptBuilder base = new ScriptBuilder()
       .addImport("java.util.Objects")
-      .addStaticImport("org.junit.jupiter.api.Assertions.*")
-      .addFunctionAlias("println", "System.out.println");
+      .addStaticImport("org.junit.jupiter.api.Assertions.*");
 
   @Test
   public void hello() throws Exception {

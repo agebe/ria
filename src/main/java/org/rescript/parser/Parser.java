@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptLexer;
 import org.rescript.antlr.ScriptParser;
-import org.rescript.symbol.SymbolTable;
+import org.rescript.statement.Statement;
 
 public class Parser {
 
@@ -23,7 +23,7 @@ public class Parser {
     this.showErrorsOnConsole = showErrorsOnConsole;
   }
 
-  public SymbolTable parse(String script) {
+  public Statement parse(String script) {
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
     }
@@ -45,7 +45,7 @@ public class Parser {
     ScriptParser.ScriptContext scriptCtx = parser.script();
     ParserListener listener = new ParserListener();
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
-    return listener.getSymbols();
+    return listener.getEntryPoint();
   }
 
 }
