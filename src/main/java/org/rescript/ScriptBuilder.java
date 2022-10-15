@@ -56,7 +56,9 @@ public class ScriptBuilder {
   }
 
   public ScriptBuilder addFunctionAlias(String alias, String target) {
-    throw new ScriptException("not implemented");
+    return new ScriptBuilder(
+        header.insert("alias " + alias + " " + target + ";"),
+        script);
   }
 
   public Script create() {

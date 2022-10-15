@@ -11,7 +11,7 @@ script
   ;
 
 header
-  : importStmt*
+  : ( importStmt | functionAlias )*
   ;
 
 importStmt
@@ -20,6 +20,14 @@ importStmt
 
 importType
   : Identifier ( '.' Identifier )* ( '.' '*' )?
+  ;
+
+functionAlias
+  : 'alias' ident dottedIdent SEMI
+  ;
+
+dottedIdent
+  : Identifier ( '.' Identifier )*
   ;
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
@@ -32,9 +40,9 @@ importType
 // TODO function definition
 // TODO arrays
 // TODO lambda
-// TODO script imports/aliases
 // TODO script dependencies
 // TODO character literal
+// TODO text blocks
 
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
