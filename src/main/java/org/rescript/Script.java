@@ -21,7 +21,7 @@ public class Script {
     this.script = script;
   }
 
-  public Value run() {
+  private Value runVal() {
     try {
       if(script != null) {
         parse(script);
@@ -33,13 +33,17 @@ public class Script {
     }
   }
 
-  // FIXME return Object, Value is a internal type that should not leak out
-  public Value run(String script) {
+  public Object run() {
+    Value v = runVal();
+    return v!=null?v.val():null;
+  }
+
+  public Object run(String script) {
     return parse(script).run();
   }
 
   public <T> T runReturning(Class<T> type) {
-    Value val = run();
+    Value val = runVal();
     return val.isNull()?null:type.cast(val.val());
   }
 
@@ -50,7 +54,7 @@ public class Script {
   // TODO also add support for generic types, like e.g. List<String>
 
   public boolean evalPredicate() {
-    return run().toBoolean();
+    return runVal().toBoolean();
   }
 
   public boolean evalPredicate(String script) {
@@ -58,7 +62,7 @@ public class Script {
   }
 
   public double evalDouble() {
-    return run().toDouble();
+    return runVal().toDouble();
   }
 
   public double evalDouble(String script) {
@@ -66,7 +70,7 @@ public class Script {
   }
 
   public float evalFloat() {
-    return run().toFloat();
+    return runVal().toFloat();
   }
 
   public float evalFloat(String script) {
@@ -74,7 +78,7 @@ public class Script {
   }
 
   public long evalLong() {
-    return run().toLong();
+    return runVal().toLong();
   }
 
   public long evalLong(String script) {
@@ -82,7 +86,7 @@ public class Script {
   }
 
   public int evalInt() {
-    return run().toInt();
+    return runVal().toInt();
   }
 
   public int evalInt(String script) {

@@ -13,7 +13,7 @@ public class ForStmtTest {
 
   @Test
   public void forStmt2() {
-    assertEquals(3, new Script().evalInt("for(var i=0;i<3;i++) println(i);i;"));
+    assertEquals(3, new Script().evalInt("var result = 0;for(var i=0;i<3;i++) result = i;result;"));
   }
 
   @Test
@@ -33,7 +33,7 @@ public class ForStmtTest {
 
   @Test
   public void forScope() {
-    assertEquals("undefined", new Script().runReturning("for(var i=0;i<3;i++);typeof i;", String.class));
+    assertEquals("undefined", new Script().run("for(var i=0;i<3;i++);typeof i;"));
   }
 
 }
