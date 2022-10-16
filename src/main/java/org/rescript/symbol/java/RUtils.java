@@ -1,4 +1,4 @@
-package org.rescript.symbol;
+package org.rescript.symbol.java;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;

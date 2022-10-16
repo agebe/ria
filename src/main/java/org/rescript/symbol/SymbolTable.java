@@ -2,6 +2,9 @@ package org.rescript.symbol;
 
 import java.util.List;
 
+import org.rescript.symbol.java.JavaSymbols;
+import org.rescript.symbol.java.RUtils;
+import org.rescript.symbol.script.ScriptSymbols;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
 

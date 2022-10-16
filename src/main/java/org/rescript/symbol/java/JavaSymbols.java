@@ -1,4 +1,4 @@
-package org.rescript.symbol;
+package org.rescript.symbol.java;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.symbol.VarSymbol;
 import org.rescript.value.ObjValue;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;

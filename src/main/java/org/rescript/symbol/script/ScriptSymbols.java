@@ -1,10 +1,11 @@
-package org.rescript.symbol;
+package org.rescript.symbol.script;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.rescript.ScriptException;
 import org.rescript.statement.Statement;
+import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
 

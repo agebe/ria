@@ -7,7 +7,7 @@ import java.util.List;
 import org.rescript.ScriptException;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.run.ScriptContext;
-import org.rescript.symbol.RUtils;
+import org.rescript.symbol.java.RUtils;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;

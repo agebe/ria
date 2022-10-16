@@ -3,7 +3,7 @@ package org.rescript;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.rescript.symbol.RUtils;
+import org.rescript.symbol.java.RUtils;
 
 public class RUtilsTest {
 

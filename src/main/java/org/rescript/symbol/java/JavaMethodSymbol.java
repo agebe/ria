@@ -1,6 +1,7 @@
-package org.rescript.symbol;
+package org.rescript.symbol.java;
 
 import org.rescript.ScriptException;
+import org.rescript.symbol.Symbol;
 import org.rescript.value.Value;
 
 public class JavaMethodSymbol implements Symbol {
