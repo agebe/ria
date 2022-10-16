@@ -4,6 +4,7 @@ import org.rescript.parser.Parser;
 import org.rescript.run.ScriptRunner;
 import org.rescript.statement.Statement;
 import org.rescript.symbol.SymbolTable;
+import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
 
 public class Script {
@@ -98,8 +99,8 @@ public class Script {
   }
 
   public Object unsetVariable(String name) {
-    // FIXME
-    throw new ScriptException("unsetVariable not supported yet");
+    VarSymbol s = symbols.getScriptSymbols().unsetRoot(name);
+    return s!=null?s.getObjectOrNull():null;
   }
 
   private Script parse(String script) {

@@ -59,4 +59,16 @@ public class ScopeNode {
     return parent;
   }
 
+  public VarSymbol unset(String name) {
+    VarSymbol sym = variables.get(name);
+    if(sym != null) {
+      variables.remove(name);
+      return sym;
+    } else if(parent != null) {
+      return parent.unset(name);
+    } else {
+      return null;
+    }
+  }
+
 }

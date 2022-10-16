@@ -22,6 +22,10 @@ public class VarSymbol implements Symbol {
     return val;
   }
 
+  public Object getObjectOrNull() {
+    return val!=null?val.val():null;
+  }
+
   public void setVal(Value val) {
     this.val = val;
   }

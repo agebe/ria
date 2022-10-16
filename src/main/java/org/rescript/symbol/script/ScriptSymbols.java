@@ -36,6 +36,10 @@ public class ScriptSymbols {
     }
   }
 
+  public VarSymbol unsetRoot(String name) {
+    return root.unset(name);
+  }
+
   public Value getVariable(String name) {
     return current.getVariable(name);
   }

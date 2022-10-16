@@ -56,4 +56,13 @@ public class VarTest {
     assertEquals(Float.MAX_VALUE, script.getVariable("k"));
   }
 
+  @Test
+  public void unset() {
+    Script script = new Script();
+    script.setVariable("v", 1);
+    assertEquals("java.lang.Integer", script.runReturning("typeof v", String.class));
+    script.unsetVariable("v");
+    assertEquals("undefined", script.runReturning("typeof v", String.class));
+  }
+
 }
