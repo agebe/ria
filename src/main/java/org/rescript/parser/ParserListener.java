@@ -87,7 +87,7 @@ public class ParserListener implements ScriptListener {
   private Deque<ParseItem> stack = new ArrayDeque<>();
 
   public ParserListener() {
-    stack.push(new BlockStatement());
+    stack.push(new BlockStatement(true));
   }
 
   @Override

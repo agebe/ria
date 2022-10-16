@@ -32,6 +32,7 @@ public class Script {
     }
   }
 
+  // FIXME return Object, Value is a internal type that should not leak out
   public Value run(String script) {
     return parse(script).run();
   }
@@ -88,12 +89,7 @@ public class Script {
   }
 
   public void setVariable(String name, Object val) {
-    if(val != null) {
-      symbols.getScriptSymbols().assignVar(name, Value.of(val.getClass(), val));
-    } else {
-      // FIXME support null values
-      throw new ScriptException("null values not supported");
-    }
+    symbols.getScriptSymbols().defineOrAssignVarRoot(name, Value.of(val));
   }
 
   public Object getVariable(String name) {
@@ -102,8 +98,8 @@ public class Script {
   }
 
   public Object unsetVariable(String name) {
-    // FIXME implement
-    return null;
+    // FIXME
+    throw new ScriptException("unsetVariable not supported yet");
   }
 
   private Script parse(String script) {

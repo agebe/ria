@@ -1,39 +1,43 @@
 package org.rescript.symbol.script;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.rescript.ScriptException;
 import org.rescript.statement.Statement;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
-import org.rescript.value.VoidValue;
 
 public class ScriptSymbols {
 
-  private Map<String, VarSymbol> variables = new HashMap<>();
-
   private Statement entryPoint;
 
+  private ScopeNode root;
+
+  private ScopeNode current;
+
+  public ScriptSymbols() {
+    super();
+    root = new ScopeNode();
+    current = root;
+  }
+
   public void defineVar(String name, Value val) {
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
-    if(v != null) {
-      throw new ScriptException("variable '%s' already defined".formatted(name));
-    }
+    current.defineVar(name, val);
   }
 
   public void assignVar(String name, Value val) {
-    VarSymbol v = variables.get(name);
-    if(v != null) {
-      v.setVal(val);
+    current.assignVar(name, val);
+  }
+
+  public void defineOrAssignVarRoot(String name, Value val) {
+    VarSymbol s = root.getVarSymbol(name);
+    if(s != null) {
+      s.setVal(val);
     } else {
-      defineVar(name, val);
+      root.defineVar(name, val);
     }
   }
 
   public Value getVariable(String name) {
-    VarSymbol sym = variables.get(name);
-    return sym!=null?sym.getVal():null;
+    return current.getVariable(name);
   }
 
   public Statement getEntryPoint() {
@@ -45,8 +49,19 @@ public class ScriptSymbols {
   }
 
   public VarSymbol resolveVar(String ident) {
-    // check variable
-    return variables.get(ident);
+    return current.getVarSymbol(ident);
+  }
+
+  public void enterScope() {
+    current = new ScopeNode(current);
+  }
+
+  public void exitScope() {
+    if(current.getParent() == null) {
+      throw new ScriptException("can't exit root scope");
+    } else {
+      current = current.getParent();
+    }
   }
 
 }

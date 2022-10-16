@@ -106,4 +106,12 @@ public interface Value {
     }
   }
 
+  static Value of(Object val) {
+    if(val != null) {
+      return of(val.getClass(), val);
+    } else {
+      return of(Object.class, null);
+    }
+  }
+
 }

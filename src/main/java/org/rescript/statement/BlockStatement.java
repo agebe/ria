@@ -13,13 +13,33 @@ public class BlockStatement implements ContainerStatement {
 
   private List<Statement> statements = new ArrayList<>();
 
+  private boolean root;
+
+  public BlockStatement() {
+    this(false);
+  }
+
+  public BlockStatement(boolean root) {
+    super();
+    this.root = root;
+  }
+
   @Override
   public void execute(ScriptContext ctx) {
-    for(Statement s : statements) {
-      if(ctx.isReturnFlag()) {
-        break;
+    try {
+      if(!root) {
+        ctx.getSymbols().getScriptSymbols().enterScope();
       }
-      s.execute(ctx);
+      for(Statement s : statements) {
+        if(ctx.isReturnFlag()) {
+          break;
+        }
+        s.execute(ctx);
+      }
+    } finally {
+      if(!root) {
+        ctx.getSymbols().getScriptSymbols().exitScope();
+      }
     }
   }
 
