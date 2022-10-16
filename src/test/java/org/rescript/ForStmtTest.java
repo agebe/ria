@@ -31,4 +31,9 @@ public class ForStmtTest {
     assertEquals(4, new Script().evalInt("var i,j;for(i=0,j=1;i<3;i++,j++) println(j);j;"));
   }
 
+  @Test
+  public void forScope() {
+    assertEquals("undefined", new Script().runReturning("for(var i=0;i<3;i++);typeof i;", String.class));
+  }
+
 }

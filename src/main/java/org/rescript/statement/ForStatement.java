@@ -26,23 +26,28 @@ public class ForStatement implements Statement {
 
   @Override
   public void execute(ScriptContext ctx) {
-    if(forInit != null) {
-      forInit.execute(ctx);
-    }
-    for(;;) {
-      if(forTerm!=null) {
-        Value bool = forTerm.eval(ctx);
-        if(!bool.toBoolean()) {
+    try {
+      ctx.getSymbols().getScriptSymbols().enterScope();
+      if(forInit != null) {
+        forInit.execute(ctx);
+      }
+      for(;;) {
+        if(forTerm!=null) {
+          Value bool = forTerm.eval(ctx);
+          if(!bool.toBoolean()) {
+            break;
+          }
+        }
+        statement.execute(ctx);
+        if(ctx.isReturnFlag()) {
           break;
         }
+        if(forInc != null) {
+          forInc.forEach(inc -> inc.eval(ctx));
+        }
       }
-      statement.execute(ctx);
-      if(ctx.isReturnFlag()) {
-        break;
-      }
-      if(forInc != null) {
-        forInc.forEach(inc -> inc.eval(ctx));
-      }
+    } finally {
+      ctx.getSymbols().getScriptSymbols().exitScope();
     }
   }
 
