@@ -26,6 +26,7 @@ public class BlockStatement implements ContainerStatement {
 
   @Override
   public void execute(ScriptContext ctx) {
+    log.debug("execute block");
     try {
       if(!root) {
         ctx.getSymbols().getScriptSymbols().enterScope();

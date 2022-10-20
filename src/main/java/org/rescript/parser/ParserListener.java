@@ -69,6 +69,7 @@ import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatement;
 import org.rescript.statement.ForStatementBuilder;
+import org.rescript.statement.Function;
 import org.rescript.statement.FunctionAlias;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ImportStatement;
@@ -141,7 +142,12 @@ public class ParserListener implements ScriptListener {
     log.debug("exitStmt '{}'", ctx.getText());
     log.debug("'{}'", stack);
     Statement s = popStatement();
-    findMostRecentStatement().addStatement(s);
+    if(s instanceof Function) {
+      // TODO
+      log.debug("XXX TODO function needs to be added somewhere!");
+    } else {
+      findMostRecentStatement().addStatement(s);
+    }
   }
 
   private ContainerStatement findMostRecentStatement() {
@@ -771,11 +777,24 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterFunctionDefinition(FunctionDefinitionContext ctx) {
     log.debug("enterFunctionDefinition '{}'", ctx.getText());
+    stack.push(new Function());
   }
 
   @Override
   public void exitFunctionDefinition(FunctionDefinitionContext ctx) {
     log.debug("exitFunctionDefinition '{}'", ctx.getText());
+    BlockStatement block = (BlockStatement)stack.pop();
+    // reusing function call for function definition to not have to write extra grammar for this
+    // but only allow identifiers as parameters
+    FunctionCall call = (FunctionCall)stack.pop();
+    popTerminal("function");
+    Function function = (Function)stack.peek();
+    function.setName(call.getName().getName());
+    function.setParameterNames(call.getParameters()
+        .stream()
+        .map(pn -> ((Identifier)pn.getParameter()).getIdent())
+        .toList());
+    function.setStatements(block);
   }
 
 }
