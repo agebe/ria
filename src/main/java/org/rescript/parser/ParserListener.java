@@ -36,6 +36,7 @@ import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.FunctionAliasContext;
+import org.rescript.antlr.ScriptParser.FunctionDefinitionContext;
 import org.rescript.antlr.ScriptParser.HeaderContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
 import org.rescript.antlr.ScriptParser.IfElseStmtContext;
@@ -765,6 +766,16 @@ public class ParserListener implements ScriptListener {
       stack.pop();
     }
     stack.push(new DottedIdentifier(ctx.getText()));
+  }
+
+  @Override
+  public void enterFunctionDefinition(FunctionDefinitionContext ctx) {
+    log.debug("enterFunctionDefinition '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitFunctionDefinition(FunctionDefinitionContext ctx) {
+    log.debug("exitFunctionDefinition '{}'", ctx.getText());
   }
 
 }

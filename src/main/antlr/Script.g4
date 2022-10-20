@@ -60,6 +60,7 @@ stmt
   | whileStmt
   | forStmt
 //  | forEachStmt
+  | functionDefinition
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
@@ -76,6 +77,8 @@ forTerm: expr? SEMI;
 forInc: expr? ( ',' expr )*;
 //forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
  
+functionDefinition: 'function' fcall block;
+
 assignment: ASSIGN expr;
 
 expr
