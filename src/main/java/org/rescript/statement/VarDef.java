@@ -18,7 +18,7 @@ public class VarDef {
   }
 
   public void execute(ScriptContext ctx) {
-    Value v = (initial!=null?initial.eval(ctx):new VoidValue());
+    Value v = (initial!=null?initial.eval(ctx):VoidValue.VOID);
     ctx.setLastResult(v);
     ctx.getSymbols().getScriptSymbols().defineVar(name, v);
   }

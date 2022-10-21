@@ -13,6 +13,11 @@ public class FunctionTest {
   }
 
   @Test
+  public void simpleWithCall() {
+    assertNull(new Script().run("function f1() {} f1();"));
+  }
+
+  @Test
   public void simple2() {
     assertNull(new Script().run("function f1() {42;}"));
   }
@@ -29,7 +34,7 @@ public class FunctionTest {
 
   @Test
   public void withMultiParams() {
-    assertEquals(8, new Script().run("function f1(a,b) {Math.pow(a,b);} f1(2,3);"));
+    assertEquals(8.0, new Script().run("function f1(a,b) {Math.pow(a,b);} f1(2d,3d);"));
   }
 
   @Test
@@ -44,7 +49,7 @@ public class FunctionTest {
           function f2(b) {
             a+b;
           }
-          f2(b);
+          f2(a);
         }
         f1(1);
         """));

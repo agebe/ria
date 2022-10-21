@@ -4,6 +4,12 @@ import org.rescript.ScriptException;
 
 public class VoidValue implements Value {
 
+  public static final VoidValue VOID = new VoidValue();
+
+  private VoidValue() {
+    super();
+  }
+
   @Override
   public Class<?> type() {
     return Void.class;

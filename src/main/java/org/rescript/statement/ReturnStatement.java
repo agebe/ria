@@ -26,7 +26,7 @@ public class ReturnStatement implements Statement {
       Value v = expression.eval(ctx);
       ctx.setLastResult(v);
     } else {
-      ctx.setLastResult(new VoidValue());
+      ctx.setLastResult(VoidValue.VOID);
     }
     ctx.setCurrent(null);
   }

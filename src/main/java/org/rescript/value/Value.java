@@ -86,7 +86,7 @@ public interface Value {
 
   static Value of(Class<?> cls, Object val) {
     if(Void.class.equals(cls) || (cls == void.class)) {
-      return new VoidValue();
+      return VoidValue.VOID;
     } else if(cls.isPrimitive()) {
       if(boolean.class == cls) {
         return new BooleanValue(val);

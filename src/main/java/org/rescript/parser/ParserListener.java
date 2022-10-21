@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +88,11 @@ public class ParserListener implements ScriptListener {
   private Deque<ParseItem> stack = new ArrayDeque<>();
 
   public ParserListener() {
-    stack.push(new BlockStatement(true));
+    // add main function
+    Function main = Function.main();
+    stack.push(main);
+    // add main function body
+    stack.push(main.getStatements());
   }
 
   @Override
@@ -122,11 +125,11 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
-    if(stack.size() == 2) {
+    if(stack.size() == 3) {
       // assume single expression script
-      findMostRecentStatement().addStatement(new ExpressionStatement(popExpression()));
+      findMostRecentContainerStatement().addStatement(new ExpressionStatement(popExpression()));
     }
-    if(stack.size() != 1) {
+    if(stack.size() != 2) {
       log.warn("stack should have single item but has '{}', '{}'", stack.size(), stack);
     }
     log.debug("parse done");
@@ -141,24 +144,28 @@ public class ParserListener implements ScriptListener {
   public void exitStmt(StmtContext ctx) {
     log.debug("exitStmt '{}'", ctx.getText());
     log.debug("'{}'", stack);
-    Statement s = popStatement();
-    if(s instanceof Function) {
-      // TODO
-      log.debug("XXX TODO function needs to be added somewhere!");
+    Statement stmt = popStatement();
+    if(stmt instanceof Function) {
+      findMostRecentFunction().addFunction((Function)stmt);
     } else {
-      findMostRecentStatement().addStatement(s);
+      findMostRecentContainerStatement().addStatement(stmt);
     }
   }
 
-  private ContainerStatement findMostRecentStatement() {
-    Iterator<ParseItem> iter = stack.iterator();
-    while(iter.hasNext()) {
-      ParseItem p = iter.next();
-      if(p instanceof ContainerStatement) {
-        return (ContainerStatement)p;
-      }
-    }
-    return null;
+  private ContainerStatement findMostRecentContainerStatement() {
+    return stack.stream()
+        .filter(item -> item instanceof ContainerStatement)
+        .map(item -> (ContainerStatement)item)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private Function findMostRecentFunction() {
+    return stack.stream()
+        .filter(item -> item instanceof Function)
+        .map(item -> (Function)item)
+        .findFirst()
+        .orElse(null);
   }
 
   @Override
@@ -354,8 +361,8 @@ public class ParserListener implements ScriptListener {
     log.debug("stack '{}'", stack);
   }
 
-  public Statement getEntryPoint() {
-    return (Statement)stack.getLast();
+  public Function getMainFunction() {
+    return (Function)stack.getLast();
   }
 
   @Override
@@ -599,7 +606,7 @@ public class ParserListener implements ScriptListener {
     Expression e = popExpression();
     popTerminal("(");
     popTerminal("while");
-    WhileStatement ws = (WhileStatement)findMostRecentStatement();
+    WhileStatement ws = (WhileStatement)findMostRecentContainerStatement();
     ws.setExpression(e);
   }
 
@@ -713,9 +720,9 @@ public class ParserListener implements ScriptListener {
     ImportType type = (ImportType)stack.pop();
     if(nextTerminalIs("static")) {
       popTerminal("static");
-      findMostRecentStatement().addStatement(new ImportStaticStatement(type.getType()));
+      findMostRecentContainerStatement().addStatement(new ImportStaticStatement(type.getType()));
     } else {
-      findMostRecentStatement().addStatement(new ImportStatement(type.getType()));
+      findMostRecentContainerStatement().addStatement(new ImportStatement(type.getType()));
     }
     popTerminal("import");
   }
@@ -752,7 +759,7 @@ public class ParserListener implements ScriptListener {
     DottedIdentifier dident = (DottedIdentifier)stack.pop();
     Identifier ident = popIdentifier();
     popTerminal("alias");
-    findMostRecentStatement().addStatement(new FunctionAlias(ident.getIdent(), dident.getIdent()));
+    findMostRecentContainerStatement().addStatement(new FunctionAlias(ident.getIdent(), dident.getIdent()));
   }
 
   @Override

@@ -1,8 +1,14 @@
 package org.rescript.statement;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
+import org.apache.commons.lang3.StringUtils;
+import org.rescript.expression.FunctionCall;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.Value;
+import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,20 +22,32 @@ public class Function implements Statement {
 
   private BlockStatement statements;
 
+  private List<Function> nestedFunctions = new ArrayList<>();
+
   public Function() {
     super();
   }
 
-//  public Function(String name, List<String> parameterNames, BlockStatement statements) {
-//    super();
-//    this.name = name;
-//    this.parameterNames = parameterNames;
-//    this.statements = statements;
-//  }
-
   @Override
   public void execute(ScriptContext ctx) {
-    log.debug("execute function '{}'", name);
+    try {
+      ctx.enterFunction(this);
+      ctx.setLastResult(VoidValue.VOID);
+      ctx.getSymbols().getScriptSymbols().enterScope();
+      ListIterator<String> listIterator = parameterNames.listIterator(parameterNames.size());
+      while (listIterator.hasPrevious()) {
+        String paramName = listIterator.previous();
+        Value val = ctx.getStack().pop();
+        ctx.getSymbols().getScriptSymbols().defineVar(paramName, val);
+      }
+      log.debug("execute function '{}'", name);
+      statements.execute(ctx);
+    } finally {
+      ctx.getStack().push(ctx.getLastResult());
+      ctx.setReturnFlag(false);
+      ctx.getSymbols().getScriptSymbols().exitScope();
+      ctx.exitFunction(this);
+    }
   }
 
   public String getName() {
@@ -54,6 +72,34 @@ public class Function implements Statement {
 
   public void setStatements(BlockStatement statements) {
     this.statements = statements;
+  }
+
+  public void addFunction(Function function) {
+    nestedFunctions.add(function);
+  }
+
+  public List<Function> getNestedFunctions() {
+    return nestedFunctions;
+  }
+
+  public boolean matches(FunctionCall call) {
+    if(!StringUtils.equals(call.getName().getName(), name)) {
+      return false;
+    }
+    return call.getParameters().size() == this.parameterNames.size();
+  }
+
+  public static Function main() {
+    Function f = new Function();
+    f.name = "main";
+    f.parameterNames = new ArrayList<>();
+    f.statements = new BlockStatement(true);
+    return f;
+  }
+
+  @Override
+  public String toString() {
+    return "Function [name=" + name + "]";
   }
 
 }

@@ -2,7 +2,7 @@ package org.rescript;
 
 import org.rescript.parser.Parser;
 import org.rescript.run.ScriptRunner;
-import org.rescript.statement.Statement;
+import org.rescript.statement.Function;
 import org.rescript.symbol.SymbolTable;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
@@ -108,8 +108,8 @@ public class Script {
   }
 
   private Script parse(String script) {
-    Statement entry = new Parser().parse((this.script!=null?this.script:"")+script);
-    this.symbols.getScriptSymbols().setEntryPoint(entry);
+    Function entry = new Parser().parse((this.script!=null?this.script:"")+script);
+    this.symbols.getScriptSymbols().setMain(entry);
     this.script = null;
     return this;
   }

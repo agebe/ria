@@ -1,13 +1,13 @@
 package org.rescript.symbol.script;
 
 import org.rescript.ScriptException;
-import org.rescript.statement.Statement;
+import org.rescript.statement.Function;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
 
 public class ScriptSymbols {
 
-  private Statement entryPoint;
+  private Function main;
 
   private ScopeNode root;
 
@@ -44,14 +44,6 @@ public class ScriptSymbols {
     return current.getVariable(name);
   }
 
-  public Statement getEntryPoint() {
-    return entryPoint;
-  }
-
-  public void setEntryPoint(Statement entryPoint) {
-    this.entryPoint = entryPoint;
-  }
-
   public VarSymbol resolveVar(String ident) {
     return current.getVarSymbol(ident);
   }
@@ -66,6 +58,14 @@ public class ScriptSymbols {
     } else {
       current = current.getParent();
     }
+  }
+
+  public Function getMain() {
+    return main;
+  }
+
+  public void setMain(Function main) {
+    this.main = main;
   }
 
 }

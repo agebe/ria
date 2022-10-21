@@ -24,7 +24,7 @@ public class ScopeNode {
   }
 
   public void defineVar(String name, Value val) {
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:new VoidValue()));
+    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:VoidValue.VOID));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
     }
