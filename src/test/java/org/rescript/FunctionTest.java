@@ -2,6 +2,7 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -67,17 +68,93 @@ public class FunctionTest {
 
   @Test
   public void withReturnStatement() {
-    // TODO
+    assertEquals(42, new Script().run("function f1() {return 42; 1;} f1();"));
   }
 
   @Test
   public void withLoopBreak() {
-    // TODO
+    assertEquals(0, new Script().run("""
+        function f1(a) {
+          var current;
+          for(var i=0;i<a;i++) {
+            current = i;
+            break;
+          }
+          return current;
+        }
+        f1(3);
+        """));
+  }
+
+  @Test
+  public void withLoopBreak2() {
+    assertEquals(0, new Script().run("""
+        function f1(a) {
+          break;
+        }
+        var current;
+        for(var i=0;i<a;i++) {
+          current = i;
+          f1(i);
+        }
+        return current;
+        """));
   }
 
   @Test
   public void withLoopContinue() {
-    // TODO
+    assertEquals(42, new Script().run("""
+        function f1(a) {
+          var current = 42;
+          for(var i=0;i<a;i++) {
+            continue;
+            current = i;
+          }
+          return current;
+        }
+        f1(3);
+        """));
+  }
+
+  @Test
+  public void withLoopContinue2() {
+    assertEquals(42, new Script().run("""
+        function f1(a) {
+          continue;
+        }
+        var current = 42;
+        for(var i=0;i<a;i++) {
+          f1(i);
+          current = i;
+        }
+        return current;
+        """));
+  }
+
+  @Test
+  public void siblingFunction() {
+    assertEquals(42, new Script().run("""
+        function f1(a) {
+          return a;
+        }
+        function f2(a) {
+          return f1(a);
+        }
+        f2(42);
+        """));
+  }
+
+  @Test
+  public void nested2() {
+    assertThrows(ScriptException.class, () -> new Script().run("""
+        function f1(a) {
+          function nested(b) {
+            return b;
+          }
+          return a;
+        }
+        nested(42);
+        """));
   }
 
 }
