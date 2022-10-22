@@ -87,8 +87,8 @@ public class FunctionTest {
   }
 
   @Test
-  public void withLoopBreak2() {
-    assertEquals(0, new Script().run("""
+  public void withLoopBreakIllegal() {
+    assertThrows(ScriptException.class, () -> new Script().run("""
         function f1(a) {
           break;
         }
@@ -117,8 +117,8 @@ public class FunctionTest {
   }
 
   @Test
-  public void withLoopContinue2() {
-    assertEquals(42, new Script().run("""
+  public void withLoopContinueIllegal() {
+    assertThrows(ScriptException.class, () -> new Script().run("""
         function f1(a) {
           continue;
         }
