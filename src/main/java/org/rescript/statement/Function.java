@@ -36,7 +36,13 @@ public class Function implements Statement {
     try {
       ctx.enterFunction(this);
       ctx.setLastResult(VoidValue.VOID);
-      ctx.getSymbols().getScriptSymbols().enterScope();
+      // do not create a variable scope for the implicit root (main) function
+      // the variables declared outside any function in the script have
+      // global scope and can also be accessed from outside the script (via Script API)
+      // and therefore need to survive the run (local variables are garbage collected on exitScope)
+      if(parent != null) {
+        ctx.getSymbols().getScriptSymbols().enterScope();
+      }
       ListIterator<String> listIterator = parameterNames.listIterator(parameterNames.size());
       while (listIterator.hasPrevious()) {
         String paramName = listIterator.previous();
@@ -48,7 +54,9 @@ public class Function implements Statement {
     } finally {
       ctx.getStack().push(ctx.getLastResult());
       ctx.setReturnFlag(false);
-      ctx.getSymbols().getScriptSymbols().exitScope();
+      if(parent != null) {
+        ctx.getSymbols().getScriptSymbols().exitScope();
+      }
       ctx.exitFunction(this);
     }
   }
