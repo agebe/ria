@@ -37,7 +37,6 @@ dottedIdent
 // TODO instanceof operator
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
-// TODO function definition
 // TODO arrays
 // TODO lambda
 // TODO script dependencies
