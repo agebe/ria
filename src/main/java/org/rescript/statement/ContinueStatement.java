@@ -9,7 +9,7 @@ public class ContinueStatement implements Statement {
   public void execute(ScriptContext ctx) {
     Continueable c = ctx.getCurrentFrame().peekContinueable();
     if(c != null) {
-      c.executeContinue();
+      c.setContinue();
     } else {
       throw new ScriptException("continue can only be used inside a loop and inside same function");
     }

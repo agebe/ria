@@ -1,6 +1,6 @@
 package org.rescript.statement;
 
 public interface Continueable {
-  void executeContinue();
+  void setContinue();
   boolean isContinue();
 }

@@ -9,7 +9,7 @@ public class BreakStatement implements Statement {
   public void execute(ScriptContext ctx) {
     Breakable b = ctx.getCurrentFrame().peekBreakable();
     if(b != null) {
-      b.executeBreak();
+      b.setBreak();
     } else {
       throw new ScriptException("break can only be used inside a loop and inside same function");
     }

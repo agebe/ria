@@ -35,7 +35,7 @@ public class WhileLoop {
 
   @Test
   public void whileContinue() {
-    assertEquals(42, new Script().evalInt("1;var i = 0;var a = 42;while(i < 3) {i++;continue;a=0;}a;"));
+    assertEquals(42, new Script().evalInt("1;var i = 0;var a = 42;while(i < 3) {i++;println(i);continue;a=0;}a;"));
   }
 
 }

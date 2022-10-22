@@ -4,7 +4,7 @@ import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 
-public class WhileStatement implements ContainerStatement {
+public class WhileStatement extends AbstractLoop implements ContainerStatement {
 
   private Expression expression;
 
@@ -23,10 +23,14 @@ public class WhileStatement implements ContainerStatement {
   }
 
   @Override
-  public void execute(ScriptContext ctx) {
+  protected void executeLoop(ScriptContext ctx) {
     while(expression.eval(ctx).toBoolean()) {
+      clearContinue();
       statement.execute(ctx);
       if(ctx.isReturnFlag()) {
+        break;
+      }
+      if(isBreak()) {
         break;
       }
     }
