@@ -22,8 +22,9 @@ public class ScriptContext {
 
   private boolean returnFlag;
 
-  private Deque<Function> functionStack = new ArrayDeque<>();
+  private Deque<Stackframe> functionStack = new ArrayDeque<>();
 
+  // for parameter and return value passing into/from functions
   private Deque<Value> stack = new ArrayDeque<>();
 
   public ScriptContext(SymbolTable symbols) {
@@ -66,17 +67,21 @@ public class ScriptContext {
   }
 
   public void enterFunction(Function function) {
-    functionStack.push(function);
+    functionStack.push(new Stackframe(function));
   }
 
   public void exitFunction(Function function) {
-    Function f = functionStack.pop();
-    if(f != function) {
-      throw new ScriptException("expected function '%s' but got '%s'".formatted(function, f));
+    Stackframe frame = functionStack.pop();
+    if(frame.getFunction() != function) {
+      throw new ScriptException("expected function '%s' but got '%s'".formatted(function, frame.getFunction()));
     }
   }
 
   public Function currentFunction() {
+    return functionStack.peek().getFunction();
+  }
+
+  public Stackframe getCurrentFrame() {
     return functionStack.peek();
   }
 

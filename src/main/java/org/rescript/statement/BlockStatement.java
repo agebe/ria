@@ -36,6 +36,14 @@ public class BlockStatement implements ContainerStatement {
           log.debug("return flag set, break out of block");
           break;
         }
+        Breakable b = ctx.getCurrentFrame().peekBreakable();
+        if((b!=null) && b.isBreak()) {
+          break;
+        }
+        Continueable c = ctx.getCurrentFrame().peekContinueable();
+        if((c!=null) && c.isContinue()) {
+          break;
+        }
         log.debug("execute statement '{}'", s);
         s.execute(ctx);
       }

@@ -19,8 +19,10 @@ import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
+import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CnameContext;
+import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DottedIdentContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
@@ -62,7 +64,9 @@ import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
 import org.rescript.statement.BlockStatement;
+import org.rescript.statement.BreakStatement;
 import org.rescript.statement.ContainerStatement;
+import org.rescript.statement.ContinueStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.ForInitStatement;
@@ -802,6 +806,32 @@ public class ParserListener implements ScriptListener {
         .map(pn -> ((Identifier)pn.getParameter()).getIdent())
         .toList());
     function.setStatements(block);
+  }
+
+  @Override
+  public void enterBreakStmt(BreakStmtContext ctx) {
+    log.debug("enterBreakStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitBreakStmt(BreakStmtContext ctx) {
+    log.debug("exitBreakStmt '{}'", ctx.getText());
+    popSemi();
+    popTerminal("break");
+    stack.push(new BreakStatement());
+  }
+
+  @Override
+  public void enterContinueStmt(ContinueStmtContext ctx) {
+    log.debug("enterContinueStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitContinueStmt(ContinueStmtContext ctx) {
+    log.debug("exitContinueStmt '{}'", ctx.getText());
+    popSemi();
+    popTerminal("continue");
+    stack.push(new ContinueStatement());
   }
 
 }

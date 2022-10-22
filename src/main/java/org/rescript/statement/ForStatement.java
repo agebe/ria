@@ -6,7 +6,7 @@ import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class ForStatement implements Statement {
+public class ForStatement implements Statement, Breakable, Continueable {
 
   private ForInitStatement forInit;
 
@@ -15,6 +15,10 @@ public class ForStatement implements Statement {
   private List<Expression> forInc;
 
   private Statement statement;
+
+  private boolean breakFlag;
+
+  private boolean continueFlag;
 
   public ForStatement(ForInitStatement forInit, Expression forTerm, List<Expression> forInc, Statement statement) {
     super();
@@ -27,7 +31,11 @@ public class ForStatement implements Statement {
   @Override
   public void execute(ScriptContext ctx) {
     try {
+      breakFlag = false;
+      continueFlag = false;
       ctx.getSymbols().getScriptSymbols().enterScope();
+      ctx.getCurrentFrame().pushBreakable(this);
+      ctx.getCurrentFrame().pushContinueable(this);
       if(forInit != null) {
         forInit.execute(ctx);
       }
@@ -38,8 +46,12 @@ public class ForStatement implements Statement {
             break;
           }
         }
+        continueFlag = false;
         statement.execute(ctx);
         if(ctx.isReturnFlag()) {
+          break;
+        }
+        if(breakFlag) {
           break;
         }
         if(forInc != null) {
@@ -47,8 +59,30 @@ public class ForStatement implements Statement {
         }
       }
     } finally {
+      ctx.getCurrentFrame().popContinueable(this);
+      ctx.getCurrentFrame().popBreakable(this);
       ctx.getSymbols().getScriptSymbols().exitScope();
     }
+  }
+
+  @Override
+  public void executeBreak() {
+    breakFlag = true;
+  }
+
+  @Override
+  public boolean isBreak() {
+    return breakFlag;
+  }
+
+  @Override
+  public void executeContinue() {
+    continueFlag = true;
+  }
+
+  @Override
+  public boolean isContinue() {
+    return continueFlag;
   }
 
 }

@@ -36,4 +36,24 @@ public class ForStmtTest {
     assertEquals("undefined", new Script().run("for(var i=0;i<3;i++);typeof i;"));
   }
 
+  @Test
+  public void forBreak() {
+    assertEquals(0, new Script().evalInt("var i;for(i=0;i<3;i++) break;i;"));
+  }
+
+  @Test
+  public void forBreak2() {
+    assertEquals(0, new Script().evalInt("var i;for(i=0;i<3;i++) {break;} i;"));
+  }
+
+  @Test
+  public void forBreak3() {
+    assertEquals(42, new Script().evalInt("var a = 42;for(var i=0;i<3;i++) {break;a=1;} a;"));
+  }
+
+  @Test
+  public void forContinue() {
+    assertEquals(42, new Script().evalInt("var a=42;for(var i=0;i<3;i++) {continue;a=1;}; a;"));
+  }
+
 }

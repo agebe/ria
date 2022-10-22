@@ -73,12 +73,12 @@ public class FunctionTest {
 
   @Test
   public void withLoopBreak() {
-    assertEquals(0, new Script().run("""
+    assertEquals(1, new Script().run("""
         function f1(a) {
           var current;
           for(var i=0;i<a;i++) {
             current = i;
-            break;
+            if(i == 1) break;
           }
           return current;
         }

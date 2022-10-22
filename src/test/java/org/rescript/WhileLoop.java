@@ -28,4 +28,14 @@ public class WhileLoop {
     assertFalse(new Script().evalPredicate("var a = true;while(a) a = false;"));
   }
 
+  @Test
+  public void whileBreak() {
+    assertEquals(2, new Script().evalInt("1;while(true) {2;break;3;}"));
+  }
+
+  @Test
+  public void whileContinue() {
+    assertEquals(42, new Script().evalInt("1;var i = 0;var a = 42;while(i < 3) {i++;continue;a=0;}a;"));
+  }
+
 }

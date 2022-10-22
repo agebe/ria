@@ -59,6 +59,8 @@ stmt
   | ifElseStmt
   | whileStmt
   | forStmt
+  | breakStmt
+  | continueStmt
 //  | forEachStmt
   | functionDefinition
   ;
@@ -76,6 +78,8 @@ forInit: vardefStmt | emptyStmt | assignmentOp ( ',' assignmentOp )* SEMI;
 forTerm: expr? SEMI;
 forInc: expr? ( ',' expr )*;
 //forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
+breakStmt: 'break' SEMI;
+continueStmt: 'continue' SEMI;
  
 functionDefinition: 'function' fcall block;
 
