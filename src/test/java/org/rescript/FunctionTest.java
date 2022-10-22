@@ -145,6 +145,19 @@ public class FunctionTest {
   }
 
   @Test
+  public void parentFunction() {
+    assertEquals(0, new Script().run("""
+        function f1(a) {
+          function f2(b) {
+            f1(b-1);
+          }
+          return a>0?f2(a):a;
+        }
+        f1(42);
+        """));
+  }
+
+  @Test
   public void nested2() {
     assertThrows(ScriptException.class, () -> new Script().run("""
         function f1(a) {

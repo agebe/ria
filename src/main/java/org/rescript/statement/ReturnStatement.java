@@ -21,13 +21,13 @@ public class ReturnStatement implements Statement {
   @Override
   public void execute(ScriptContext ctx) {
     log.debug("execute return statement, expression " + expression);
-    ctx.setReturnFlag(true);
     if(expression != null) {
       Value v = expression.eval(ctx);
       ctx.setLastResult(v);
     } else {
       ctx.setLastResult(VoidValue.VOID);
     }
+    ctx.setReturnFlag(true);
     ctx.setCurrent(null);
   }
 

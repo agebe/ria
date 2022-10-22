@@ -7,8 +7,12 @@ import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.statement.Function;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScriptFunctionCaller {
+
+  private static final Logger log = LoggerFactory.getLogger(ScriptFunctionCaller.class);
 
   private ScriptContext ctx;
 
@@ -18,7 +22,7 @@ public class ScriptFunctionCaller {
   }
 
   public Value call(FunctionCall call) {
-    Function function = getFunction(call);
+    Function function = findFunction(call);
     if(function != null) {
       pushParamsToStack(call.getParameters());
       function.execute(ctx);
@@ -42,20 +46,48 @@ public class ScriptFunctionCaller {
   }
 
   public boolean hasFunction(FunctionCall call) {
-    return getFunction(call) != null;
+    return findFunction(call) != null;
   }
 
-  private Function getFunction(FunctionCall call) {
+  private Function findFunction(FunctionCall call) {
+    log.debug("find function '%s'".formatted(call));
     Function current = ctx.currentFunction();
+    log.debug("check current");
     if(current.matches(call)) {
       // recursive call
+      log.debug("is current");
       return current;
     }
-    return current.getNestedFunctions()
+    log.debug("check nested");
+    Function nested = current.getNestedFunctions()
         .stream()
         .filter(f -> f.matches(call))
         .findFirst()
         .orElse(null);
+    if(nested != null) {
+      log.debug("is nested");
+      return nested;
+    }
+    log.debug("check parent");
+    Function parent = current.getParent();
+    if(parent != null) {
+      if(parent.matches(call)) {
+        log.debug("is parent");
+        return parent;
+      } else {
+        log.debug("check sibling");
+        Function sibling = parent.getNestedFunctions()
+            .stream()
+            .filter(f -> f.matches(call))
+            .findFirst()
+            .orElse(null);
+        if(sibling != null) {
+          return sibling;
+        }
+      }
+    }
+    log.debug("script function not found");
+    return null;
   }
 
 }

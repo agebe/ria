@@ -33,8 +33,10 @@ public class BlockStatement implements ContainerStatement {
       }
       for(Statement s : statements) {
         if(ctx.isReturnFlag()) {
+          log.debug("return flag set, break out of block");
           break;
         }
+        log.debug("execute statement '{}'", s);
         s.execute(ctx);
       }
     } finally {

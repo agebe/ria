@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.rescript.ScriptException;
 import org.rescript.expression.FunctionCall;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
@@ -23,6 +24,8 @@ public class Function implements Statement {
   private BlockStatement statements;
 
   private List<Function> nestedFunctions = new ArrayList<>();
+
+  private Function parent;
 
   public Function() {
     super();
@@ -75,11 +78,23 @@ public class Function implements Statement {
   }
 
   public void addFunction(Function function) {
+    if(function.getParent() != null) {
+      throw new ScriptException("function '%s' already has parent".formatted(function));
+    }
+    function.setParent(this);
     nestedFunctions.add(function);
   }
 
   public List<Function> getNestedFunctions() {
     return nestedFunctions;
+  }
+
+  public Function getParent() {
+    return parent;
+  }
+
+  public void setParent(Function parent) {
+    this.parent = parent;
   }
 
   public boolean matches(FunctionCall call) {

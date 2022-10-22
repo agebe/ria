@@ -40,6 +40,7 @@ public class JavaFunctionCaller {
             target.val());
         return callJavaMethod(symbol, function);
       } else {
+        log.debug("calling java function '{}'", function.getName().getName());
         JavaMethodSymbol symbol = ctx.getSymbols().getJavaSymbols().resolveFunction(function.getName().getName());
         if(symbol != null) {
           return callJavaMethod(symbol, function);
