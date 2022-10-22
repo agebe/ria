@@ -86,6 +86,7 @@ public class ScriptFunctionCaller {
         }
       }
     }
+    // TODO should we go up the tree all the way to the root to find the method?
     log.debug("script function not found");
     return null;
   }
