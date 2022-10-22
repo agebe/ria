@@ -43,6 +43,7 @@ dottedIdent
 // TODO script dependencies
 // TODO character literal
 // TODO text blocks
+// TODO switch statement?
 
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
