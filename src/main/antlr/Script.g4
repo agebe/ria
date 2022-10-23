@@ -32,7 +32,6 @@ dottedIdent
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for each statement
-// TODO do while statement
 // TODO instanceof operator
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
@@ -58,6 +57,7 @@ stmt
   | ifElseStmt
   | whileStmt
   | forStmt
+  | doWhileStmt
   | breakStmt
   | continueStmt
 //  | forEachStmt
@@ -79,7 +79,7 @@ forInc: expr? ( ',' expr )*;
 //forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
 breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
- 
+doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
 functionDefinition: 'function' fcall block;
 
 assignment: ASSIGN expr;

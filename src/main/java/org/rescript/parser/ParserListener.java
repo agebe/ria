@@ -23,6 +23,7 @@ import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CnameContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
+import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
 import org.rescript.antlr.ScriptParser.DottedIdentContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
@@ -67,6 +68,7 @@ import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.ContainerStatement;
 import org.rescript.statement.ContinueStatement;
+import org.rescript.statement.DoWhileStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.ForInitStatement;
@@ -832,6 +834,25 @@ public class ParserListener implements ScriptListener {
     popSemi();
     popTerminal("continue");
     stack.push(new ContinueStatement());
+  }
+
+  @Override
+  public void enterDoWhileStmt(DoWhileStmtContext ctx) {
+    log.debug("enterDoWhileStmt '{}'", ctx.getText());
+    stack.push(new DoWhileStatement());
+  }
+
+  @Override
+  public void exitDoWhileStmt(DoWhileStmtContext ctx) {
+    log.debug("exitDoWhileStmt '{}'", ctx.getText());
+    popSemi();
+    popTerminal(")");
+    Expression e = popExpression();
+    popTerminal("(");
+    popTerminal("while");
+    popTerminal("do");
+    DoWhileStatement ws = (DoWhileStatement)findMostRecentContainerStatement();
+    ws.setExpression(e);
   }
 
 }
