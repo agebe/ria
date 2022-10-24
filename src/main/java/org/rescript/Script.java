@@ -93,6 +93,14 @@ public class Script {
     return parse(script).evalInt();
   }
 
+  public char evalChar() {
+    return runVal().toChar();
+  }
+
+  public int evalChar(String script) {
+    return parse(script).evalChar();
+  }
+
   public void setVariable(String name, Object val) {
     symbols.getScriptSymbols().defineOrAssignVarRoot(name, Value.of(val));
   }

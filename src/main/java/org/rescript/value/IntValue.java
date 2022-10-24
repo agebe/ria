@@ -84,4 +84,9 @@ public class IntValue implements Value {
     return new IntValue(this.val-1);
   }
 
+  @Override
+  public char toChar() {
+    return (char)val;
+  }
+
 }

@@ -17,16 +17,12 @@ public class UnaryPostIncOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
-    if(val.isNumber()) {
-      if(val instanceof EvaluatedFromValue) {
-        Value evalResult = ((EvaluatedFromValue)val).getSymbol().get();
-        ((EvaluatedFromValue)val).getSymbol().inc();
-        return evalResult;
-      } else {
-        throw new ScriptException("invalid argument to unary post increment, "+val);
-      }
+    if(val instanceof EvaluatedFromValue) {
+      Value evalResult = ((EvaluatedFromValue)val).getSymbol().get();
+      ((EvaluatedFromValue)val).getSymbol().inc();
+      return evalResult;
     } else {
-      throw new ScriptException("unary post incremenet requires number, " + val);
+      throw new ScriptException("invalid argument to unary post increment, "+val);
     }
   }
 

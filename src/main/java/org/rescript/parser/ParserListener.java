@@ -21,6 +21,7 @@ import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
+import org.rescript.antlr.ScriptParser.CharLiteralContext;
 import org.rescript.antlr.ScriptParser.CnameContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
@@ -56,6 +57,7 @@ import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.AssignmentOperator;
 import org.rescript.expression.BoolLiteral;
+import org.rescript.expression.CharLiteral;
 import org.rescript.expression.Expression;
 import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;
@@ -853,6 +855,26 @@ public class ParserListener implements ScriptListener {
     popTerminal("do");
     DoWhileStatement ws = (DoWhileStatement)findMostRecentContainerStatement();
     ws.setExpression(e);
+  }
+
+  @Override
+  public void enterCharLiteral(CharLiteralContext ctx) {
+    log.debug("enterCharLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitCharLiteral(CharLiteralContext ctx) {
+    log.debug("exitCharLiteral '{}'", ctx.getText());
+    Terminal t = popTerminal();
+    String s = t.getToken().getText();
+    if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
+      if(s.length() == 1) {
+        fail("invalid char literal " + s);
+      }
+      stack.push(new CharLiteral(StringUtils.strip(s,"'")));
+    } else {
+      fail("unsupported char literal " + s);
+    }
   }
 
 }

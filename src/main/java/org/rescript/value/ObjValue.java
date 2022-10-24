@@ -85,6 +85,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public char toChar() {
+    return (Character)val;
+  }
+
+  @Override
   public boolean isDouble() {
     return Double.class.equals(type) || double.class.equals(type);
   }

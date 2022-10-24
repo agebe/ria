@@ -17,14 +17,10 @@ public class UnaryPreDecOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
-    if(val.isNumber()) {
-      if(val instanceof EvaluatedFromValue) {
-        return ((EvaluatedFromValue)val).getSymbol().dec();
-      } else {
-        throw new ScriptException("invalid argument to unary pre decrement, "+val);
-      }
+    if(val instanceof EvaluatedFromValue) {
+      return ((EvaluatedFromValue)val).getSymbol().dec();
     } else {
-      throw new ScriptException("unary pre decrement requires number, " + val);
+      throw new ScriptException("invalid argument to unary pre decrement, "+val);
     }
   }
 

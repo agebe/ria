@@ -122,12 +122,14 @@ literal
   | intLiteral
   | floatLiteral
   | nullLiteral
+  | charLiteral
   ;
 strLiteral: StringLiteral ;
 boolLiteral: BooleanLiteral ;
 intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
 nullLiteral: NullLiteral;
+charLiteral: CharacterLiteral;
 ident : Identifier;
 // from https://stackoverflow.com/a/24559773
 //StringLiteral : UnterminatedStringLiteral '"';

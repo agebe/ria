@@ -17,16 +17,12 @@ public class UnaryPostDecOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
-    if(val.isNumber()) {
-      if(val instanceof EvaluatedFromValue) {
-        Value evalResult = ((EvaluatedFromValue)val).getSymbol().get();
-        ((EvaluatedFromValue)val).getSymbol().dec();
-        return evalResult;
-      } else {
-        throw new ScriptException("invalid argument to unary post decrement, "+val);
-      }
+    if(val instanceof EvaluatedFromValue) {
+      Value evalResult = ((EvaluatedFromValue)val).getSymbol().get();
+      ((EvaluatedFromValue)val).getSymbol().dec();
+      return evalResult;
     } else {
-      throw new ScriptException("unary post decrement requires number, " + val);
+      throw new ScriptException("invalid argument to unary post decrement, "+val);
     }
   }
 

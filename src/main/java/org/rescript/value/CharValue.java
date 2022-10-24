@@ -1,27 +1,32 @@
 package org.rescript.value;
 
-public class LongValue implements Value {
+public class CharValue implements Value {
 
-  private final long val;
+  private final char val;
 
-  public LongValue(long val) {
+  public CharValue(char val) {
     super();
     this.val = val;
   }
 
-  public LongValue(Object o) {
+  public CharValue(Object o) {
     super();
-    val = ((Number)o).longValue();
+    this.val = (Character)o;
   }
 
   @Override
   public Class<?> type() {
-    return long.class;
+    return char.class;
   }
 
   @Override
   public Object val() {
     return val;
+  }
+
+  @Override
+  public boolean isPrimitive() {
+    return true;
   }
 
   @Override
@@ -36,7 +41,7 @@ public class LongValue implements Value {
 
   @Override
   public int toInt() {
-    return (int)val;
+    return val;
   }
 
   @Override
@@ -46,17 +51,12 @@ public class LongValue implements Value {
 
   @Override
   public boolean isNumber() {
-    return true;
-  }
-
-  @Override
-  public boolean isLong() {
-    return true;
+    return false;
   }
 
   @Override
   public String getText() {
-    return Long.toString(val);
+    return Character.toString(val);
   }
 
   @Override
@@ -65,28 +65,27 @@ public class LongValue implements Value {
   }
 
   @Override
-  public boolean isPrimitive() {
-    return true;
-  }
-
-  @Override
   public boolean equalsOp(Value other) {
-    return this.val == other.toLong();
+    return this.val == other.toInt();
   }
 
   @Override
   public Value inc() {
-    return new LongValue(this.val+1);
+    char c = this.val;
+    c+=1;
+    return new CharValue(c);
   }
 
   @Override
   public Value dec() {
-    return new LongValue(this.val-1);
+    char c = this.val;
+    c-=1;
+    return new CharValue(c);
   }
 
   @Override
   public char toChar() {
-    return (char)val;
+    return val;
   }
 
 }

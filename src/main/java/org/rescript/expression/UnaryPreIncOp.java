@@ -17,14 +17,10 @@ public class UnaryPreIncOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
-    if(val.isNumber()) {
-      if(val instanceof EvaluatedFromValue) {
-        return ((EvaluatedFromValue)val).getSymbol().inc();
-      } else {
-        throw new ScriptException("invalid argument to unary pre increment, "+val);
-      }
+    if(val instanceof EvaluatedFromValue) {
+      return ((EvaluatedFromValue)val).getSymbol().inc();
     } else {
-      throw new ScriptException("unary pre incremenet requires number, " + val);
+      throw new ScriptException("invalid argument to unary pre increment, "+val);
     }
   }
 

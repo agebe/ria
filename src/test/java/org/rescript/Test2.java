@@ -103,4 +103,14 @@ public class Test2 {
     }
   }
 
+  @Test
+  public void charTest() {
+//  https://docs.oracle.com/javase/tutorial/java/data/characters.html
+//  Unicode for uppercase Greek omega character
+    char uniChar = '\u03A9';
+    System.out.println(uniChar);
+    String s = "a" + 'b';
+    System.out.println(s);
+  }
+
 }

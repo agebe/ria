@@ -72,6 +72,10 @@ public interface Value {
     throw new ScriptException("can't cast '%s' to long".formatted(this.getClass()));
   }
 
+  default char toChar() {
+    throw new ScriptException("can't cast '%s' to char".formatted(this.getClass()));
+  }
+
   default Value unbox() {
     return this;
   }
@@ -98,6 +102,8 @@ public interface Value {
         return new IntValue(val);
       } else if(long.class == cls) {
         return new LongValue(val);
+      } else if(char.class == cls) {
+        return new CharValue(val);
       } else {
         throw new ScriptException("primitive type '%s' not implemented yet".formatted(cls));
       }
