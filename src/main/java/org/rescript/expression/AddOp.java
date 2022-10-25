@@ -23,6 +23,12 @@ public class AddOp extends TripleOp {
   public Value eval(ScriptContext ctx) {
     Value v1 = getExp1().eval(ctx);
     Value v2 = getExp2().eval(ctx);
+    if(v1.isChar() && !v2.isString()) {
+      v1 = new IntValue(v1.toInt());
+    }
+    if(v2.isChar() && !v1.isString()) {
+      v2 = new IntValue(v2.toInt());
+    }
     log.debug("eval '{}' + '{}'", v1, v2);
     if(v1.isNumber() && v2.isNumber()) {
       if(v1.isDouble() || v2.isDouble()) {

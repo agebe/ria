@@ -50,6 +50,41 @@ public class CharLiteralTest {
   }
 
   @Test
+  public void sub() {
+    assertEquals(65, new Script().evalInt("'B' - 1"));
+  }
+
+  @Test
+  public void mul() {
+    assertEquals(65*2, new Script().evalInt("'A' * 2"));
+  }
+
+  @Test
+  public void div() {
+    assertEquals(65/2, new Script().evalInt("'A' / 2"));
+  }
+
+  @Test
+  public void mod() {
+    assertEquals(65%2, new Script().evalInt("'A' % 2"));
+  }
+
+  @Test
+  public void ge() {
+    assertTrue(new Script().evalPredicate("'B' >= 'A'"));
+  }
+
+  @Test
+  public void lt() {
+    assertTrue(new Script().evalPredicate("'A' < 'B'"));
+  }
+
+  @Test
+  public void ltFalse() {
+    assertFalse(new Script().evalPredicate("'A' < 'A'"));
+  }
+
+  @Test
   public void escapeSequence() {
     assertEquals(10, new Script().evalInt("'\\n'"));
   }

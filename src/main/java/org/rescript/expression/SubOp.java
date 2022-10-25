@@ -22,10 +22,13 @@ public class SubOp extends TripleOp {
   public Value eval(ScriptContext ctx) {
     Value v1 = getExp1().eval(ctx);
     Value v2 = getExp2().eval(ctx);
+    if(v1.isChar() && !v2.isString()) {
+      v1 = new IntValue(v1.toInt());
+    }
+    if(v2.isChar() && !v1.isString()) {
+      v2 = new IntValue(v2.toInt());
+    }
     log.debug("eval '{}' - '{}'", v1, v2);
-    log.debug("v1.isNumber {}", v1.isNumber());
-    log.debug("v2.isNumber {}", v2.isNumber());
-    log.debug("v1 type '{}'", v1.getClass().getName());
     if(v1.isNumber() && v2.isNumber()) {
       if(v1.isDouble() || v2.isDouble()) {
         return new DoubleValue(v1.toDouble() - v2.toDouble());

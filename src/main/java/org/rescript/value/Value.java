@@ -40,6 +40,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isChar() {
+    return false;
+  }
+
   default boolean isString() {
     return false;
   }

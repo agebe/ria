@@ -111,6 +111,7 @@ public class Test2 {
     System.out.println(uniChar);
     String s = "a" + 'b';
     System.out.println(s);
+    System.out.println('z' * 'b');
   }
 
 }

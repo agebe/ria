@@ -110,6 +110,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public boolean isChar() {
+    return Character.class.equals(type) || char.class.equals(type);
+  }
+
+  @Override
   public String getText() {
     return isNotNull()?val.toString():null;
   }
@@ -120,7 +125,8 @@ public class ObjValue implements Value {
         double.class.equals(type) ||
         float.class.equals(type) ||
         long.class.equals(type) ||
-        int.class.equals(type);
+        int.class.equals(type) ||
+        char.class.equals(type);
   }
 
   @Override
@@ -135,6 +141,8 @@ public class ObjValue implements Value {
       return new LongValue(toLong());
     } else if(isInteger()) {
       return new IntValue(toInt());
+    } else if(isChar()) {
+      return new CharValue(toChar());
     } else {
       throw new ScriptException("can't unbox type '%s'".formatted(type));
     }

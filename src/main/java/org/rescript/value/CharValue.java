@@ -88,4 +88,9 @@ public class CharValue implements Value {
     return val;
   }
 
+  @Override
+  public boolean isChar() {
+    return true;
+  }
+
 }
