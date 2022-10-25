@@ -46,7 +46,7 @@ public class CharLiteralTest {
 
   @Test
   public void add() {
-    assertEquals(66, new Script().evalPredicate("'A' + 1"));
+    assertEquals(66, new Script().evalInt("'A' + 1"));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class CharLiteralTest {
 
   @Test
   public void print() {
-    new Script().run("println('a')");
+    new Script().run("println('\\u03A9')");
   }
 
   @Test

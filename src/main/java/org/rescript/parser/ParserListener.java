@@ -868,12 +868,9 @@ public class ParserListener implements ScriptListener {
     Terminal t = popTerminal();
     String s = t.getToken().getText();
     if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
-      if(s.length() == 1) {
-        fail("invalid char literal " + s);
-      }
       stack.push(new CharLiteral(StringUtils.strip(s,"'")));
     } else {
-      fail("unsupported char literal " + s);
+      fail("char literal not enclosed with single quotes " + s);
     }
   }
 

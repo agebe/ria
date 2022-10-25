@@ -1,5 +1,6 @@
 package org.rescript.expression;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
@@ -8,9 +9,12 @@ public class StringLiteral implements Expression {
 
   private String literal;
 
+  private Value val;
+
   public StringLiteral(String literal) {
     super();
     this.literal = literal;
+    val = new ObjValue(String.class, StringEscapeUtils.unescapeJava(literal).intern());
   }
 
   public String getLiteral() {
@@ -24,7 +28,7 @@ public class StringLiteral implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    return new ObjValue(String.class, literal);
+    return val;
   }
 
   @Override
