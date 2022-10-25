@@ -114,7 +114,7 @@ public class Function implements Statement {
 
   public static Function main() {
     Function f = new Function();
-    f.name = "main";
+    f.name = "__main";
     f.parameterNames = new ArrayList<>();
     f.statements = new BlockStatement(true);
     return f;

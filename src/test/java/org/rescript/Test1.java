@@ -479,4 +479,9 @@ public class Test1 {
     .evalPredicate();
     assertTrue(result);
   }
+
+  @Test
+  public void main() {
+    new Script().run("function main() {println(\"main\");} main();");
+  }
 }
