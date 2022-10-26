@@ -23,7 +23,7 @@ public class BoolLiteral implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    return new BooleanValue(val);
+    return BooleanValue.of(val);
   }
 
   @Override

@@ -105,6 +105,16 @@ public class CharLiteralTest {
   }
 
   @Test
+  public void unaryPlus() {
+    assertEquals(122, new Script().run("+'z'"));
+  }
+
+  @Test
+  public void unaryMinus() {
+    assertEquals(-122, new Script().run("-'z'"));
+  }
+
+  @Test
   public void stringConcat() {
     assertEquals("ab", new Script().run("""
         "a"+'b'

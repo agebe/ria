@@ -20,6 +20,9 @@ public class UnaryMinusOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
+    if(val.isChar()) {
+      val = new IntValue(val.toInt());
+    }
     if(val.isNumber()) {
       if(val.isDouble()) {
         return new DoubleValue(-val.toDouble());

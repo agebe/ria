@@ -2,6 +2,7 @@ package org.rescript.expression;
 
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.IntValue;
 import org.rescript.value.Value;
 
 public class UnaryPlusOp implements Expression {
@@ -16,6 +17,9 @@ public class UnaryPlusOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value val = expr.eval(ctx);
+    if(val.isChar()) {
+      val = new IntValue(val.toInt());
+    }
     // https://stackoverflow.com/a/2624541
     if(val.isNumber()) {
       return val.unbox();

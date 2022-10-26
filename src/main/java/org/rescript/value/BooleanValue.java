@@ -83,4 +83,8 @@ public class BooleanValue implements Value {
     return this.val == other.toBoolean();
   }
 
+  public static BooleanValue of(boolean b) {
+    return b?BooleanValue.TRUE:BooleanValue.FALSE;
+  }
+
 }

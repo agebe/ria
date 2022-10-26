@@ -25,7 +25,7 @@ public class EqualityOp extends TripleOp {
     Value v2 = getExp2().eval(ctx);
     log.debug("eval '{}' + '{}'", v1, v2);
     boolean eq = v1.equalsOp(v2);
-    return new BooleanValue(getOp().equals("==")?eq:!eq);
+    return BooleanValue.of(getOp().equals("==")?eq:!eq);
   }
 
 }
