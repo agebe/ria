@@ -38,7 +38,6 @@ dottedIdent
 // TODO arrays
 // TODO lambda
 // TODO script dependencies
-// TODO character literal
 // TODO text blocks
 // TODO switch statement?
 
