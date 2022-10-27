@@ -32,7 +32,6 @@ dottedIdent
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO for each statement
-// TODO instanceof operator
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
 // TODO arrays
@@ -40,6 +39,7 @@ dottedIdent
 // TODO script dependencies
 // TODO text blocks
 // TODO switch statement?
+// TODO multiple return values
 
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
@@ -59,6 +59,7 @@ stmt
   | doWhileStmt
   | breakStmt
   | continueStmt
+// https://docs.oracle.com/javase/8/docs/technotes/guides/language/foreach.html
 //  | forEachStmt
   | functionDefinition
   ;
@@ -96,6 +97,8 @@ expr
   | expr ( ADD | SUB ) expr
   | expr ( GT | LT | GE | LE ) expr
   | 'typeof' expr
+// https://docs.oracle.com/en/java/javase/14/language/pattern-matching-instanceof-operator.html
+  | expr 'instanceof' expr ident?
   | expr ( EQUAL | NOTEQUAL) expr
   | expr AND expr
   | expr OR expr

@@ -114,4 +114,12 @@ public class Test2 {
     System.out.println('z' * 'b');
   }
 
+  @Test
+  public void instanceOfTest() {
+    Object myString = "foo";
+    if(myString instanceof String s) {
+      System.out.println(s.length());
+    }
+  }
+
 }

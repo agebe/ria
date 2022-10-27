@@ -99,6 +99,12 @@ public class JavaSymbols {
         if(cls != null) {
           return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
         }
+        // also try inner class, but shouldn't this be a static import?
+        probe = impSplit.stream().collect(Collectors.joining(".")) + "$" + s0;
+        cls = RUtils.forName(probe);
+        if(cls != null) {
+          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+        }
       } else if(StringUtils.equals(s0, impLast)) {
         Class<?> cls = RUtils.forName(imp);
         if(cls != null) {
@@ -132,7 +138,6 @@ public class JavaSymbols {
           throw new ScriptException("static import '%s', class '%s' not found".formatted(imp, probe));
         }
       } else if(StringUtils.equals(s0, impLast)) {
-        log.debug("XXX");
         impSplit.removeLast();
         String probe = impSplit.stream().collect(Collectors.joining("."));
         Class<?> cls = RUtils.forName(probe);
@@ -439,9 +444,24 @@ public class JavaSymbols {
         }
       }
     }
-    // TODO also check static imports?
+    for(String im : staticImports) {
+      LinkedList<String> split = RUtils.splitTypeName(im);
+      if(StringUtils.equals(name, split.getLast())) {
+        Class<?> c = RUtils.findClass(im);
+        log.debug("found '{}' for name '{}'", c.getName(), im);
+        return c;
+      } else if(StringUtils.equals("*", split.getLast())) {
+        split.removeLast();
+        String joined = split.stream().collect(Collectors.joining("."));
+        log.debug("probing '{}.{}", joined, name);
+        Class<?> c = RUtils.findClass(joined, name);
+        if(c != null) {
+          log.debug("found '{}'", c.getName());
+          return c;
+        }
+      }
+    }
     return null;
   }
-
 
 }

@@ -17,6 +17,7 @@ import org.rescript.expression.Expression;
 import org.rescript.expression.GeOp;
 import org.rescript.expression.GtOp;
 import org.rescript.expression.Identifier;
+import org.rescript.expression.InstanceOfOp;
 import org.rescript.expression.LeOp;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
@@ -263,9 +264,15 @@ public class ExpressionParser {
     return isTerminal(0, "typeof") && isExpression(1);
   }
 
+  private boolean isInstanceOf() {
+    return (items.size() >= 3) && isTerminal(1, "instanceof") && isExpression(0) && isExpression(2);
+  }
+
   public void parse() {
     if(isDottedIdentifier()) {
       stack.push(dottedIdentifier());
+    } else if(isInstanceOf()) {
+      stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
     } else if(isSingle()) {
    // only 1 item on the stack, we just push that back as there is nothing else to do
       if(isSingleExpression()) {
@@ -318,7 +325,9 @@ public class ExpressionParser {
         stack.push(new EqualityOp(exp(0), exp(2), terminal(1)));
       } else if(isRelational()) {
         stack.push(parseRelational());
-      } else fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
+      } else {
+        fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
+      }
     } else if(isTernaryOp()) {
       stack.push(new TernaryOp(exp(0), exp(2), exp(4)));
     } else {
