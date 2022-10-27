@@ -32,6 +32,7 @@ import org.rescript.antlr.ScriptParser.ExprStmtContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
+import org.rescript.antlr.ScriptParser.ForEachStmtContext;
 import org.rescript.antlr.ScriptParser.ForIncContext;
 import org.rescript.antlr.ScriptParser.ForInitContext;
 import org.rescript.antlr.ScriptParser.ForStmtContext;
@@ -73,6 +74,7 @@ import org.rescript.statement.ContinueStatement;
 import org.rescript.statement.DoWhileStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
+import org.rescript.statement.ForEachStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatement;
 import org.rescript.statement.ForStatementBuilder;
@@ -872,6 +874,27 @@ public class ParserListener implements ScriptListener {
     } else {
       fail("char literal not enclosed with single quotes " + s);
     }
+  }
+
+  @Override
+  public void enterForEachStmt(ForEachStmtContext ctx) {
+    log.debug("enterForEachStmt '{}'", ctx.getText());
+    stack.push(new ForEachStatement());
+  }
+
+  @Override
+  public void exitForEachStmt(ForEachStmtContext ctx) {
+    log.debug("exitForEachStmt '{}'", ctx.getText());
+    popTerminal(")");
+    Expression expr = popExpression();
+    popTerminal(":");
+    Identifier ident = popIdentifier();
+    popTerminalIfExists("var");
+    popTerminal("(");
+    popTerminal("for");
+    ForEachStatement forEach = (ForEachStatement)stack.peek();
+    forEach.setIdentifier(ident.getIdent());
+    forEach.setIterable(expr);
   }
 
 }

@@ -31,7 +31,6 @@ dottedIdent
   ;
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
-// TODO for each statement
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
 // TODO arrays
@@ -60,7 +59,7 @@ stmt
   | breakStmt
   | continueStmt
 // https://docs.oracle.com/javase/8/docs/technotes/guides/language/foreach.html
-//  | forEachStmt
+  | forEachStmt
   | functionDefinition
   ;
 emptyStmt: SEMI;
@@ -76,7 +75,7 @@ forStmt: FOR LPAREN forInit forTerm forInc RPAREN stmt;
 forInit: vardefStmt | emptyStmt | assignmentOp ( ',' assignmentOp )* SEMI;
 forTerm: expr? SEMI;
 forInc: expr? ( ',' expr )*;
-//forEarchStmt : FOR LPAREN 'var' ident COLON expr RPARENT stmt;
+forEachStmt : FOR LPAREN 'var'? ident COLON expr RPAREN stmt;
 breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;

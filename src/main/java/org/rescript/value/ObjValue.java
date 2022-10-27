@@ -129,6 +129,10 @@ public class ObjValue implements Value {
         char.class.equals(type);
   }
 
+  private boolean isPrimitiveWrapper() {
+    return !isPrimitive() && ( isNumber() || isChar() || isBoolean() );
+  }
+
   @Override
   public Value unbox() {
     if(isBoolean()) {
@@ -151,6 +155,8 @@ public class ObjValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     if(this.isPrimitive()) {
+      return unbox().equalsOp(other);
+    } else if(this.isPrimitiveWrapper() && other.isPrimitive()) {
       return unbox().equalsOp(other);
     } else if(other instanceof ObjValue) {
       return this.val == ((ObjValue)other).val;
