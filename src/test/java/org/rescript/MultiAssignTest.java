@@ -17,6 +17,24 @@ public class MultiAssignTest {
   }
 
   @Test
+  public void simple2() {
+    // all variables get the same value
+    Script script = new Script();
+    script.run("var (a,b) = 42;");
+    assertEquals(42, script.getVariable("a"));
+    assertEquals(42, script.getVariable("b"));
+  }
+
+  @Test
+  public void simple3() {
+    Script script = new Script();
+    script.run("var (a,b) = 42, c = 43;");
+    assertEquals(42, script.getVariable("a"));
+    assertEquals(42, script.getVariable("b"));
+    assertEquals(43, script.getVariable("c"));
+  }
+
+  @Test
   public void toMany() {
     // all variables get the same value
     Script script = new Script();
