@@ -49,6 +49,7 @@ import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
+import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
@@ -64,6 +65,7 @@ import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;
 import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
+import org.rescript.expression.MultiAssignmentOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
@@ -895,6 +897,33 @@ public class ParserListener implements ScriptListener {
     ForEachStatement forEach = (ForEachStatement)stack.peek();
     forEach.setIdentifier(ident.getIdent());
     forEach.setIterable(expr);
+  }
+
+  @Override
+  public void enterMultiAssignmentOp(MultiAssignmentOpContext ctx) {
+    log.debug("enterMultiAssignmentOp '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitMultiAssignmentOp(MultiAssignmentOpContext ctx) {
+    log.debug("exitMultiAssignmentOp '{}'", ctx.getText());
+    Expression expr = popExpression();
+    popTerminal("=");
+    popTerminal(")");
+    List<Identifier> l = new ArrayList<>();
+    for(;;) {
+      l.add(popIdentifier());
+      if(nextTerminalIs(",")) {
+        popTerminal(",");
+      } else if(nextTerminalIs("(")) {
+        popTerminal("(");
+        break;
+      } else {
+        throw new ScriptException("unexpected stack element '%s'".formatted(stack.peek()));
+      }
+    }
+    Collections.reverse(l);
+    stack.push(new MultiAssignmentOp(l, expr));
   }
 
 }

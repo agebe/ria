@@ -30,7 +30,6 @@ dottedIdent
   : Identifier ( '.' Identifier )*
   ;
 
-// https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
 // TODO arrays
@@ -39,7 +38,12 @@ dottedIdent
 // TODO text blocks
 // TODO switch statement?
 // TODO multiple return values
+// TODO throw exceptions
+// TODO try-catch
+// TODO add function value type (can be assigned to variables and passed in as function parameter...)
+// TODO script launcher
 
+// https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4
 // make sure ifStmt comes before ifElseStmt to take care of the dangling else problem
@@ -103,6 +107,7 @@ expr
   | expr OR expr
   | expr '?' expr ':' expr
   | assignmentOp
+  | multiAssignmentOp
 // other expressions below
   | fcall
   | literal
@@ -112,6 +117,7 @@ expr
 ccall : NEW cname fparams;
 cname : Identifier (DOT Identifier)*;
 assignmentOp: ident assignment;
+multiAssignmentOp: LPAREN ident (COMMA ident)* RPAREN assignment;
 fcall: fname fparams;
 fname: Identifier;
 fparams: LPAREN fparam? (COMMA fparam)* RPAREN;

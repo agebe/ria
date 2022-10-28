@@ -40,6 +40,8 @@ public class Function implements Statement {
       // the variables declared outside any function in the script have
       // global scope and can also be accessed from outside the script (via Script API)
       // and therefore need to survive the run (local variables are garbage collected on exitScope)
+      // script functions have min 2 scopes, 1 for the function parameters created here, the 2nd scope is created
+      // when the function block is entered
       if(parent != null) {
         ctx.getSymbols().getScriptSymbols().enterScope();
       }
