@@ -60,7 +60,7 @@ public class ForStmtTest {
   public void forMultiAssign2() {
     Script script = new Script();
     assertEquals(3, script.evalInt("var a,b;for((a,b)=0;a<3;a++,b--) {}; a;"));
-    assertEquals(-3, new Script().getVariable("b"));
+    assertEquals(-3, script.getVariable("b"));
   }
 
 }

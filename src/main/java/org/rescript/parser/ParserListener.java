@@ -646,9 +646,9 @@ public class ParserListener implements ScriptListener {
     log.debug("exitForInit '{}'", ctx.getText());
     if(stack.peek() instanceof Terminal) {
       popTerminal(";");
-      List<AssignmentOp> l = new LinkedList<>();
-      for(;stack.peek() instanceof AssignmentOp;) {
-        l.add((AssignmentOp)stack.pop());
+      List<Assignment> l = new LinkedList<>();
+      for(;stack.peek() instanceof Assignment;) {
+        l.add((Assignment)stack.pop());
         popTerminalIfExists(",");
       }
       printStack();
