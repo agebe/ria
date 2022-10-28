@@ -13,8 +13,8 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
-import org.rescript.SyntaxException;
 import org.rescript.antlr.ScriptListener;
+import org.rescript.antlr.ScriptParser.AssignContext;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BlockContext;
@@ -57,7 +57,8 @@ import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
-import org.rescript.expression.AssignmentOperator;
+import org.rescript.expression.Assignment;
+import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.CharLiteral;
 import org.rescript.expression.Expression;
@@ -442,7 +443,7 @@ public class ParserListener implements ScriptListener {
     Expression expr = popExpression();
     popTerminal("=");
     Identifier ident = popIdentifier();
-    stack.push(new AssignmentOperator(ident, expr));
+    stack.push(new AssignmentOp(ident, expr));
   }
 
   @Override
@@ -476,35 +477,25 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitVardefStmt(VardefStmtContext ctx) {
+    // TODO redo this, it looks more complicated than it should be
     log.debug("exitVardefStmt '{}'", ctx.getText());
     LinkedList<VarDef> vars = new LinkedList<>();
     popSemi();
     for(;;) {
-      ParseItem pi1 = stack.pop();
-      ParseItem pi2 = stack.pop();
-      if(pi2 instanceof Terminal) {
-        String t2 = ((Terminal)pi2).getText();
-        if("var".equals(t2) || ",".equals(t2)) {
-          Identifier i1 = (Identifier)pi1;
-          vars.addFirst(new VarDef(i1.getIdent(), null));
-          if("var".equals(t2)) {
-            break;
-          }
-        } else if( "=".equals(t2)) {
-          ParseItem pi3 = stack.pop();
-          String t4 = popTerminal().getText();
-          Identifier i3 = (Identifier)pi3;
-          vars.addFirst(new VarDef(i3.getIdent(), (Expression)pi1));
-          if("var".equals(t4)) {
-            break;
-          } else if(!",".equals(t4)) {
-            throw new ScriptException("expected terminals var or , but got '%s'".formatted(t4));
-          }
-        } else {
-          throw new ScriptException("expected 'var' or ',' or '=', but got '%s'".formatted(((Terminal)pi2).getText()));
-        }
+      if(nextTerminalIs("var")) {
+        popTerminal();
+        break;
+      } else if(nextTerminalIs(",")) {
+        popTerminal();
       } else {
-        throw new SyntaxException("expected terminal in vardef but got '%s'".formatted(pi2));
+        ParseItem pi = stack.pop();
+        if(pi instanceof Assignment assign) {
+          vars.addFirst(new VarDef(assign));
+        } else if(pi instanceof Identifier ident) {
+          vars.addFirst(new VarDef(ident));
+        } else {
+          throw new ScriptException("unexpected stack item '%s'".formatted(pi));
+        }
       }
     }
     stack.push(new VardefStatement(vars));
@@ -655,9 +646,9 @@ public class ParserListener implements ScriptListener {
     log.debug("exitForInit '{}'", ctx.getText());
     if(stack.peek() instanceof Terminal) {
       popTerminal(";");
-      List<AssignmentOperator> l = new LinkedList<>();
-      for(;stack.peek() instanceof AssignmentOperator;) {
-        l.add((AssignmentOperator)stack.pop());
+      List<AssignmentOp> l = new LinkedList<>();
+      for(;stack.peek() instanceof AssignmentOp;) {
+        l.add((AssignmentOp)stack.pop());
         popTerminalIfExists(",");
       }
       printStack();
@@ -924,6 +915,16 @@ public class ParserListener implements ScriptListener {
     }
     Collections.reverse(l);
     stack.push(new MultiAssignmentOp(l, expr));
+  }
+
+  @Override
+  public void enterAssign(AssignContext ctx) {
+    log.debug("enterAssign '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitAssign(AssignContext ctx) {
+    log.debug("exitAssign '{}'", ctx.getText());
   }
 
 }

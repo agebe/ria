@@ -3,21 +3,21 @@ package org.rescript.statement;
 import java.util.List;
 
 import org.rescript.ScriptException;
-import org.rescript.expression.AssignmentOperator;
+import org.rescript.expression.AssignmentOp;
 import org.rescript.run.ScriptContext;
 
 public class ForInitStatement implements Statement {
 
   private VardefStatement vardef;
 
-  private List<AssignmentOperator> assigments;
+  private List<AssignmentOp> assigments;
 
   public ForInitStatement(VardefStatement vardef) {
     super();
     this.vardef = vardef;
   }
 
-  public ForInitStatement(List<AssignmentOperator> assigments) {
+  public ForInitStatement(List<AssignmentOp> assigments) {
     super();
     this.assigments = assigments;
   }

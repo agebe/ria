@@ -56,4 +56,11 @@ public class ForStmtTest {
     assertEquals(42, new Script().evalInt("var a=42;for(var i=0;i<3;i++) {continue;a=1;}; a;"));
   }
 
+  @Test
+  public void forMultiAssign2() {
+    Script script = new Script();
+    assertEquals(3, script.evalInt("var a,b;for((a,b)=0;a<3;a++,b--) {}; a;"));
+    assertEquals(-3, new Script().getVariable("b"));
+  }
+
 }

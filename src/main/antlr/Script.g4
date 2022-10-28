@@ -32,7 +32,7 @@ dottedIdent
 
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
-// TODO arrays
+// TODO arrays ([] literal)
 // TODO lambda
 // TODO script dependencies
 // TODO text blocks
@@ -41,7 +41,9 @@ dottedIdent
 // TODO throw exceptions
 // TODO try-catch
 // TODO add function value type (can be assigned to variables and passed in as function parameter...)
+// TODO map literal (use LinkedHashMap to preserve order)
 // TODO script launcher
+
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
@@ -68,15 +70,15 @@ stmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
-vardefStmt: 'var' ident assignment? ( ',' ident assignment? )* SEMI;
-// TODO add support for multiple return expressions?
+vardefStmt: 'var' ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
+
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';
 ifStmt: IF LPAREN expr RPAREN stmt;
 ifElseStmt: IF LPAREN expr RPAREN stmt ELSE stmt;
 whileStmt: WHILE LPAREN expr RPAREN stmt;
 forStmt: FOR LPAREN forInit forTerm forInc RPAREN stmt;
-forInit: vardefStmt | emptyStmt | assignmentOp ( ',' assignmentOp )* SEMI;
+forInit: vardefStmt | emptyStmt | assign ( ',' assign )* SEMI;
 forTerm: expr? SEMI;
 forInc: expr? ( ',' expr )*;
 forEachStmt : FOR LPAREN 'var'? ident COLON expr RPAREN stmt;
@@ -84,8 +86,6 @@ breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
 functionDefinition: 'function' fcall block;
-
-assignment: ASSIGN expr;
 
 expr
 // do operators first, order by precedence
@@ -106,8 +106,7 @@ expr
   | expr AND expr
   | expr OR expr
   | expr '?' expr ':' expr
-  | assignmentOp
-  | multiAssignmentOp
+  | assign
 // other expressions below
   | fcall
   | literal
@@ -116,8 +115,10 @@ expr
 
 ccall : NEW cname fparams;
 cname : Identifier (DOT Identifier)*;
+assign: assignmentOp | multiAssignmentOp;
 assignmentOp: ident assignment;
 multiAssignmentOp: LPAREN ident (COMMA ident)* RPAREN assignment;
+assignment: ASSIGN expr;
 fcall: fname fparams;
 fname: Identifier;
 fparams: LPAREN fparam? (COMMA fparam)* RPAREN;

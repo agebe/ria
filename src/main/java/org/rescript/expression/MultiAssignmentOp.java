@@ -5,7 +5,7 @@ import java.util.List;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class MultiAssignmentOp implements Expression {
+public class MultiAssignmentOp implements Assignment {
 
   private List<Identifier> identifiers;
 
@@ -27,6 +27,11 @@ public class MultiAssignmentOp implements Expression {
       ctx.getSymbols().getScriptSymbols().assignVar(identifiers.get(i).getIdent(), v);
     }
     return v;
+  }
+
+  @Override
+  public List<Identifier> identifiers() {
+    return identifiers;
   }
 
 }

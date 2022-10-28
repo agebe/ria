@@ -1,26 +1,38 @@
 package org.rescript.statement;
 
-import org.rescript.expression.Expression;
+import org.rescript.ScriptException;
+import org.rescript.expression.Assignment;
+import org.rescript.expression.Identifier;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
 
 public class VarDef {
 
-  private String name;
+  private Identifier ident;
 
-  private Expression initial;
+  private Assignment assign;
 
-  public VarDef(String name, Expression initial) {
+  public VarDef(Identifier ident) {
     super();
-    this.name = name;
-    this.initial = initial;
+    this.ident = ident;
+  }
+
+  public VarDef(Assignment assign) {
+    super();
+    this.assign = assign;
   }
 
   public void execute(ScriptContext ctx) {
-    Value v = (initial!=null?initial.eval(ctx):VoidValue.VOID);
-    ctx.setLastResult(v);
-    ctx.getSymbols().getScriptSymbols().defineVar(name, v);
+    if(ident != null) {
+      ctx.getSymbols().getScriptSymbols().defineVar(ident.getIdent(), VoidValue.VOID);
+    } else if(assign != null) {
+      assign.identifiers().forEach(i -> ctx.getSymbols().getScriptSymbols().defineVar(i.getIdent(), VoidValue.VOID));
+      Value v = assign.eval(ctx);
+      ctx.setLastResult(v);
+    } else {
+      throw new ScriptException("invalid state, ident and assign null");
+    }
   }
 
 }

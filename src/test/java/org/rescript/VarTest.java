@@ -65,4 +65,10 @@ public class VarTest {
     assertEquals("undefined", script.runReturning("typeof v", String.class));
   }
 
+  @Test
+  public void multiVar() {
+    Script script = new Script();
+    script.run("var i=1+1, j, k=Float.MAX_VALUE, (a,b,c)=42;");
+  }
+
 }
