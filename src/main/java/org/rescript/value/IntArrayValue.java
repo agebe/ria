@@ -36,4 +36,9 @@ public class IntArrayValue implements Value, Array {
     return new IntValue(array[index]);
   }
 
+  @Override
+  public int length() {
+    return array.length;
+  }
+
 }

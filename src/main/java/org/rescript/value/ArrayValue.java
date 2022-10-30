@@ -39,4 +39,9 @@ public class ArrayValue implements Value, Array {
     return Value.of(array[index]);
   }
 
+  @Override
+  public int length() {
+    return array.length;
+  }
+
 }

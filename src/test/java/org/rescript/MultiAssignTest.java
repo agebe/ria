@@ -3,6 +3,8 @@ package org.rescript;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class MultiAssignTest {
@@ -36,9 +38,8 @@ public class MultiAssignTest {
 
   @Test
   public void toMany() {
-    // all variables get the same value
     Script script = new Script();
-    script.run("var a,b; (a,b,c,d) = [42,43];");
+    script.run("var (a,b,c,d) = [42,43];");
     assertEquals(42, script.getVariable("a"));
     assertEquals(43, script.getVariable("b"));
     assertArrayEquals(new int[] {42,43}, (int[])script.getVariable("c"));
@@ -47,10 +48,19 @@ public class MultiAssignTest {
 
   @Test
   public void toFew() {
-    // all variables get the same value
     Script script = new Script();
     script.run("var a,b; (a) = [42,43];");
     assertEquals(42, script.getVariable("a"));
+  }
+
+  @Test
+  public void list() {
+    Script script = new Script();
+    script.run("var (a,b,c,d) = java.util.List.of(42,43);");
+    assertEquals(42, script.getVariable("a"));
+    assertEquals(43, script.getVariable("b"));
+    assertEquals(List.of(42,43), script.getVariable("c"));
+    assertEquals(List.of(42,43), script.getVariable("d"));
   }
 
 }

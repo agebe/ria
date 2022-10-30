@@ -3,6 +3,7 @@ package org.rescript.expression;
 import java.util.List;
 
 import org.rescript.run.ScriptContext;
+import org.rescript.value.Array;
 import org.rescript.value.Value;
 
 public class MultiAssignmentOp implements Assignment {
@@ -20,11 +21,23 @@ public class MultiAssignmentOp implements Assignment {
   @Override
   public Value eval(ScriptContext ctx) {
     Value v = expr.eval(ctx);
-    // TODO if value is an array, assign array elements to variables
+    // if value is an array or list, assign elements to variables
     // nothing to do if there are not enough variables, extra array elements are ignored in this case
-    // if there are to many variables, assign the whole array to the each of them
-    for(int i=0;i<identifiers.size();i++) {
-      ctx.getSymbols().getScriptSymbols().assignVar(identifiers.get(i).getIdent(), v);
+    // if there are to many variables, assign the whole array/list to the each of them
+    if(v instanceof Array a) {
+      for(int i=0;i<identifiers.size();i++) {
+        ctx.getSymbols().getScriptSymbols().assignVar(identifiers.get(i).getIdent(),
+            (i<a.length()?a.get(i):v));
+      }
+    } else if(v.val() instanceof List<?> l) {
+      for(int i=0;i<identifiers.size();i++) {
+        ctx.getSymbols().getScriptSymbols().assignVar(identifiers.get(i).getIdent(),
+            (i<l.size()?Value.of(l.get(i)):v));
+      }
+    } else {
+      for(int i=0;i<identifiers.size();i++) {
+        ctx.getSymbols().getScriptSymbols().assignVar(identifiers.get(i).getIdent(), v);
+      }
     }
     return v;
   }
