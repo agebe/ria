@@ -99,7 +99,7 @@ expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall
-// array literal
+// array literal, or should this rather be a list literal???
   | '[' expr? ( ',' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
