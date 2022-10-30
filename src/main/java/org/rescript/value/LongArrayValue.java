@@ -40,4 +40,5 @@ public class LongArrayValue implements Value, Array {
   public int length() {
     return array.length;
   }
+
 }

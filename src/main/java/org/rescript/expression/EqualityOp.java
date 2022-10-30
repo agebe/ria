@@ -23,7 +23,7 @@ public class EqualityOp extends TripleOp {
   public Value eval(ScriptContext ctx) {
     Value v1 = getExp1().eval(ctx);
     Value v2 = getExp2().eval(ctx);
-    log.debug("eval '{}' + '{}'", v1, v2);
+    log.debug("eval '{}' == '{}'", v1, v2);
     boolean eq = v1.equalsOp(v2);
     return BooleanValue.of(getOp().equals("==")?eq:!eq);
   }

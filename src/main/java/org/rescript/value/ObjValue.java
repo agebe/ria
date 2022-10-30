@@ -163,7 +163,8 @@ public class ObjValue implements Value {
     } else if(other instanceof EvaluatedFromValue) {
       return this.val == ((EvaluatedFromValue)other).getWrapped().val();
     } else {
-      throw new ScriptException("equals op not implemented with other being '%s'".formatted(other.getClass()));
+      throw new ScriptException("equals op not implemented with this type '%s', other type '%s'"
+          .formatted(this.type, other.type()));
     }
   }
 

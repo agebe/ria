@@ -41,5 +41,4 @@ public class BooleanArrayValue implements Value, Array {
     return array.length;
   }
 
-
 }

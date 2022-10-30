@@ -94,12 +94,14 @@ expr
   : LPAREN expr RPAREN
   | ident DOT ident ( DOT ident )*
 // array access
+// TODO make this also work for lists
   | expr '[' expr ']'
   | expr DOT expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall
 // array literal, or should this rather be a list literal???
+// array literal could be arrayof [...]
   | '[' expr? ( ',' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr

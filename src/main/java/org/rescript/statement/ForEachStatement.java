@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.Array;
 import org.rescript.value.Value;
 
 //https://docs.oracle.com/javase/8/docs/technotes/guides/language/foreach.html
@@ -47,32 +48,57 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
 
   @Override
   protected void executeLoop(ScriptContext ctx) {
-    Value it = iterable.eval(ctx);
-    if(it == null) {
+    Value v = iterable.eval(ctx);
+    if(v == null) {
       throw new ScriptException("for each iterable '{}' did not resolve".formatted(iterable));
     }
-    if(it.val() instanceof Iterable<?> iterable) {
-      Iterator<?> iter = iterable.iterator();
-      while(iter.hasNext()) {
-        try {
-          ctx.getSymbols().getScriptSymbols().enterScope();
-          Object o = iter.next();
-          ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o));
-          clearContinue();
-          statement.execute(ctx);
-          if(ctx.isReturnFlag()) {
-            break;
-          }
-          if(isBreak()) {
-            break;
-          }
-        } finally {
-          ctx.getSymbols().getScriptSymbols().exitScope();
-        }
-      }
+    if(v.val() instanceof Iterable<?> iterable) {
+      forEach(iterable.iterator(), ctx);
+    } else if(v instanceof Array a) {
+      forEach(a, ctx);
     } else {
-      throw new ScriptException("for each can only iterate over an Iterable, but not '%s'"
-          .formatted(it.type().getName()));
+      throw new ScriptException("for each can only iterate over an Iterable or Array, but not '%s'"
+          .formatted(v.type().getName()));
+    }
+  }
+
+  private void forEach(Iterator<?> iter, ScriptContext ctx) {
+    while(iter.hasNext()) {
+      try {
+        ctx.getSymbols().getScriptSymbols().enterScope();
+        Object o = iter.next();
+        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o));
+        clearContinue();
+        statement.execute(ctx);
+        if(ctx.isReturnFlag()) {
+          break;
+        }
+        if(isBreak()) {
+          break;
+        }
+      } finally {
+        ctx.getSymbols().getScriptSymbols().exitScope();
+      }
+    }
+  }
+
+  private void forEach(Array a, ScriptContext ctx) {
+    for(int i=0;i<a.length();i++) {
+      try {
+        ctx.getSymbols().getScriptSymbols().enterScope();
+        Object o = a.get(i).val();
+        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o));
+        clearContinue();
+        statement.execute(ctx);
+        if(ctx.isReturnFlag()) {
+          break;
+        }
+        if(isBreak()) {
+          break;
+        }
+      } finally {
+        ctx.getSymbols().getScriptSymbols().exitScope();
+      }
     }
   }
 

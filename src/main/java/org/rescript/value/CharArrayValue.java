@@ -41,5 +41,4 @@ public class CharArrayValue implements Value, Array {
     return array.length;
   }
 
-
 }
