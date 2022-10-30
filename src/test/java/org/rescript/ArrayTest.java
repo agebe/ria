@@ -29,7 +29,7 @@ public class ArrayTest {
   }
 
   public void intArrayEq() {
-    // this calls Arrays.equals(...) behind the scenes.
+    // this calls Arrays.equals(...) behind the scenes
     assertTrue(new Script().evalPredicate("[1,2] == [1,2]"));
   }
 
