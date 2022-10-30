@@ -34,7 +34,7 @@ dottedIdent
 // TODO other assign operator e.g. +=, -= etc.
 // TODO arrays ([] literal)
 // TODO lambda
-// TODO script dependencies
+
 // TODO text blocks
 // TODO switch statement?
 // TODO multiple return values
@@ -42,7 +42,9 @@ dottedIdent
 // TODO try-catch
 // TODO add function value type (can be assigned to variables and passed in as function parameter...)
 // TODO map literal (use LinkedHashMap to preserve order)
+
 // TODO script launcher
+// TODO script dependencies
 
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
@@ -96,6 +98,8 @@ expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall
+// array literal
+  | '[' expr? ( ',' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
   | expr ( GT | LT | GE | LE ) expr

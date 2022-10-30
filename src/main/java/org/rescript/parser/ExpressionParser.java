@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
+import org.rescript.expression.ArrayLiteral;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.DottedIdentifier;
@@ -268,11 +269,24 @@ public class ExpressionParser {
     return (items.size() >= 3) && isTerminal(1, "instanceof") && isExpression(0) && isExpression(2);
   }
 
+  private boolean isArrayLiteral() {
+    return items.size() >= 2 && isTerminal(0, "[") && isTerminal(items.size()-1, "]");
+  }
+
+  private void arrayLiteral() {
+    stack.push(new ArrayLiteral(items.stream()
+        .filter(pi -> pi instanceof Expression)
+        .map(pi -> (Expression)pi)
+        .toList()));
+  }
+
   public void parse() {
     if(isDottedIdentifier()) {
       stack.push(dottedIdentifier());
     } else if(isInstanceOf()) {
       stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
+    } else if(isArrayLiteral()) {
+      arrayLiteral();
     } else if(isSingle()) {
    // only 1 item on the stack, we just push that back as there is nothing else to do
       if(isSingleExpression()) {
