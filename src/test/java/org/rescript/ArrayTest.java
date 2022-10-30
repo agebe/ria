@@ -3,6 +3,9 @@ package org.rescript;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +26,11 @@ public class ArrayTest {
   @Test
   public void intArray() {
     assertArrayEquals(new int[] { 42,43,44 }, (int[])new Script().run("[42,43,44]"));
+  }
+
+  public void intArrayEq() {
+    // this calls Arrays.equals(...) behind the scenes.
+    assertTrue(new Script().evalPredicate("[1,2] == [1,2]"));
   }
 
   @Test

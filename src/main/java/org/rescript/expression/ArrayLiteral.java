@@ -11,6 +11,10 @@ import java.util.Set;
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.ArrayValue;
+import org.rescript.value.BooleanArrayValue;
+import org.rescript.value.CharArrayValue;
+import org.rescript.value.DoubleArrayValue;
+import org.rescript.value.FloatArrayValue;
 import org.rescript.value.IntArrayValue;
 import org.rescript.value.LongArrayValue;
 import org.rescript.value.Value;
@@ -36,9 +40,17 @@ public class ArrayLiteral implements Expression {
         .toArray(Class<?>[]::new));
     log.debug("common super class '{}'", cls.getName());
     if(cls.equals(double.class)) {
-      throw new ScriptException("double array literal not implemented yet");
+      double[] arr = new double[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toDouble();
+      }
+      return new DoubleArrayValue(arr);
     } else if(cls.equals(float.class)) {
-      throw new ScriptException("float array literal not implemented yet");
+      float[] arr = new float[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toFloat();
+      }
+      return new FloatArrayValue(arr);
     } else if(cls.equals(int.class)) {
       int[] arr = new int[vals.size()];
       for(int i=0;i<vals.size();i++) {
@@ -56,9 +68,17 @@ public class ArrayLiteral implements Expression {
     } else if(cls.equals(short.class)) {
       throw new ScriptException("short array literal not implemented yet");
     } else if(cls.equals(char.class)) {
-      throw new ScriptException("char array literal not implemented yet");
+      char[] arr = new char[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toChar();
+      }
+      return new CharArrayValue(arr);
     } else if(cls.equals(boolean.class)) {
-      throw new ScriptException("boolean array literal not implemented yet");
+      boolean[] arr = new boolean[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toBoolean();
+      }
+      return new BooleanArrayValue(arr);
     } else {
       Object[] arr = (Object[])Array.newInstance(cls, vals.size());
       for(int i=0;i<vals.size();i++) {

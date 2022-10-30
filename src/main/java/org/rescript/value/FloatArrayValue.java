@@ -2,18 +2,18 @@ package org.rescript.value;
 
 import java.util.Arrays;
 
-public class LongArrayValue implements Value, Array {
+public class FloatArrayValue implements Value, Array {
 
-  private long[] array;
+  private float[] array;
 
-  public LongArrayValue(long[] array) {
+  public FloatArrayValue(float[] array) {
     super();
     this.array = array;
   }
 
   @Override
   public Class<?> type() {
-    return long[].class;
+    return float[].class;
   }
 
   @Override
@@ -28,16 +28,17 @@ public class LongArrayValue implements Value, Array {
 
   @Override
   public boolean equalsOp(Value other) {
-    return other instanceof LongArrayValue a?Arrays.equals(this.array, a.array):false;
+    return other instanceof FloatArrayValue a?Arrays.equals(this.array, a.array):false;
   }
 
   @Override
   public Value get(int index) {
-    return new LongValue(array[index]);
+    return new FloatValue(array[index]);
   }
 
   @Override
   public int length() {
     return array.length;
   }
+
 }

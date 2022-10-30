@@ -1,6 +1,6 @@
 package org.rescript.value;
 
-import org.rescript.ScriptException;
+import java.util.Arrays;
 
 public class ArrayValue implements Value, Array {
 
@@ -31,7 +31,7 @@ public class ArrayValue implements Value, Array {
 
   @Override
   public boolean equalsOp(Value other) {
-    throw new ScriptException("equals op not implemented");
+    return other instanceof ArrayValue a?Arrays.equals(this.array, a.array):false;
   }
 
   @Override
