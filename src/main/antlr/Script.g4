@@ -34,7 +34,6 @@ dottedIdent
 // TODO other assign operator e.g. +=, -= etc.
 // TODO arrays ([] literal)
 // TODO lambda
-
 // TODO text blocks
 // TODO switch statement?
 // TODO multiple return values
@@ -94,6 +93,8 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
   | ident DOT ident ( DOT ident )*
+// array access
+  | expr '[' expr ']'
   | expr DOT expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr

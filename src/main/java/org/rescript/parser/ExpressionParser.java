@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
+import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
@@ -280,6 +281,10 @@ public class ExpressionParser {
         .toList()));
   }
 
+  private boolean isArrayAccess() {
+    return isExpression(0) && isTerminal(1, "[") && isExpression(2) && isTerminal(3, "]");
+  }
+
   public void parse() {
     if(isDottedIdentifier()) {
       stack.push(dottedIdentifier());
@@ -344,6 +349,8 @@ public class ExpressionParser {
       }
     } else if(isTernaryOp()) {
       stack.push(new TernaryOp(exp(0), exp(2), exp(4)));
+    } else if(isArrayAccess()) {
+      stack.push(new ArrayAccessOp(exp(0), exp(2)));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
     }

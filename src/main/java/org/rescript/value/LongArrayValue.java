@@ -2,7 +2,7 @@ package org.rescript.value;
 
 import org.rescript.ScriptException;
 
-public class LongArrayValue implements Value {
+public class LongArrayValue implements Value, Array {
 
   private long[] array;
 
@@ -29,5 +29,10 @@ public class LongArrayValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     throw new ScriptException("equals op not implemented");
+  }
+
+  @Override
+  public Value get(int index) {
+    return new LongValue(array[index]);
   }
 }

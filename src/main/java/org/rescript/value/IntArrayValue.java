@@ -2,7 +2,7 @@ package org.rescript.value;
 
 import org.rescript.ScriptException;
 
-public class IntArrayValue implements Value {
+public class IntArrayValue implements Value, Array {
 
   private int[] array;
 
@@ -29,6 +29,11 @@ public class IntArrayValue implements Value {
   @Override
   public boolean equalsOp(Value other) {
     throw new ScriptException("equals op not implemented");
+  }
+
+  @Override
+  public Value get(int index) {
+    return new IntValue(array[index]);
   }
 
 }

@@ -2,6 +2,7 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -76,6 +77,31 @@ public class ArrayTest {
   @Test
   public void scriptFunctionCall() {
     assertEquals("[I", new Script().run("function f1(array){typeof array;} f1([1,2,3]);"));
+  }
+
+  @Test
+  public void arrayAccess() {
+    assertEquals(43, new Script().run("[42,43,44][1]"));
+  }
+
+  @Test
+  public void arrayAccess2() {
+    assertEquals("foo", new Script().run("[\"foo\",\"bar\"][0]"));
+  }
+
+  @Test
+  public void arrayAccessOutOfBounds() {
+    assertThrows(ScriptException.class, () -> new Script().run("[\"foo\",\"bar\"][2]"));
+  }
+
+  @Test
+  public void arrayAccessOutOfBounds2() {
+    assertThrows(ScriptException.class, () -> new Script().run("[\"foo\",\"bar\"][-1]"));
+  }
+
+  @Test
+  public void notArray() {
+    assertThrows(ScriptException.class, () -> new Script().run("1[0]"));
   }
 
 }
