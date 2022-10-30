@@ -63,4 +63,24 @@ public class MultiAssignTest {
     assertEquals(List.of(42,43), script.getVariable("d"));
   }
 
+  @Test
+  public void scriptFunction() {
+    Script script = new Script();
+    script.run("function f1() {[1,2];} var (a,b) = f1();");
+    assertEquals(1, script.getVariable("a"));
+    assertEquals(2, script.getVariable("b"));
+  }
+
+  public static int[] javaFunctionHelper() {
+    return new int[] {1, 2};
+  }
+
+  @Test
+  public void javaFunction() {
+    Script script = new Script();
+    script.run("var (a,b) = %s.javaFunctionHelper();".formatted(this.getClass().getName()));
+    assertEquals(1, script.getVariable("a"));
+    assertEquals(2, script.getVariable("b"));
+  }
+
 }

@@ -32,12 +32,11 @@ dottedIdent
 
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
-// TODO arrays ([] literal)
 // TODO lambda
 // TODO text blocks
 // TODO switch statement?
 // TODO multiple return values
-// TODO throw exceptions
+// TODO throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 // TODO try-catch
 // TODO add function value type (can be assigned to variables and passed in as function parameter...)
 // TODO map literal (use LinkedHashMap to preserve order)

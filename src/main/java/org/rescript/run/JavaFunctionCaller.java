@@ -10,12 +10,7 @@ import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.java.JavaMethodSymbol;
 import org.rescript.symbol.java.RUtils;
-import org.rescript.value.BooleanValue;
-import org.rescript.value.DoubleValue;
-import org.rescript.value.FloatValue;
-import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
-import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,31 +65,7 @@ public class JavaFunctionCaller {
             Arrays.toString(params));
         Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, params));
         Class<?> returnType = m.getReturnType();
-        if(returnType.equals(Void.class) || returnType.equals(void.class)) {
-          return VoidValue.VOID;
-        } else if(returnType.isPrimitive()) {
-          if(returnType.getName().equals("boolean")) {
-            return new BooleanValue(result);
-          } else if(returnType.getName().equals("double")) {
-            return new DoubleValue(result);
-          } else if(returnType.getName().equals("float")) {
-            return new FloatValue(result);
-          } else {
-            // TODO support all primitive types
-            System.out.println(returnType.isPrimitive());
-            System.out.println(returnType.getName());
-            throw new ScriptException("primitive return type '%s' not impl yet".formatted(returnType.getName()));
-          }
-        } else if(returnType.isArray()) {
-          // TODO
-          throw new ScriptException("array not impl yet");
-        } else {
-          if(result != null) {
-            return new ObjValue(result.getClass(), result);
-          } else {
-            return new ObjValue(returnType, null);
-          }
-        }
+        return Value.of(returnType, result);
       } catch(InvocationTargetException e) {
         throw new ScriptException("function '%s' exception".formatted(fname), e);
       } catch(IllegalAccessException e) {

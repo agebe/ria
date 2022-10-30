@@ -111,6 +111,26 @@ public interface Value {
       } else {
         throw new ScriptException("primitive type '%s' not implemented yet".formatted(cls));
       }
+    } else if(cls.isArray()) {
+      if(cls == boolean[].class) {
+        return new BooleanArrayValue((boolean[])val);
+      } else if(cls == double[].class) {
+        return new DoubleArrayValue((double[])val);
+      } else if(cls == float[].class) {
+        return new FloatArrayValue((float[])val);
+      } else if(cls == int[].class) {
+        return new IntArrayValue((int[])val);
+      } else if(cls == long[].class) {
+        return new LongArrayValue((long[])val);
+      } else if(cls == char[].class) {
+        return new CharArrayValue((char[])val);
+      } else if(cls == short[].class) {
+        throw new ScriptException("short array not supported");
+      } else if(cls == byte[].class) {
+        throw new ScriptException("byte array not supported");
+      } else {
+        return new ArrayValue((Object[])val, cls);
+      }
     } else {
       return new ObjValue(cls, val);
     }
