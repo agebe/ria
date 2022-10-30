@@ -71,16 +71,29 @@ public class MultiAssignTest {
     assertEquals(2, script.getVariable("b"));
   }
 
-  public static int[] javaFunctionHelper() {
+  public static int[] javaArrayHelper() {
     return new int[] {1, 2};
   }
 
+  public static List<Integer> javaListHelper() {
+    return List.of(1,2);
+  }
+
   @Test
-  public void javaFunction() {
+  public void javaArray() {
     Script script = new Script();
-    script.run("var (a,b) = %s.javaFunctionHelper();".formatted(this.getClass().getName()));
+    script.run("var (a,b) = %s.javaArrayHelper();".formatted(this.getClass().getName()));
     assertEquals(1, script.getVariable("a"));
     assertEquals(2, script.getVariable("b"));
+  }
+
+  @Test
+  public void javaList() {
+    Script script = new Script();
+    script.run("var (a,b,c) = %s.javaListHelper();".formatted(this.getClass().getName()));
+    assertEquals(1, script.getVariable("a"));
+    assertEquals(2, script.getVariable("b"));
+    assertEquals(List.of(1,2), script.getVariable("c"));
   }
 
 }
