@@ -35,7 +35,6 @@ dottedIdent
 // TODO lambda
 // TODO text blocks
 // TODO switch statement?
-// TODO multiple return values
 // TODO throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 // TODO try-catch
 // TODO add function value type (can be assigned to variables and passed in as function parameter...)
@@ -92,10 +91,9 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
   | ident DOT ident ( DOT ident )*
-// array access
-// TODO make this also work for lists
-  | expr '[' expr ']'
   | expr DOT expr
+// array/list access
+  | expr '[' expr ']'
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall

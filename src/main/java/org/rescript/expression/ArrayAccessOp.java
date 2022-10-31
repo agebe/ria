@@ -1,5 +1,7 @@
 package org.rescript.expression;
 
+import java.util.List;
+
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Array;
@@ -19,12 +21,18 @@ public class ArrayAccessOp implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Value array = arrayExpr.eval(ctx);
-    if(array instanceof Array arr) {
-      Value index = indexExpr.eval(ctx);
-      return arr.get(index.toInt());
+    Value v = arrayExpr.eval(ctx);
+    Value index = indexExpr.eval(ctx);
+    int i = index.toInt();
+    if(v instanceof Array arr) {
+      return arr.get(i);
     } else {
-      throw new ScriptException("array expected from expression but got '%s'".formatted(array.type()));
+      Object o = v.val();
+      if(o instanceof List<?> l) {
+        return Value.of(l.get(i));
+      } else {
+        throw new ScriptException("array or list expected from expression but got '%s'".formatted(v.type()));
+      }
     }
   }
 
