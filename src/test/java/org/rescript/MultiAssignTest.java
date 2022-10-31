@@ -37,9 +37,19 @@ public class MultiAssignTest {
   }
 
   @Test
-  public void toMany() {
+  public void toManyList() {
     Script script = new Script();
     script.run("var (a,b,c,d) = [42,43];");
+    assertEquals(42, script.getVariable("a"));
+    assertEquals(43, script.getVariable("b"));
+    assertEquals(List.of(42,43), script.getVariable("c"));
+    assertEquals(List.of(42,43), script.getVariable("d"));
+  }
+
+  @Test
+  public void toManyArray() {
+    Script script = new Script();
+    script.run("var (a,b,c,d) = arrayof [42,43];");
     assertEquals(42, script.getVariable("a"));
     assertEquals(43, script.getVariable("b"));
     assertArrayEquals(new int[] {42,43}, (int[])script.getVariable("c"));
@@ -47,9 +57,16 @@ public class MultiAssignTest {
   }
 
   @Test
-  public void toFew() {
+  public void toFewList() {
     Script script = new Script();
     script.run("var a,b; (a) = [42,43];");
+    assertEquals(42, script.getVariable("a"));
+  }
+
+  @Test
+  public void toFewArray() {
+    Script script = new Script();
+    script.run("var a,b; (a) = arrayof [42,43];");
     assertEquals(42, script.getVariable("a"));
   }
 

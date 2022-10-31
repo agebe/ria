@@ -44,11 +44,29 @@ public class ForEachTest {
   }
 
   @Test
-  public void breakContinueOverArray() {
+  public void breakContinueOverListLiteral() {
     Script s = new Script();
     s.setVariable("l", new ArrayList<Integer>());
     s.run("""
         for(var i : [1,2,3,4,5,6,7,8,9]) {
+          if(i == 2) {
+            continue;
+          } else if(i > 4) {
+            break;
+          } else {
+            l.add(i);
+          }
+        }
+        """);
+    assertEquals(List.of(1,3,4), s.getVariable("l"));
+  }
+
+  @Test
+  public void breakContinueOverArray() {
+    Script s = new Script();
+    s.setVariable("l", new ArrayList<Integer>());
+    s.run("""
+        for(var i : arrayof [1,2,3,4,5,6,7,8,9]) {
           if(i == 2) {
             continue;
           } else if(i > 4) {

@@ -97,9 +97,10 @@ expr
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | ccall
-// array literal, or should this rather be a list literal???
-// array literal could be arrayof [...]
+// list literal
   | '[' expr? ( ',' expr )* ']'
+// array literal, type of array is common super-type
+  | 'arrayof' '[' expr? ( ',' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
   | expr ( GT | LT | GE | LE ) expr

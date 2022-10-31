@@ -21,6 +21,7 @@ import org.rescript.expression.GtOp;
 import org.rescript.expression.Identifier;
 import org.rescript.expression.InstanceOfOp;
 import org.rescript.expression.LeOp;
+import org.rescript.expression.ListLiteral;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
 import org.rescript.expression.LtOp;
@@ -270,15 +271,31 @@ public class ExpressionParser {
     return (items.size() >= 3) && isTerminal(1, "instanceof") && isExpression(0) && isExpression(2);
   }
 
-  private boolean isArrayLiteral() {
-    return items.size() >= 2 && isTerminal(0, "[") && isTerminal(items.size()-1, "]");
+  private boolean isListLiteral() {
+    return items.size() >= 2 &&
+        isTerminal(0, "[") &&
+        isTerminal(items.size()-1, "]");
   }
 
-  private void arrayLiteral() {
-    stack.push(new ArrayLiteral(items.stream()
+  private ListLiteral listLiteral() {
+    return new ListLiteral(items.stream()
         .filter(pi -> pi instanceof Expression)
         .map(pi -> (Expression)pi)
-        .toList()));
+        .toList());
+  }
+
+  private boolean isArrayLiteral() {
+    return items.size() >= 3 &&
+        isTerminal(0, "arrayof") &&
+        isTerminal(1, "[") &&
+        isTerminal(items.size()-1, "]");
+  }
+
+  private ArrayLiteral arrayLiteral() {
+    return new ArrayLiteral(items.stream()
+        .filter(pi -> pi instanceof Expression)
+        .map(pi -> (Expression)pi)
+        .toList());
   }
 
   private boolean isArrayAccess() {
@@ -290,8 +307,10 @@ public class ExpressionParser {
       stack.push(dottedIdentifier());
     } else if(isInstanceOf()) {
       stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
+    } else if(isListLiteral()) {
+      stack.push(listLiteral());
     } else if(isArrayLiteral()) {
-      arrayLiteral();
+      stack.push(arrayLiteral());
     } else if(isSingle()) {
    // only 1 item on the stack, we just push that back as there is nothing else to do
       if(isSingleExpression()) {
