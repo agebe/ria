@@ -61,6 +61,7 @@ import org.rescript.expression.Assignment;
 import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.CharLiteral;
+import org.rescript.expression.DottedIdentifier;
 import org.rescript.expression.Expression;
 import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;

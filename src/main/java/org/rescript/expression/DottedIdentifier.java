@@ -17,9 +17,13 @@ public class DottedIdentifier implements Expression {
     return ctx.getSymbols().resolveVarOrTypeOrStaticMember(identifier);
   }
 
+  public String getIdent() {
+    return identifier;
+  }
+
   @Override
   public String getText() {
-    return identifier;
+    return getIdent();
   }
 
   @Override

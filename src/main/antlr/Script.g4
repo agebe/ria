@@ -27,7 +27,7 @@ functionAlias
   ;
 
 dottedIdent
-  : Identifier ( '.' Identifier )*
+  : Identifier ( '.' Identifier )+
   ;
 
 // TODO bit operators?
@@ -90,7 +90,7 @@ expr
 // do operators first, order by precedence
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
-  | ident DOT ident ( DOT ident )*
+  | dottedIdent
   | expr DOT expr
 // array/list access
   | expr '[' expr ']'

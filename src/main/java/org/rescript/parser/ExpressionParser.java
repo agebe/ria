@@ -3,7 +3,6 @@ package org.rescript.parser;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
@@ -13,7 +12,6 @@ import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
-import org.rescript.expression.DottedIdentifier;
 import org.rescript.expression.EqualityOp;
 import org.rescript.expression.Expression;
 import org.rescript.expression.GeOp;
@@ -111,7 +109,7 @@ public class ExpressionParser {
   }
 
   private boolean isSingleExpression() {
-    return (items.size() == 1) && items.get(0) instanceof Expression;
+    return (items.size() == 1) && (items.get(0) instanceof Expression);
   }
 
   private boolean isParens() {
@@ -236,33 +234,6 @@ public class ExpressionParser {
     }
   }
 
-  private boolean isDottedIdentifier() {
-    if(items.size() < 3) {
-      return false;
-    }
-    for(int i=0;i<items.size();i++) {
-      if((i % 2) == 0) {
-        if(!(items.get(i) instanceof Identifier)) {
-          return false;
-        }
-      } else {
-        // odd needs to be a dot terminal
-        if(!isTerminal(i, ".")) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  private DottedIdentifier dottedIdentifier() {
-    return new DottedIdentifier(
-        items
-        .stream()
-        .map(ParseItem::getText)
-        .collect(Collectors.joining()));
-  }
-
   private boolean isTypeOf() {
     return isTerminal(0, "typeof") && isExpression(1);
   }
@@ -303,9 +274,7 @@ public class ExpressionParser {
   }
 
   public void parse() {
-    if(isDottedIdentifier()) {
-      stack.push(dottedIdentifier());
-    } else if(isInstanceOf()) {
+    if(isInstanceOf()) {
       stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
     } else if(isListLiteral()) {
       stack.push(listLiteral());
@@ -316,7 +285,7 @@ public class ExpressionParser {
       if(isSingleExpression()) {
         stack.push(getExpression(0));
       } else {
-        fail("expected expression but got '%s'".formatted(items));
+        fail("expected single expression but got '%s'".formatted(items));
       }
     } else if(isDouble()) {
       if(isTerminal(0)) {
