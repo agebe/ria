@@ -10,6 +10,7 @@ public class ScriptRunner {
   public ScriptRunner(SymbolTable symbols) {
     super();
     ctx = new ScriptContext(symbols);
+    symbols.getScriptSymbols().setCtx(ctx);
   }
 
   public Value run() {

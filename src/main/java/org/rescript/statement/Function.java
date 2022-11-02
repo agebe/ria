@@ -45,13 +45,14 @@ public class Function implements Statement {
       if(parent != null) {
         ctx.getSymbols().getScriptSymbols().enterScope();
       }
+      log.debug("execute function '{}'", name);
       ListIterator<String> listIterator = parameterNames.listIterator(parameterNames.size());
       while (listIterator.hasPrevious()) {
         String paramName = listIterator.previous();
         Value val = ctx.getStack().pop();
+        log.debug("define local variable '{}' with value '{}'", paramName, val);
         ctx.getSymbols().getScriptSymbols().defineVar(paramName, val);
       }
-      log.debug("execute function '{}'", name);
       statements.execute(ctx);
     } finally {
       ctx.getStack().push(ctx.getLastResult());
@@ -107,11 +108,16 @@ public class Function implements Statement {
     this.parent = parent;
   }
 
-  public boolean matches(FunctionCall call) {
-    if(!StringUtils.equals(call.getName().getName(), name)) {
-      return false;
-    }
+  public boolean matchesName(String name) {
+    return StringUtils.equals(name, this.name);
+  }
+
+  public boolean matchesParameters(FunctionCall call) {
     return call.getParameters().size() == this.parameterNames.size();
+  }
+
+  public boolean matches(FunctionCall call) {
+    return matchesName(call.getName().getName()) && matchesParameters(call);
   }
 
   public static Function main() {

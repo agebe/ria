@@ -103,4 +103,29 @@ public abstract class EvaluatedFromValue implements Value {
     return getWrapped().unbox();
   }
 
+  @Override
+  public boolean isChar() {
+    return getWrapped().isChar();
+  }
+
+  @Override
+  public boolean isFunction() {
+    return getWrapped().isFunction();
+  }
+
+  @Override
+  public char toChar() {
+    return getWrapped().toChar();
+  }
+
+  @Override
+  public Value inc() {
+    return getWrapped().inc();
+  }
+
+  @Override
+  public Value dec() {
+    return getWrapped().dec();
+  }
+
 }

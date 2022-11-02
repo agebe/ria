@@ -48,6 +48,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isFunction() {
+    return false;
+  }
+
   boolean isPrimitive();
 
   boolean equalsOp(Value other);

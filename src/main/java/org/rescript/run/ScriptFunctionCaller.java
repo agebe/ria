@@ -6,13 +6,11 @@ import org.rescript.ScriptException;
 import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.statement.Function;
+import org.rescript.symbol.SymbolNotFoundException;
+import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ScriptFunctionCaller {
-
-  private static final Logger log = LoggerFactory.getLogger(ScriptFunctionCaller.class);
 
   private ScriptContext ctx;
 
@@ -50,44 +48,33 @@ public class ScriptFunctionCaller {
   }
 
   private Function findFunction(FunctionCall call) {
-    log.debug("find function '%s'".formatted(call));
-    Function current = ctx.currentFunction();
-    log.debug("check current");
-    if(current.matches(call)) {
-      // recursive call
-      log.debug("is current");
-      return current;
+    Function function = findFunctionVariable(call);
+    if(function != null) {
+      return function;
     }
-    log.debug("check nested");
-    Function nested = current.getNestedFunctions()
+    return ctx.getSymbols().getScriptSymbols().findFunctions(call.getName().getName())
         .stream()
         .filter(f -> f.matches(call))
         .findFirst()
         .orElse(null);
-    if(nested != null) {
-      log.debug("is nested");
-      return nested;
-    }
-    log.debug("check parent");
-    Function parent = current.getParent();
-    if(parent != null) {
-      if(parent.matches(call)) {
-        log.debug("is parent");
-        return parent;
-      } else {
-        log.debug("check sibling");
-        Function sibling = parent.getNestedFunctions()
-            .stream()
-            .filter(f -> f.matches(call))
-            .findFirst()
-            .orElse(null);
-        if(sibling != null) {
-          return sibling;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Function findFunctionVariable(FunctionCall call) {
+    try {
+      VarSymbol var = ctx.getSymbols().getScriptSymbols().resolveVar(call.getName().getName());
+      if(var != null) {
+        Value v = var.getVal();
+        if(v.isFunction()) {
+          return ((List<Function>)v.val())
+              .stream()
+              .filter(f -> f.matchesParameters(call))
+              .findFirst()
+              .orElse(null);
         }
       }
+    } catch(SymbolNotFoundException e) {
     }
-    // TODO should we go up the tree all the way to the root to find the method?
-    log.debug("script function not found");
     return null;
   }
 

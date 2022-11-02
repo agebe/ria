@@ -2,9 +2,11 @@ package org.rescript.symbol;
 
 import java.util.List;
 
+import org.rescript.statement.Function;
 import org.rescript.symbol.java.JavaSymbols;
 import org.rescript.symbol.java.RUtils;
 import org.rescript.symbol.script.ScriptSymbols;
+import org.rescript.value.FunctionValue;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
 
@@ -38,6 +40,10 @@ public class SymbolTable {
     VarSymbol var = scriptSymbols.resolveVar(s0);
     if(var != null) {
       return valOrException(ident, javaSymbols.resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(var)));
+    }
+    List<Function> functions = scriptSymbols.findFunctions(ident);
+    if(!functions.isEmpty()) {
+      return new FunctionValue(functions);
     }
     return valOrException(ident, javaSymbols.resolveTypeOrStaticMember(ident));
   }

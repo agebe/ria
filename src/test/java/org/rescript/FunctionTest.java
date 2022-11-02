@@ -177,4 +177,30 @@ public class FunctionTest {
         """);
   }
 
+  @Test
+  public void assignToVarExecute() {
+    Object result = new Script().run("""
+        function f1() {
+          println("f1");
+        }
+        function f1(msg) {
+          println(msg);
+          return msg;
+        }
+        function f2(f) {
+          f("foo");
+        }
+        var a = f1;
+        var b = f1;
+        org.junit.jupiter.api.Assertions.assertTrue(a == b);
+        org.junit.jupiter.api.Assertions.assertTrue(a == f1);
+        org.junit.jupiter.api.Assertions.assertFalse(a == f2);
+        println(typeof a);
+        a();
+        a("test");
+        f2(a);
+        """);
+    assertEquals("foo", result);
+  }
+
 }
