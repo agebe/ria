@@ -37,8 +37,17 @@ public class SymbolTable {
     String s0 = split.get(0);
     VarSymbol var = scriptSymbols.resolveVar(s0);
     if(var != null) {
-      return javaSymbols.resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(var));
+      return valOrException(ident, javaSymbols.resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(var)));
     }
-    return javaSymbols.resolveTypeOrStaticMember(ident);
+    return valOrException(ident, javaSymbols.resolveTypeOrStaticMember(ident));
   }
+
+  private Value valOrException(String ident, Value v) {
+    if(v != null) {
+      return v;
+    } else {
+      throw new SymbolNotFoundException("'%s' could not be resolved".formatted(ident));
+    }
+  }
+
 }

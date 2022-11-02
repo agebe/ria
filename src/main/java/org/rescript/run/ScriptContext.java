@@ -47,6 +47,9 @@ public class ScriptContext {
   }
 
   public void setLastResult(Value lastResult) {
+    if(lastResult == null) {
+      throw new ScriptException("last result can not be null");
+    }
     this.lastResult = lastResult;
   }
 

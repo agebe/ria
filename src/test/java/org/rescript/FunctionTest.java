@@ -170,4 +170,11 @@ public class FunctionTest {
         """));
   }
 
+  @Test
+  public void assignToVar() {
+    new Script().run("""
+        function f1() {} var a = f1;
+        """);
+  }
+
 }

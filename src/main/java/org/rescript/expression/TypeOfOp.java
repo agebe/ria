@@ -1,6 +1,7 @@
 package org.rescript.expression;
 
 import org.rescript.run.ScriptContext;
+import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
 
@@ -15,8 +16,12 @@ public class TypeOfOp implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Value val = expr.eval(ctx);
-    return new ObjValue(String.class, val!=null?val.type().getName():"undefined");
+    try {
+      Value val = expr.eval(ctx);
+      return new ObjValue(String.class, val!=null?val.type().getName():"undefined");
+    } catch(SymbolNotFoundException e) {
+      return new ObjValue(String.class, "undefined");
+    }
   }
 
 }
