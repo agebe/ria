@@ -20,6 +20,11 @@ public class FunctionValue implements Value {
   }
 
   @Override
+  public String typeOf() {
+    return "function";
+  }
+
+  @Override
   public Object val() {
     return functions;
   }

@@ -14,6 +14,11 @@ public abstract class EvaluatedFromValue implements Value {
   }
 
   @Override
+  public String typeOf() {
+    return getWrapped().typeOf();
+  }
+
+  @Override
   public Object val() {
     return getWrapped().val();
   }

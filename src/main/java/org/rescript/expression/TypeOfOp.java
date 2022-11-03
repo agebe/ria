@@ -18,7 +18,7 @@ public class TypeOfOp implements Expression {
   public Value eval(ScriptContext ctx) {
     try {
       Value val = expr.eval(ctx);
-      return new ObjValue(String.class, val!=null?val.type().getName():"undefined");
+      return new ObjValue(String.class, val!=null?val.typeOf():"undefined");
     } catch(SymbolNotFoundException e) {
       return new ObjValue(String.class, "undefined");
     }

@@ -96,6 +96,10 @@ public interface Value {
     throw new ScriptException("decrement not supported");
   }
 
+  default String typeOf() {
+    return type().getName();
+  }
+
   static Value of(Class<?> cls, Object val) {
     if(Void.class.equals(cls) || (cls == void.class)) {
       return VoidValue.VOID;

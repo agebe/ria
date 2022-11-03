@@ -195,10 +195,10 @@ public class FunctionTest {
         org.junit.jupiter.api.Assertions.assertTrue(a == b);
         org.junit.jupiter.api.Assertions.assertTrue(a == f1);
         org.junit.jupiter.api.Assertions.assertFalse(a == f2);
-        println(typeof a);
         a();
         a("test");
-        f2(a);
+        println(typeof a);
+        var result = f2(a);
         """);
     assertEquals("foo", result);
   }
