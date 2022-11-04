@@ -84,7 +84,7 @@ forEachStmt : FOR LPAREN 'var'? ident COLON expr RPAREN stmt;
 breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
-functionDefinition: 'function' fcall block;
+functionDefinition: 'function' fname fDefParams block;
 
 expr
 // do operators first, order by precedence

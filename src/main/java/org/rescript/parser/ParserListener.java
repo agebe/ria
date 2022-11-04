@@ -805,15 +805,14 @@ public class ParserListener implements ScriptListener {
   public void exitFunctionDefinition(FunctionDefinitionContext ctx) {
     log.debug("exitFunctionDefinition '{}'", ctx.getText());
     BlockStatement block = (BlockStatement)stack.pop();
-    // reusing function call for function definition to not have to write extra grammar for this
-    // but only allow identifiers as parameters
-    FunctionCall call = (FunctionCall)stack.pop();
+    FunctionParameterIdentifiers params = (FunctionParameterIdentifiers)stack.pop();
+    FunctionName name = (FunctionName)stack.pop();
     popTerminal("function");
     Function function = (Function)stack.peek();
-    function.setName(call.getName().getName());
-    function.setParameterNames(call.getParameters()
+    function.setName(name.getName());
+    function.setParameterNames(params.getIdentifiers()
         .stream()
-        .map(pn -> ((Identifier)pn.getParameter()).getIdent())
+        .map(ident -> ident.getIdent())
         .toList());
     function.setStatements(block);
   }
@@ -943,7 +942,10 @@ public class ParserListener implements ScriptListener {
     log.debug(" '{}'", ctx.getText());
     // push a function so nested function (inside the lambda are added to the lambda)
     stack.push(new Function());
-    // push a block so a statement is added to the lambda function body
+    // push a block as statements are automatically added to outer blocks (and not left on the stack)
+    // if the lambda defines a block body it is nested inside this block but does it matter?
+    // function definitions do not need this because the block is mandated through the grammar.
+    // for lambdas any statement or expression is fine as lambda body
     stack.push(new BlockStatement());
   }
 
@@ -954,7 +956,8 @@ public class ParserListener implements ScriptListener {
     if(nextItemIsExpression()) {
       expr = popExpression();
     }
-    // if the lambda body was a statement (including a block) is was already added to the block pused in enterLambda
+    // if the lambda body was a statement (including a block)
+    // it was already added to the block pushed in enterLambda
     popTerminal("->");
     FunctionParameterIdentifiers params = null;
     if(nextItemIsIdentifier()) {
@@ -979,7 +982,7 @@ public class ParserListener implements ScriptListener {
         .toList());
     lambda.setParent(findMostRecentFunction());
     lambda.setName("lambda");
-    // leave the lambda function on the stack so it can be used as an expression
+    // put the lambda function back on the stack so it can be used as an expression
     stack.push(lambda);
   }
 
