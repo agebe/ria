@@ -14,7 +14,7 @@ public class ScriptRunner {
   }
 
   public Value run() {
-    ctx.getSymbols().getScriptSymbols().getMain().execute(ctx);
+    ctx.getSymbols().getScriptSymbols().getMain().executeFunction(ctx);
     return ctx.getLastResult();
   }
 

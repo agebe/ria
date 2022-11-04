@@ -40,6 +40,11 @@ public class Function implements Statement, Expression {
 
   @Override
   public void execute(ScriptContext ctx) {
+    // functions can only be executed via function call.
+    // if we do encounter function definitions in the program flow just ignore and move on...
+  }
+
+  public void executeFunction(ScriptContext ctx) {
     try {
       ctx.enterFunction(this);
       ctx.setLastResult(VoidValue.VOID);

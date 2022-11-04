@@ -23,7 +23,7 @@ public class ScriptFunctionCaller {
     Function function = findFunction(call);
     if(function != null) {
       pushParamsToStack(call.getParameters());
-      function.execute(ctx);
+      function.executeFunction(ctx);
       return ctx.getStack().pop();
     } else {
       throw new ScriptException("function not found '{}'".formatted(call.getName()));
