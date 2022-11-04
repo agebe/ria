@@ -6,14 +6,16 @@ import java.util.ListIterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.expression.Expression;
 import org.rescript.expression.FunctionCall;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.FunctionValue;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Function implements Statement {
+public class Function implements Statement, Expression {
   
   private static final Logger log = LoggerFactory.getLogger(Function.class);
 
@@ -29,6 +31,11 @@ public class Function implements Statement {
 
   public Function() {
     super();
+  }
+
+  @Override
+  public Value eval(ScriptContext ctx) {
+    return new FunctionValue(List.of(this));
   }
 
   @Override

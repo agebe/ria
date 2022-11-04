@@ -29,6 +29,7 @@ import org.rescript.antlr.ScriptParser.DottedIdentContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.ExprStmtContext;
+import org.rescript.antlr.ScriptParser.FDefParamsContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
@@ -48,6 +49,7 @@ import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
+import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
@@ -356,7 +358,15 @@ public class ParserListener implements ScriptListener {
 
   private boolean nextItemIs(Class<?> cls) {
     ParseItem p = stack.peek();
-    return p!=null?cls.equals(p.getClass()):false;
+    return p!=null?cls.isAssignableFrom(p.getClass()):false;
+  }
+
+  private boolean nextItemIsExpression() {
+    return nextItemIs(Expression.class);
+  }
+
+  private boolean nextItemIsIdentifier() {
+    return nextItemIs(Identifier.class);
   }
 
   private Expression popExpression() {
@@ -926,6 +936,82 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitAssign(AssignContext ctx) {
     log.debug("exitAssign '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterLambda(LambdaContext ctx) {
+    log.debug(" '{}'", ctx.getText());
+    // push a function so nested function (inside the lambda are added to the lambda)
+    stack.push(new Function());
+    // push a block so a statement is added to the lambda function body
+    stack.push(new BlockStatement());
+  }
+
+  @Override
+  public void exitLambda(LambdaContext ctx) {
+    log.debug(" '{}'", ctx.getText());
+    Expression expr = null;
+    if(nextItemIsExpression()) {
+      expr = popExpression();
+    }
+    // if the lambda body was a statement (including a block) is was already added to the block pused in enterLambda
+    popTerminal("->");
+    FunctionParameterIdentifiers params = null;
+    if(nextItemIsIdentifier()) {
+      Identifier ident = popIdentifier();
+      params = new FunctionParameterIdentifiers(List.of(ident));
+    } else if(nextItemIs(FunctionParameterIdentifiers.class)) {
+      params = (FunctionParameterIdentifiers)stack.pop();
+    } else {
+      fail("expected single identifier or function parameter definition but next stack item is '%s'"
+          .formatted(stack.peek()));
+    }
+    BlockStatement block = (BlockStatement)stack.pop();
+    if(expr != null) {
+      block.addStatement(new ExpressionStatement(expr));
+    }
+    // pop the lambda of the stack first so findMostRecentFunction finds the parent function
+    Function lambda = (Function)stack.pop();
+    lambda.setStatements(block);
+    lambda.setParameterNames(params.getIdentifiers()
+        .stream()
+        .map(Identifier::getIdent)
+        .toList());
+    lambda.setParent(findMostRecentFunction());
+    lambda.setName("lambda");
+    // leave the lambda function on the stack so it can be used as an expression
+    stack.push(lambda);
+  }
+
+  @Override
+  public void enterFDefParams(FDefParamsContext ctx) {
+    log.debug(" '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitFDefParams(FDefParamsContext ctx) {
+    log.debug(" '{}'", ctx.getText());
+    log.debug("exit fparams '{}'", ctx.getText());
+    List<Identifier> l = new ArrayList<>();
+    popTerminal(")");
+    for(;;) {
+      ParseItem pi = stack.pop();
+      if(pi instanceof Terminal term) {
+        String t = term.getText();
+        if("(".equals(t)) {
+          break;
+        }
+        if(!",".equals(t)) {
+          throw new ScriptException("unexpected terminal '%s' in parameter list, %s".formatted(t, ctx.getText()));
+        }
+      } else if(pi instanceof Identifier ident) {
+        l.add(ident);
+      } else {
+        throw new ScriptException("unexpected stack item '%s' in parameter list, %s".formatted(pi, ctx.getText()));
+      }
+    }
+    Collections.reverse(l);
+    stack.push(new FunctionParameterIdentifiers(l));
   }
 
 }

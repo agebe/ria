@@ -203,4 +203,17 @@ public class FunctionTest {
     assertEquals("foo", result);
   }
 
+  @Test
+  public void findFunctions() {
+    new Script().run("""
+        function f1() {
+          f2("foo");
+        }
+        function f2(s) {
+          println(s);
+        }
+        f1();
+        """);
+  }
+
 }

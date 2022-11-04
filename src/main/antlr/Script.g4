@@ -32,13 +32,13 @@ dottedIdent
 
 // TODO bit operators?
 // TODO other assign operator e.g. +=, -= etc.
-// TODO lambda
 // TODO text blocks
 // TODO switch statement?
 // TODO throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 // TODO try-catch
 // TODO add function value type (can be assigned to variables and passed in as function parameter...)
 // TODO map literal (use LinkedHashMap to preserve order)
+// TODO threads
 
 // TODO script launcher
 // TODO script dependencies
@@ -113,9 +113,18 @@ expr
   | expr '?' expr ':' expr
   | assign
 // other expressions below
+  | lambda
   | fcall
   | literal
   | ident
+  ;
+
+lambda
+  :  ( fDefParams | ident ) '->' ( stmt | expr )
+  ;
+
+fDefParams
+  : LPAREN ident? (COMMA ident)* RPAREN
   ;
 
 ccall : NEW cname fparams;
