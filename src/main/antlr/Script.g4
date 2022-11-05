@@ -30,20 +30,6 @@ dottedIdent
   : Identifier ( '.' Identifier )+
   ;
 
-// TODO bit operators?
-// TODO other assign operator e.g. +=, -= etc.
-// TODO text blocks
-// TODO switch statement?
-// TODO throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
-// TODO try-catch
-// TODO add function value type (can be assigned to variables and passed in as function parameter...)
-// TODO map literal (use LinkedHashMap to preserve order)
-// TODO threads
-
-// TODO script launcher
-// TODO script dependencies
-
-
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
 // https://docs.oracle.com/javase/tutorial/java/nutsandbolts/expressions.html
 // https://github.com/antlr/grammars-v4

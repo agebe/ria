@@ -1,0 +1,14 @@
+* bit operators?
+* other assign operator e.g. +=, -= etc.
+* text blocks
+* switch statement?
+* byte, short primitive type support?
+* throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
+* try-catch (with resources?)
+* map literal (use LinkedHashMap to preserve order)
+* multi thread support?
+* apache license on all files
+* java method reference
+* get rid of function alias and replace println alias with global variable println = System.out::println
+* script launcher
+* script dependencies
