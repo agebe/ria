@@ -133,4 +133,9 @@ public abstract class EvaluatedFromValue implements Value {
     return getWrapped().dec();
   }
 
+  @Override
+  public FunctionValue toFunctionValue() {
+    return getWrapped().toFunctionValue();
+  }
+
 }

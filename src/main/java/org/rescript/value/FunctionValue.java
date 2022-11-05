@@ -54,4 +54,9 @@ public class FunctionValue implements Value {
     return true;
   }
 
+  @Override
+  public FunctionValue toFunctionValue() {
+    return this;
+  }
+
 }

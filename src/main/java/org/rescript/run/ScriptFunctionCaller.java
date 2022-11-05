@@ -8,6 +8,7 @@ import org.rescript.parser.FunctionParameter;
 import org.rescript.statement.Function;
 import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.symbol.VarSymbol;
+import org.rescript.value.FunctionValue;
 import org.rescript.value.Value;
 
 public class ScriptFunctionCaller {
@@ -28,6 +29,16 @@ public class ScriptFunctionCaller {
     } else {
       throw new ScriptException("function not found '{}'".formatted(call.getName()));
     }
+  }
+
+  public Value call(FunctionValue val, Object[] args) {
+    // TODO find function if there are multiple
+    Function function = val.getFunctions().get(0);
+    for(Object o : args) {
+      ctx.getStack().push(Value.of(o));
+    }
+    function.executeFunction(ctx);
+    return ctx.getStack().pop();
   }
 
   private void pushParamsToStack(List<FunctionParameter> parameters) {

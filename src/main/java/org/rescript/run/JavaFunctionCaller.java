@@ -63,7 +63,7 @@ public class JavaFunctionCaller {
             m.getName(),
             Arrays.toString(paramTypes),
             Arrays.toString(params));
-        Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, params));
+        Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, parameters, ctx));
         Class<?> returnType = m.getReturnType();
         return Value.of(returnType, result);
       } catch(InvocationTargetException e) {

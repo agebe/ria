@@ -5,6 +5,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -14,6 +15,10 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.run.ScriptContext;
+import org.rescript.run.ScriptLambdaInvocationHandler;
+import org.rescript.statement.Function;
+import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +113,21 @@ public class RUtils {
         .findFirst();
   }
 
+  private static boolean isFunctionalInterface(Class<?> cls) {
+    if(!cls.isInterface()) {
+      return false;
+    }
+    Method methods[] = cls.getMethods();
+    return Arrays.stream(methods)
+        .filter(m -> !(m.isDefault() || Modifier.isStatic(m.getModifiers())))
+        .count() == 1;
+  }
+
+  private static boolean matchLambda(Class<?> expected, Class<?> supplied) {
+    // TODO check that number of functional interface parameters match supplied function parameter size
+    return Function.class.isAssignableFrom(supplied) && isFunctionalInterface(expected);
+  }
+
   public static boolean matchSignatureExactly(Class<?>[] params, Executable executable) {
     if(executable.getParameterTypes().length != params.length) {
       return false;
@@ -115,6 +135,9 @@ public class RUtils {
     for(int i=0;i<params.length;i++) {
       Class<?> ep = executable.getParameterTypes()[i];
       Class<?> pt = params[i];
+      if(matchLambda(ep, pt)) {
+        continue;
+      }
       if(!Objects.equals(ep, pt)) {
         log.debug("match parameters exactly failed '{}', method parameter type '{}', supplied types '{}'",
             executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
@@ -197,6 +220,11 @@ public class RUtils {
     if(target.isAssignableFrom(from)) {
       return true;
     }
+    // added this to get the LambdaTest.asJavaLambda() going
+    // requires better fix!
+    if(target.equals(int.class) && from.equals(Integer.class)) {
+      return true;
+    }
     // FIXME all of the following are false but should be ok for function calling
 //    System.out.println(Object.class.isAssignableFrom(int.class));
 //    System.out.println(Integer.class.isAssignableFrom(int.class));
@@ -210,23 +238,37 @@ public class RUtils {
     return false;
   }
 
-  public static Object[] prepareParamsForInvoke(Executable executable, Object[] params) {
+  public static Object[] prepareParamsForInvoke(Executable executable, Value[] params, ScriptContext ctx) {
     if(executable.isVarArgs()) {
       Class<?>[] types = executable.getParameterTypes();
       Class<?> va = types[types.length-1];
       Class<?> ct = va.getComponentType();
       Object array = Array.newInstance(ct, params.length - (types.length - 1));
       for(int pi=0,i=(types.length-1);i<params.length;i++,pi++) {
-        Array.set(array, pi, params[i]);
+        Array.set(array, pi, params[i].val());
       }
       Object[] newParams = new Object[types.length];
       for(int i=0;i<types.length-1;i++) {
-        newParams[i] = params[i];
+        newParams[i] = params[i].val();
       }
       newParams[newParams.length-1] = array;
       return newParams;
     } else {
-      return params;
+      Class<?>[] types = executable.getParameterTypes();
+      Object[] preparedParams = new Object[params.length];
+      for(int i=0;i<types.length;i++) {
+        Class<?> expected = types[i];
+        Value supplied = params[i];
+        if(isFunctionalInterface(expected) && supplied.isFunction()) {
+          preparedParams[i] = Proxy.newProxyInstance(
+              RUtils.class.getClassLoader(),
+              new Class[] {expected},
+              new ScriptLambdaInvocationHandler(supplied.toFunctionValue(), ctx));
+        } else {
+          preparedParams[i] = params[i].val();
+        }
+      }
+      return preparedParams;
     }
   }
 

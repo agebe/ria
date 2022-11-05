@@ -84,6 +84,10 @@ public interface Value {
     throw new ScriptException("can't cast '%s' to char".formatted(this.getClass()));
   }
 
+  default FunctionValue toFunctionValue() {
+    throw new ScriptException("can't cast '%s' to function value".formatted(this.getClass()));
+  }
+
   default Value unbox() {
     return this;
   }

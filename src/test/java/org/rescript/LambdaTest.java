@@ -1,5 +1,6 @@
 package org.rescript;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -97,6 +98,17 @@ public class LambdaTest {
     new Script().run("""
         (a,b) -> a+b;
         """);
+  }
+
+  @Test
+  public void asJavaLambda() {
+    assertArrayEquals(new int[] {0, 1, 2}, (int[])new Script().run("""
+        var foo = 2;
+        java.util.List.of(42,2,99).stream()
+          .filter(i -> i.equals(foo))
+          .flatMapToInt(i -> java.util.stream.IntStream.rangeClosed(0,i))
+          .toArray();
+        """));
   }
 
 }
