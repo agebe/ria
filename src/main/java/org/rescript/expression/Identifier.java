@@ -3,7 +3,7 @@ package org.rescript.expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class Identifier implements Expression {
+public class Identifier implements Expression, Ident {
 
   private String ident;
 
@@ -12,6 +12,7 @@ public class Identifier implements Expression {
     this.ident = ident;
   }
 
+  @Override
   public String getIdent() {
     return ident;
   }

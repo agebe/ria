@@ -3,7 +3,7 @@ package org.rescript.expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class DottedIdentifier implements Expression {
+public class DottedIdentifier implements Expression, Ident {
 
   private String identifier;
 
@@ -17,6 +17,7 @@ public class DottedIdentifier implements Expression {
     return ctx.getSymbols().resolveVarOrTypeOrStaticMember(identifier);
   }
 
+  @Override
   public String getIdent() {
     return identifier;
   }

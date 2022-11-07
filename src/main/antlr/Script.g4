@@ -100,6 +100,8 @@ expr
   | assign
 // other expressions below
   | lambda
+  | methodRef
+  | constructorRef
   | fcall
   | literal
   | ident
@@ -111,6 +113,14 @@ lambda
 
 fDefParams
   : LPAREN ident? (COMMA ident)* RPAREN
+  ;
+
+methodRef
+  : ( ident | dottedIdent ) '::' ident
+  ;
+
+constructorRef
+  : ( ident | dottedIdent ) '::' 'new'
   ;
 
 ccall : NEW cname fparams;

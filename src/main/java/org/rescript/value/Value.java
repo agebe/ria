@@ -52,6 +52,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isMethod() {
+    return false;
+  }
+
   boolean isPrimitive();
 
   boolean equalsOp(Value other);
@@ -86,6 +90,10 @@ public interface Value {
 
   default FunctionValue toFunctionValue() {
     throw new ScriptException("can't cast '%s' to function value".formatted(this.getClass()));
+  }
+
+  default MethodValue toMethodValue() {
+    throw new ScriptException("can't cast '%s' to method value".formatted(this.getClass()));
   }
 
   default Value unbox() {

@@ -138,4 +138,14 @@ public abstract class EvaluatedFromValue implements Value {
     return getWrapped().toFunctionValue();
   }
 
+  @Override
+  public boolean isMethod() {
+    return getWrapped().isMethod();
+  }
+
+  @Override
+  public MethodValue toMethodValue() {
+    return getWrapped().toMethodValue();
+  }
+
 }

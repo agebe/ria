@@ -23,6 +23,7 @@ import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CharLiteralContext;
 import org.rescript.antlr.ScriptParser.CnameContext;
+import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
 import org.rescript.antlr.ScriptParser.DottedIdentContext;
@@ -51,6 +52,7 @@ import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
+import org.rescript.antlr.ScriptParser.MethodRefContext;
 import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
@@ -67,8 +69,10 @@ import org.rescript.expression.DottedIdentifier;
 import org.rescript.expression.Expression;
 import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;
+import org.rescript.expression.Ident;
 import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
+import org.rescript.expression.MethodReference;
 import org.rescript.expression.MultiAssignmentOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
@@ -939,7 +943,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterLambda(LambdaContext ctx) {
-    log.debug(" '{}'", ctx.getText());
+    log.debug("enterLambda '{}'", ctx.getText());
     // push a function so nested function (inside the lambda are added to the lambda)
     stack.push(new Function());
     // push a block as statements are automatically added to outer blocks (and not left on the stack)
@@ -951,7 +955,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitLambda(LambdaContext ctx) {
-    log.debug(" '{}'", ctx.getText());
+    log.debug("exitLambda '{}'", ctx.getText());
     Expression expr = null;
     if(nextItemIsExpression()) {
       expr = popExpression();
@@ -988,13 +992,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFDefParams(FDefParamsContext ctx) {
-    log.debug(" '{}'", ctx.getText());
+    log.debug("enterFDefParams '{}'", ctx.getText());
   }
 
   @Override
   public void exitFDefParams(FDefParamsContext ctx) {
-    log.debug(" '{}'", ctx.getText());
-    log.debug("exit fparams '{}'", ctx.getText());
+    log.debug("exitFDefParams '{}'", ctx.getText());
     List<Identifier> l = new ArrayList<>();
     popTerminal(")");
     for(;;) {
@@ -1015,6 +1018,34 @@ public class ParserListener implements ScriptListener {
     }
     Collections.reverse(l);
     stack.push(new FunctionParameterIdentifiers(l));
+  }
+
+  @Override
+  public void enterMethodRef(MethodRefContext ctx) {
+    log.debug("enterMethodRef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitMethodRef(MethodRefContext ctx) {
+    log.debug("exitMethodRef '{}'", ctx.getText());
+    String methodName = popIdentifier().getIdent();
+    popTerminal("::");
+    String varOrType = ((Ident)stack.pop()).getIdent();
+    stack.push(new MethodReference(varOrType, methodName));
+  }
+
+  @Override
+  public void enterConstructorRef(ConstructorRefContext ctx) {
+    log.debug("enterConstructorRef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitConstructorRef(ConstructorRefContext ctx) {
+    log.debug("exitConstructorRef '{}'", ctx.getText());
+    popTerminal("new");
+    popTerminal("::");
+    String varOrType = ((Ident)stack.pop()).getIdent();
+    fail("constructor reference for '%s' not implemented yet".formatted(varOrType));
   }
 
 }

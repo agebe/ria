@@ -10,6 +10,7 @@ import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.java.JavaMethodSymbol;
 import org.rescript.symbol.java.RUtils;
+import org.rescript.value.MethodValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,14 @@ public class JavaFunctionCaller {
     } catch(Exception e) {
       throw new ScriptException("function '%s' failed on target '%s'".formatted(function, target), e);
     }
+  }
+
+  public Value call(MethodValue method, FunctionCall fcall) {
+    return callJavaMethod(new JavaMethodSymbol(
+        method.getTargetType(),
+        method.getMethodName(),
+        method.getTarget()),
+        fcall);
   }
 
   private Value callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) {

@@ -101,13 +101,24 @@ public class LambdaTest {
   }
 
   @Test
-  public void asJavaLambda() {
+  public void scriptLambdaToJava1() {
     assertArrayEquals(new int[] {0, 1, 2}, (int[])new Script().run("""
         var foo = 2;
         java.util.List.of(42,2,99).stream()
           .filter(i -> i.equals(foo))
           .flatMapToInt(i -> java.util.stream.IntStream.rangeClosed(0,i))
           .toArray();
+        """));
+  }
+
+  @Test
+  public void scriptLambdaToJava2() {
+    assertEquals("2", new Script().run("""
+        java.util.List.of(42,2,99).stream()
+          .filter(i -> i.equals(2))
+          .map(i -> i.toString())
+          .findFirst()
+          .orElse(null);
         """));
   }
 
