@@ -54,18 +54,28 @@ public class JavaFunctionCaller {
         method.getTargetType(),
         method.getMethodName(),
         method.getTarget()),
-        fcall);
+        resolveParameters(fcall.getParameters()));
+  }
+
+  public Value call(MethodValue method, Value[] values) {
+    return callJavaMethod(new JavaMethodSymbol(
+        method.getTargetType(),
+        method.getMethodName(),
+        method.getTarget()),
+        values);
   }
 
   private Value callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) {
-    // fcall function name might have been replaced via alias
+    return callJavaMethod(symbol, resolveParameters(fcall.getParameters()));
+  }
+
+  private Value callJavaMethod(JavaMethodSymbol symbol, Value[] parameters) {
     String fname = symbol.getMethodName();
-    Value[] parameters = resolveParameters(fcall.getParameters());
     log.debug("function parameters '{}'", Arrays.toString(parameters));
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
     Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
     Class<?> cls = symbol.getTargetType();
-    Method m = RUtils.matchSignature(paramTypes, RUtils.findAccessibleMethods(cls, symbol.getTarget(), fname));
+    Method m = RUtils.matchSignature(parameters, RUtils.findAccessibleMethods(cls, symbol.getTarget(), fname));
     if(m != null) {
       try {
         log.debug("invoke method '{}' with parameter types '{}', '{}'",

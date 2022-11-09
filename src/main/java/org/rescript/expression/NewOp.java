@@ -31,15 +31,14 @@ public class NewOp implements Expression {
   public Value eval(ScriptContext ctx) {
     try {
       Value[] parameters = resolveParameters(plist, ctx);
-      Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
       Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
       if(cls == null) {
         throw new ScriptException("class not found " + type);
       }
       log.debug("found '{}' for type '{}'", cls.getName(), type);
-      Constructor<?> c = RUtils.matchSignature(paramTypes, List.of(cls.getConstructors()));
+      Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()));
       if( c == null) {
-        throw new ScriptException("no constructor matching parameters found " + Arrays.toString(paramTypes));
+        throw new ScriptException("no constructor matching parameters found " + Arrays.toString(parameters));
       }
       log.debug("using constructor " + c);
       Object o = c.newInstance(RUtils.prepareParamsForInvoke(c, parameters, ctx));

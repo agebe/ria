@@ -2,6 +2,9 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -27,10 +30,10 @@ public class MethodReferenceTest {
 
   @Test
   public void staticReference() {
-    new Script().run("""
+    assertEquals(42, new Script().run("""
         var v = Integer::max;
         v(1,42);
-        """);
+        """));
   }
 
   @Test
@@ -44,20 +47,19 @@ public class MethodReferenceTest {
   @Test
   @Disabled
   public void constructor() {
-    new Script().run("""
-        var v = java.util.List::new;
-        v(42);
+    LinkedList<?> l = (LinkedList<?>)new Script().run("""
+        var v = java.util.LinkedList::new;
+        v([1,2,3]);
         """);
+    assertEquals(List.of(1,2,3), l);
   }
 
   @Test
-  @Disabled
   public void javaMethodReference() {
     //https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
     assertEquals("2", new Script().run("""
         java.util.List.of(42,2,99).stream()
           .filter(i -> i.equals(2))
-          //.map(i -> i.toString())
           .map(Integer::toString)
           .findFirst()
           .orElse(null);

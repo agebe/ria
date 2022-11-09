@@ -15,9 +15,9 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.run.MethodReferenceInvocationHandler;
 import org.rescript.run.ScriptContext;
 import org.rescript.run.ScriptLambdaInvocationHandler;
-import org.rescript.statement.Function;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,12 +102,12 @@ public class RUtils {
     }
   }
 
-  public static <T extends Executable> T matchSignature(Class<?>[] params, List<T> executables) {
+  public static <T extends Executable> T matchSignature(Value[] params, List<T> executables) {
     return matchSignatureExactly(params, executables)
         .orElseGet(() -> matchSignatureFuzzy(params, executables).orElse(null));
   }
 
-  public static <T extends Executable> Optional<T> matchSignatureExactly(Class<?>[] params, List<T> executables) {
+  public static <T extends Executable> Optional<T> matchSignatureExactly(Value[] params, List<T> executables) {
     return executables.stream()
         .filter(e -> matchSignatureExactly(params, e))
         .findFirst();
@@ -123,21 +123,21 @@ public class RUtils {
         .count() == 1;
   }
 
-  private static boolean matchLambda(Class<?> expected, Class<?> supplied) {
+  private static boolean matchLambda(Class<?> expected, Value supplied) {
     // TODO check that number of functional interface parameters match supplied function parameter size
-    return Function.class.isAssignableFrom(supplied) && isFunctionalInterface(expected);
+    return (supplied.isFunction() || supplied.isMethod()) && isFunctionalInterface(expected);
   }
 
-  public static boolean matchSignatureExactly(Class<?>[] params, Executable executable) {
+  public static boolean matchSignatureExactly(Value[] params, Executable executable) {
     if(executable.getParameterTypes().length != params.length) {
       return false;
     }
     for(int i=0;i<params.length;i++) {
       Class<?> ep = executable.getParameterTypes()[i];
-      Class<?> pt = params[i];
-      if(matchLambda(ep, pt)) {
+      if(matchLambda(ep, params[i])) {
         continue;
       }
+      Class<?> pt = params[i].type();
       if(!Objects.equals(ep, pt)) {
         log.debug("match parameters exactly failed '{}', method parameter type '{}', supplied types '{}'",
             executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
@@ -149,14 +149,14 @@ public class RUtils {
     return true;
   }
 
-  public static <T extends Executable> Optional<T> matchSignatureFuzzy(Class<?>[] params,
+  public static <T extends Executable> Optional<T> matchSignatureFuzzy(Value[] params,
       List<T> executables) {
     return executables.stream()
         .filter(e -> e.isVarArgs()?matchSignatureVarargs(params, e):matchSignatureFuzzy(params, e))
         .findFirst();
   }
 
-  public static boolean matchSignatureVarargs(Class<?>[] params, Executable executable) {
+  public static boolean matchSignatureVarargs(Value[] params, Executable executable) {
     if(!executable.isVarArgs()) {
       return matchSignatureFuzzy(params, executable);
     }
@@ -167,7 +167,10 @@ public class RUtils {
         return false;
       }
       Class<?> mp = methodParams[i];
-      Class<?> pt = params[i];
+      if(matchLambda(mp, params[i])) {
+        continue;
+      }
+      Class<?> pt = params[i].type();
       if(!mp.isAssignableFrom(pt)) {
         return false;
       }
@@ -181,7 +184,7 @@ public class RUtils {
     // run through the remaining parameters which are the varargs.
     // if there are none this is ok too
     for(int i=methodParams.length;i<params.length;i++) {
-      Class<?> pt = params[i];
+      Class<?> pt = params[i].type();
       if(!varargType.isAssignableFrom(pt)) {
         return false;
       }
@@ -191,7 +194,7 @@ public class RUtils {
     return true;
   }
 
-  public static boolean matchSignatureFuzzy(Class<?>[] params, Executable executable) {
+  public static boolean matchSignatureFuzzy(Value[] params, Executable executable) {
     if(executable.isVarArgs()) {
       return matchSignatureVarargs(params, executable);
     }
@@ -201,7 +204,10 @@ public class RUtils {
     }
     for(int i=0;i<params.length;i++) {
       Class<?> mp = methodParams[i];
-      Class<?> pt = params[i];
+      if(matchLambda(mp, params[i])) {
+        continue;
+      }
+      Class<?> pt = params[i].type();
       if(!isParameterTypeMatch(mp, pt)) {
         log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",
             executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
@@ -264,6 +270,11 @@ public class RUtils {
               RUtils.class.getClassLoader(),
               new Class[] {expected},
               new ScriptLambdaInvocationHandler(supplied.toFunctionValue(), ctx));
+        } else if(isFunctionalInterface(expected) && supplied.isMethod()) {
+          preparedParams[i] = Proxy.newProxyInstance(
+              RUtils.class.getClassLoader(),
+              new Class[] {expected},
+              new MethodReferenceInvocationHandler(supplied.toMethodValue(), ctx));
         } else {
           preparedParams[i] = params[i].val();
         }
