@@ -447,6 +447,7 @@ public class Test1 {
   @Test
   public void test1() {
     String script = """
+        var foo = org.rescript.Test1.TestInner1::functionWith2Parameters;
         var v1 = "1";
         assertEquals("1", v1);
         var v2 = "2";
@@ -473,7 +474,6 @@ public class Test1 {
         assertEquals("2", v1);
           """.formatted(pkg());
     boolean result = base
-    .addFunctionAlias("foo", "org.rescript.Test1.TestInner1.functionWith2Parameters")
     .setScript(script)
     .create()
     .evalPredicate();

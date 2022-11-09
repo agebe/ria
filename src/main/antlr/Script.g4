@@ -11,7 +11,7 @@ script
   ;
 
 header
-  : ( importStmt | functionAlias )*
+  : importStmt*
   ;
 
 importStmt
@@ -20,10 +20,6 @@ importStmt
 
 importType
   : Identifier ( '.' Identifier )* ( '.' '*' )?
-  ;
-
-functionAlias
-  : 'alias' ident dottedIdent SEMI
   ;
 
 dottedIdent

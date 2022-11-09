@@ -55,12 +55,6 @@ public class ScriptBuilder {
         script);
   }
 
-  public ScriptBuilder addFunctionAlias(String alias, String target) {
-    return new ScriptBuilder(
-        header.insert("alias " + alias + " " + target + ";"),
-        script);
-  }
-
   public Script create() {
     String header = this.header.stream().collect(Collectors.joining());
     String s = header + (StringUtils.isNotBlank(script)?script:"");

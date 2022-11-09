@@ -6,6 +6,7 @@ import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.statement.Function;
 import org.rescript.symbol.VarSymbol;
+import org.rescript.value.MethodValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class ScriptSymbols {
     super();
     root = new ScopeNode();
     current = root;
+    defineVar("println", new MethodValue(System.out.getClass(), System.out, "println"));
   }
 
   public void defineVar(String name, Value val) {

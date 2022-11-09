@@ -41,7 +41,6 @@ import org.rescript.antlr.ScriptParser.ForStmtContext;
 import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
-import org.rescript.antlr.ScriptParser.FunctionAliasContext;
 import org.rescript.antlr.ScriptParser.FunctionDefinitionContext;
 import org.rescript.antlr.ScriptParser.HeaderContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
@@ -89,7 +88,6 @@ import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatement;
 import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.Function;
-import org.rescript.statement.FunctionAlias;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ImportStatement;
 import org.rescript.statement.ImportStaticStatement;
@@ -763,21 +761,6 @@ public class ParserListener implements ScriptListener {
       type = popTerminal().getText() + type;
     }
     stack.push(new ImportType(type));
-  }
-
-  @Override
-  public void enterFunctionAlias(FunctionAliasContext ctx) {
-    log.debug("enterFunctionAlias '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitFunctionAlias(FunctionAliasContext ctx) {
-    log.debug("exitFunctionAlias '{}'", ctx.getText());
-    popSemi();
-    DottedIdentifier dident = (DottedIdentifier)stack.pop();
-    Identifier ident = popIdentifier();
-    popTerminal("alias");
-    findMostRecentContainerStatement().addStatement(new FunctionAlias(ident.getIdent(), dident.getIdent()));
   }
 
   @Override

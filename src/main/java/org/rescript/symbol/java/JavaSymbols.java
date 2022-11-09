@@ -3,16 +3,13 @@ package org.rescript.symbol.java;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
-import org.rescript.symbol.VarSymbol;
 import org.rescript.value.ObjValue;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
@@ -28,15 +25,11 @@ public class JavaSymbols {
 
   private List<String> staticImports;
 
-  private Map<String, String> functionAlias;
-
   public JavaSymbols() {
     super();
     this.imports = new ArrayList<>();
     this.staticImports = new ArrayList<>();
-    this.functionAlias = new HashMap<>();
     imports.add("java.lang.*");
-    functionAlias.put("println", "System.out.println");
   }
 
   public void addImport(String imp) {
@@ -45,10 +38,6 @@ public class JavaSymbols {
 
   public void addStaticImport(String imp) {
     staticImports.add(imp);
-  }
-
-  public void addFunctionAlias(String alias, String function) {
-    functionAlias.put(alias, function);
   }
 
   // ----------------------------------------------------------------------
@@ -206,37 +195,11 @@ public class JavaSymbols {
   // resolve function here ------------------------------------------------
   // ----------------------------------------------------------------------
   public JavaMethodSymbol resolveFunctionInternal(String name) {
-    String target = functionAlias.get(name);
-    if(target != null) {
-      log.debug("found function alias for '{}', '{}'", name, target);
-      String className = StringUtils.substringBeforeLast(target, ".");
-      String methodName = StringUtils.substringAfterLast(target, ".");
-      Class<?> cls = findClassOrInnerClass(className);
-      if(cls != null) {
-        log.debug("resolved function alias '{}' to class '{}', method '{}'", name, cls.getName(), methodName);
-        return new JavaMethodSymbol(cls, methodName, null);
-      } else {
-        VarSymbol vs = staticMember(className);
-        if(vs != null) {
-          log.debug("resolved function alias '{}' to class '{}', method '{}'",
-              name,
-              vs.getVal().type(),
-              methodName);
-          return new JavaMethodSymbol(vs.getVal().type(), methodName, vs.getVal().val());
-        }
-      }
-    }
-    // TODO check script functions next
     return staticImports.stream()
         .map(imp -> resolveStaticImport(imp, name))
         .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
-  }
-
-  private Class<?> findClassOrInnerClass(String name) {
-    Class<?> cls = findClass(name);
-    return cls!=null?cls:findInnerClass(name);
   }
 
   private JavaMethodSymbol resolveStaticImport(String staticImport, String functionName) {
@@ -264,92 +227,6 @@ public class JavaSymbols {
         .anyMatch(m -> StringUtils.equals(m.getName(), methodName));
   }
 
-  // TODO make a pair type in util package?
-  private static class TR {
-    private Class<?> cls;
-    private String[] path;
-    public TR(Class<?> cls, String[] path) {
-      super();
-      this.cls = cls;
-      this.path = path;
-    }
-    @Override
-    public String toString() {
-      return "TR [cls=" + cls + ", path=" + Arrays.toString(path) + "]";
-    }
-  }
-
-  private TR findTypeReturnRemaining(String name) {
-    Class<?> cls = findClass(name);
-    if(cls != null) {
-      return new TR(cls, new String[0]);
-    }
-    String[] parts = StringUtils.split(name, '.');
-    for(int i=1;i<parts.length;i++) {
-      String probeClass = StringUtils.join(parts, '.', 0, i);
-      cls = findClass(probeClass);
-      log.debug("probe class '{}', result: '{}'", probeClass, cls);
-      if(cls != null) {
-        String[] path = new String[parts.length-i];
-        System.arraycopy(parts, i, path, 0, parts.length-i);
-        return new TR(cls, path);
-      }
-    }
-    return null;
-  }
-
-  private VarSymbol staticMember(String name) {
-    // e.g. like java.lang.System.out
-    TR tr = findTypeReturnRemaining(name);
-    if(tr == null) {
-      return null;
-    }
-    log.debug("found class '{}', path to follow '{}'", tr.cls.getName(), Arrays.toString(tr.path));
-    if(tr.path.length == 0) {
-      return null;
-    }
-    Class<?> current = tr.cls;
-    Field f = null;
-    for(String p : tr.path) {
-      Class<?> inner = getInnerClass(current, p);
-      if(inner != null) {
-        log.debug("found inner class '{}', cls '{}'", p, inner);
-        f = null;
-        current = inner;
-      } else {
-        f = getField(current, p);
-        if(f == null) {
-          log.debug("field '{}' not found on class '{}'", p, current.getName());
-          return null;
-        }
-        current = f.getType();
-      }
-    }
-    if(f != null) {
-      try {
-        return new VarSymbol(tr.path[tr.path.length-1], Value.of(f.getType(), f.get(null)));
-      } catch(Exception e) {
-        new ScriptException("failed to access field '%s'".formatted(name), e);
-      }
-    }
-    return null;
-  }
-
-  private Class<?> getInnerClass(Class<?> cls, String name) {
-    Class<?>[] classes = cls.getDeclaredClasses();
-    return Arrays.stream(classes).filter(c -> c.getSimpleName().equals(name)).findFirst().orElse(null);
-  }
-
-  private Field getField(Class<?> cls, String name) {
-    try {
-      return cls.getField(name);
-    } catch (NoSuchFieldException e) {
-      return null;
-    } catch (SecurityException e) {
-      throw new ScriptException("failed to get field", e);
-    }
-  }
-
   private Class<?> findClass(String name) {
     Class<?> cls = findClassExact(name);
     if(cls != null) {
@@ -370,30 +247,6 @@ public class JavaSymbols {
       return null;
     }
     return cls;
-  }
-
-  private Class<?> findInnerClass(String name) {
-    // try to find inner class
-    TR tr = findTypeReturnRemaining(name);
-    if(tr != null) {
-      log.debug("find inner, name '{}', '{}'", name, tr);
-      Class<?> current = tr.cls;
-      for(String p : tr.path) {
-        
-        Class<?> inner = getInnerClass(current, p);
-        if(inner == null) {
-          log.debug("find inner failed on '{}', current '{}'", p, current);
-          return null;
-        }
-        current = inner;
-      }
-      if(current != null) {
-        log.debug("found class '{}' for name '{}' (resolved from imports)", current, name);
-        return current;
-      }
-    }
-    log.debug("class not found '{}'", name);
-    return null;
   }
 
   private String fromImport(String clsName, String importName) {
