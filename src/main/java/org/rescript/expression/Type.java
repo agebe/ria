@@ -3,11 +3,11 @@ package org.rescript.expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class DottedIdentifier implements Expression, Ident {
+public class Type implements Expression, Ident {
 
   private String identifier;
 
-  public DottedIdentifier(String identifier) {
+  public Type(String identifier) {
     super();
     this.identifier = identifier;
   }
@@ -29,7 +29,7 @@ public class DottedIdentifier implements Expression, Ident {
 
   @Override
   public String toString() {
-    return "DottedIdentifier [identifier=" + identifier + "]";
+    return "Type [identifier=" + identifier + "]";
   }
 
 }

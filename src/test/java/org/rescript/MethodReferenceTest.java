@@ -2,8 +2,10 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -45,13 +47,23 @@ public class MethodReferenceTest {
   }
 
   @Test
-  @Disabled
   public void constructor() {
     LinkedList<?> l = (LinkedList<?>)new Script().run("""
         var v = java.util.LinkedList::new;
         v([1,2,3]);
         """);
     assertEquals(List.of(1,2,3), l);
+  }
+
+  @Test
+  @Disabled
+  public void stream() {
+    HashSet<?> s = (HashSet<?>)new Script().run("""
+        import java.util.*;
+        import java.util.stream.*;
+        [1,2,3,1,2].stream().collect(Collectors.toCollection(HashSet::new));
+        """);
+    assertEquals(Set.of(1,2,3), s);
   }
 
   @Test

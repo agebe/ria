@@ -26,7 +26,6 @@ import org.rescript.antlr.ScriptParser.CnameContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
-import org.rescript.antlr.ScriptParser.DottedIdentContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.ExprStmtContext;
@@ -58,13 +57,14 @@ import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
+import org.rescript.antlr.ScriptParser.TypeContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.Assignment;
 import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
 import org.rescript.expression.CharLiteral;
-import org.rescript.expression.DottedIdentifier;
+import org.rescript.expression.ConstructorReference;
 import org.rescript.expression.Expression;
 import org.rescript.expression.FloatLiteral;
 import org.rescript.expression.FunctionCall;
@@ -76,6 +76,7 @@ import org.rescript.expression.MultiAssignmentOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
+import org.rescript.expression.Type;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.ContainerStatement;
@@ -764,25 +765,6 @@ public class ParserListener implements ScriptListener {
   }
 
   @Override
-  public void enterDottedIdent(DottedIdentContext ctx) {
-    log.debug("enterDottedIdent '{}'", ctx.getText());
-    stack.push(new DottedIdentStartMarker());
-  }
-
-  @Override
-  public void exitDottedIdent(DottedIdentContext ctx) {
-    log.debug("exitDottedIdent '{}'", ctx.getText());
-    for(;;) {
-      if(nextItemIs(DottedIdentStartMarker.class)) {
-        stack.pop();
-        break;
-      }
-      stack.pop();
-    }
-    stack.push(new DottedIdentifier(ctx.getText()));
-  }
-
-  @Override
   public void enterFunctionDefinition(FunctionDefinitionContext ctx) {
     log.debug("enterFunctionDefinition '{}'", ctx.getText());
     stack.push(new Function());
@@ -1027,8 +1009,27 @@ public class ParserListener implements ScriptListener {
     log.debug("exitConstructorRef '{}'", ctx.getText());
     popTerminal("new");
     popTerminal("::");
-    String varOrType = ((Ident)stack.pop()).getIdent();
-    fail("constructor reference for '%s' not implemented yet".formatted(varOrType));
+    String type = ((Ident)stack.pop()).getIdent();
+    stack.push(new ConstructorReference(type));
+  }
+
+  @Override
+  public void enterType(TypeContext ctx) {
+    log.debug("enterType '{}'", ctx.getText());
+    stack.push(new StartMarker());
+  }
+
+  @Override
+  public void exitType(TypeContext ctx) {
+    log.debug("exitType '{}'", ctx.getText());
+    for(;;) {
+      if(nextItemIs(StartMarker.class)) {
+        stack.pop();
+        break;
+      }
+      stack.pop();
+    }
+    stack.push(new Type(ctx.getText()));
   }
 
 }

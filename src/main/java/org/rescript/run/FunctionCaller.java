@@ -10,6 +10,8 @@ public class FunctionCaller {
 
   private static final Logger log = LoggerFactory.getLogger(FunctionCaller.class);
 
+  private JavaConstructorCaller javaConstructorCaller;
+
   private JavaFunctionCaller javaFunctionCaller;
 
   private ScriptFunctionCaller scriptFunctionCaller;
@@ -19,6 +21,7 @@ public class FunctionCaller {
   public FunctionCaller(ScriptContext ctx) {
     super();
     this.ctx = ctx;
+    this.javaConstructorCaller = new JavaConstructorCaller(ctx);
     this.javaFunctionCaller = new JavaFunctionCaller(ctx);
     this.scriptFunctionCaller = new ScriptFunctionCaller(ctx);
   }
@@ -26,7 +29,9 @@ public class FunctionCaller {
   public Value call(FunctionCall function, Value target) {
     log.debug("call function '{}' on target '{}'", function, target);
     VarSymbol varSym = ctx.getSymbols().getScriptSymbols().resolveVar(function.getName().getName());
-    if((varSym != null) && varSym.getVal().isMethod()) {
+    if((varSym != null) && varSym.getVal().isConstructor()) {
+      return javaConstructorCaller.call(varSym.get().toConstructorValue().getTargetType(), function.getParameters());
+    } else if((varSym != null) && varSym.getVal().isMethod()) {
       return javaFunctionCaller.call(varSym.getVal().toMethodValue(), function);
     } else {
       if(target != null) {

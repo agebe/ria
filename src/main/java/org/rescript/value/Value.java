@@ -56,6 +56,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isConstructor() {
+    return false;
+  }
+
   boolean isPrimitive();
 
   boolean equalsOp(Value other);
@@ -94,6 +98,10 @@ public interface Value {
 
   default MethodValue toMethodValue() {
     throw new ScriptException("can't cast '%s' to method value".formatted(this.getClass()));
+  }
+
+  default ConstructorValue toConstructorValue() {
+    throw new ScriptException("can't cast '%s' to constructor value".formatted(this.getClass()));
   }
 
   default Value unbox() {

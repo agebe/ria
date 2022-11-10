@@ -22,8 +22,8 @@ importType
   : Identifier ( '.' Identifier )* ( '.' '*' )?
   ;
 
-dottedIdent
-  : Identifier ( '.' Identifier )+
+type
+  : Identifier ( '.' Identifier )*
   ;
 
 // https://docs.oracle.com/javase/specs/jls/se6/html/statements.html
@@ -72,7 +72,6 @@ expr
 // do operators first, order by precedence
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
-  | dottedIdent
   | expr DOT expr
 // array/list access
   | expr '[' expr ']'
@@ -112,11 +111,11 @@ fDefParams
   ;
 
 methodRef
-  : ( ident | dottedIdent ) '::' ident
+  : type '::' ident
   ;
 
 constructorRef
-  : ( ident | dottedIdent ) '::' 'new'
+  : type '::' 'new'
   ;
 
 ccall : NEW cname fparams;
