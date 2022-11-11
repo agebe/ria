@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MethodReferenceTest {
@@ -56,7 +55,6 @@ public class MethodReferenceTest {
   }
 
   @Test
-  @Disabled
   public void stream() {
     HashSet<?> s = (HashSet<?>)new Script().run("""
         import java.util.*;
@@ -68,7 +66,6 @@ public class MethodReferenceTest {
 
   @Test
   public void javaMethodReference() {
-    //https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
     assertEquals("2", new Script().run("""
         java.util.List.of(42,2,99).stream()
           .filter(i -> i.equals(2))

@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.run.ConstructorReferenceInvocationHandler;
 import org.rescript.run.MethodReferenceInvocationHandler;
 import org.rescript.run.ScriptContext;
 import org.rescript.run.ScriptLambdaInvocationHandler;
@@ -123,9 +124,10 @@ public class RUtils {
         .count() == 1;
   }
 
-  private static boolean matchLambda(Class<?> expected, Value supplied) {
+  private static boolean matchLambdaOrRef(Class<?> expected, Value supplied) {
     // TODO check that number of functional interface parameters match supplied function parameter size
-    return (supplied.isFunction() || supplied.isMethod()) && isFunctionalInterface(expected);
+    return (supplied.isFunction() || supplied.isMethod() || supplied.isConstructor())
+        && isFunctionalInterface(expected);
   }
 
   public static boolean matchSignatureExactly(Value[] params, Executable executable) {
@@ -134,7 +136,7 @@ public class RUtils {
     }
     for(int i=0;i<params.length;i++) {
       Class<?> ep = executable.getParameterTypes()[i];
-      if(matchLambda(ep, params[i])) {
+      if(matchLambdaOrRef(ep, params[i])) {
         continue;
       }
       Class<?> pt = params[i].type();
@@ -167,7 +169,7 @@ public class RUtils {
         return false;
       }
       Class<?> mp = methodParams[i];
-      if(matchLambda(mp, params[i])) {
+      if(matchLambdaOrRef(mp, params[i])) {
         continue;
       }
       Class<?> pt = params[i].type();
@@ -204,7 +206,7 @@ public class RUtils {
     }
     for(int i=0;i<params.length;i++) {
       Class<?> mp = methodParams[i];
-      if(matchLambda(mp, params[i])) {
+      if(matchLambdaOrRef(mp, params[i])) {
         continue;
       }
       Class<?> pt = params[i].type();
@@ -275,6 +277,11 @@ public class RUtils {
               RUtils.class.getClassLoader(),
               new Class[] {expected},
               new MethodReferenceInvocationHandler(supplied.toMethodValue(), ctx));
+        } else if(isFunctionalInterface(expected) && supplied.isConstructor()) {
+          preparedParams[i] = Proxy.newProxyInstance(
+              RUtils.class.getClassLoader(),
+              new Class[] {expected},
+              new ConstructorReferenceInvocationHandler(supplied.toConstructorValue(), ctx));
         } else {
           preparedParams[i] = params[i].val();
         }

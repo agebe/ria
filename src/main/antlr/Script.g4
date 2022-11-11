@@ -110,6 +110,7 @@ fDefParams
   : LPAREN ident? (COMMA ident)* RPAREN
   ;
 
+// https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
 methodRef
   : type '::' ident
   ;
