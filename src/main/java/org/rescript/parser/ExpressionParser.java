@@ -1,8 +1,12 @@
 package org.rescript.parser;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
@@ -23,6 +27,7 @@ import org.rescript.expression.ListLiteral;
 import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
 import org.rescript.expression.LtOp;
+import org.rescript.expression.MapLiteral;
 import org.rescript.expression.ModOp;
 import org.rescript.expression.MulOp;
 import org.rescript.expression.SubOp;
@@ -243,9 +248,26 @@ public class ExpressionParser {
   }
 
   private boolean isListLiteral() {
-    return items.size() >= 2 &&
-        isTerminal(0, "[") &&
-        isTerminal(items.size()-1, "]");
+    for(int i=0;i<items.size();i++) {
+      if(i == 0) {
+        if(!isTerminal(0, "[")) {
+          return false;
+        }
+      } else if(i == (items.size()-1)) {
+        if(!isTerminal(items.size()-1, "]")) {
+          return false;
+        }
+      } else if(i % 2 == 0) {
+        if(!isTerminal(i, ",")) {
+          return false;
+        }
+      } else {
+        if(isTerminal(i)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private ListLiteral listLiteral() {
@@ -256,10 +278,30 @@ public class ExpressionParser {
   }
 
   private boolean isArrayLiteral() {
-    return items.size() >= 3 &&
-        isTerminal(0, "arrayof") &&
-        isTerminal(1, "[") &&
-        isTerminal(items.size()-1, "]");
+    for(int i=0;i<items.size();i++) {
+      if(i == 0) {
+        if(!isTerminal(0, "arrayof")) {
+          return false;
+        }
+      } else if(i == 1) {
+        if(!isTerminal(1, "[")) {
+          return false;
+        }
+      } else if(i == (items.size()-1)) {
+        if(!isTerminal(items.size()-1, "]")) {
+          return false;
+        }
+      } else if(i % 2 == 0) {
+        if(isTerminal(i)) {
+          return false;
+        }
+      } else {
+        if(!isTerminal(i, ",")) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private ArrayLiteral arrayLiteral() {
@@ -273,6 +315,46 @@ public class ExpressionParser {
     return isExpression(0) && isTerminal(1, "[") && isExpression(2) && isTerminal(3, "]");
   }
 
+  private boolean isMapLiteral() {
+    if(items.size() == 3) {
+      // empty map literal
+      return isTerminal(0, "[") &&
+          isTerminal(1, ":") &&
+          isTerminal(2, "]");
+    } else {
+      if(!isTerminal(0, "[")) {
+        return false;
+      }
+      if(!isTerminal(items.size()-1, "]")) {
+        return false;
+      }
+      for(int i=1;i<items.size();i+=4) {
+        if(!(
+            isExpression(i) &&
+            isTerminal(i+1, ":") &&
+            isExpression(i+2) &&
+            ((i+3)==items.size()-1)?isTerminal(i+3, "]"):isTerminal(i+3, ","))) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private MapLiteral mapLiteral() {
+    if(items.size() == 3) {
+      return new MapLiteral(Collections.emptyList());
+    } else {
+      List<Map.Entry<Expression, Expression>> entries = new ArrayList<>();
+      for(int i=1;i<items.size();i+=4) {
+        Expression keyExp = exp(i);
+        Expression valExp = exp(i+2);
+        entries.add(new AbstractMap.SimpleImmutableEntry<Expression, Expression>(keyExp, valExp));
+      }
+      return new MapLiteral(entries);
+    }
+  }
+
   public void parse() {
     if(isInstanceOf()) {
       stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
@@ -280,6 +362,8 @@ public class ExpressionParser {
       stack.push(listLiteral());
     } else if(isArrayLiteral()) {
       stack.push(arrayLiteral());
+    } else if(isMapLiteral()) {
+      stack.push(mapLiteral());
     } else if(isSingle()) {
    // only 1 item on the stack, we just push that back as there is nothing else to do
       if(isSingleExpression()) {

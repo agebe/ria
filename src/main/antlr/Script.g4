@@ -82,6 +82,10 @@ expr
   | '[' expr? ( ',' expr )* ']'
 // array literal, type of array is common super-type
   | 'arrayof' '[' expr? ( ',' expr )* ']'
+// empty map literal
+  | '[' ':' ']'
+// map literal
+  | '[' expr ':' expr ( ',' expr ':' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
   | expr ( GT | LT | GE | LE ) expr
