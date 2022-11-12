@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
-import org.rescript.value.Array;
 import org.rescript.value.Value;
 
 public class ArrayAccessOp implements Expression {
@@ -24,8 +23,8 @@ public class ArrayAccessOp implements Expression {
     Value v = arrayExpr.eval(ctx);
     Value index = indexExpr.eval(ctx);
     int i = index.toInt();
-    if(v instanceof Array arr) {
-      return arr.get(i);
+    if(v.isArray()) {
+      return v.toArray().get(i);
     } else {
       Object o = v.val();
       if(o instanceof List<?> l) {

@@ -158,4 +158,14 @@ public abstract class EvaluatedFromValue implements Value {
     return getWrapped().toConstructorValue();
   }
 
+  @Override
+  public boolean isArray() {
+    return getWrapped().isArray();
+  }
+
+  @Override
+  public Array toArray() {
+    return getWrapped().toArray();
+  }
+
 }

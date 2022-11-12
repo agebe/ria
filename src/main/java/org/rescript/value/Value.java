@@ -60,6 +60,14 @@ public interface Value {
     return false;
   }
 
+  default boolean isArray() {
+    return false;
+  }
+
+  default Array toArray() {
+    throw new ScriptException("can't cast '%s' to array".formatted(this.getClass()));
+  }
+
   boolean isPrimitive();
 
   boolean equalsOp(Value other);

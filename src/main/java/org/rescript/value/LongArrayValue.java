@@ -2,7 +2,7 @@ package org.rescript.value;
 
 import java.util.Arrays;
 
-public class LongArrayValue implements Value, Array {
+public class LongArrayValue extends AbstractArrayValue {
 
   private long[] array;
 
@@ -19,11 +19,6 @@ public class LongArrayValue implements Value, Array {
   @Override
   public Object val() {
     return array;
-  }
-
-  @Override
-  public boolean isPrimitive() {
-    return false;
   }
 
   @Override

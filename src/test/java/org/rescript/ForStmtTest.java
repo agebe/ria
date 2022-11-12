@@ -63,4 +63,15 @@ public class ForStmtTest {
     assertEquals(-3, script.getVariable("b"));
   }
 
+  @Test
+  public void forArray() {
+    Script script = new Script();
+    assertEquals(44, script.evalInt("""
+        var a = arrayof [42,43,44];
+        for(var i=0;i<a.length;i++) {
+          a[i];
+        }
+        """));
+  }
+
 }

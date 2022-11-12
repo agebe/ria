@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.value.IntValue;
 import org.rescript.value.ObjValue;
 import org.rescript.value.SymbolValue;
 import org.rescript.value.Value;
@@ -176,8 +177,11 @@ public class JavaSymbols {
         current = new ObjValue(inner, null);
         continue;
       }
-      log.debug("could not resolve '{}' on type '{}'", s, current.type());
-      return null;
+      if("length".equals(s) && current.isArray()) {
+        current = new IntValue(current.toArray().length());
+        continue;
+      }
+      throw new ScriptException("could not resolve '%s' on type '%s'".formatted(s, current.type()));
     }
     log.debug("resolved to '{}'", current);
     return current;

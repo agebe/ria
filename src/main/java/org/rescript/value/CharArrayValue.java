@@ -2,7 +2,7 @@ package org.rescript.value;
 
 import java.util.Arrays;
 
-public class CharArrayValue implements Value, Array {
+public class CharArrayValue extends AbstractArrayValue {
 
   private char[] array;
 
@@ -19,11 +19,6 @@ public class CharArrayValue implements Value, Array {
   @Override
   public Object val() {
     return array;
-  }
-
-  @Override
-  public boolean isPrimitive() {
-    return false;
   }
 
   @Override

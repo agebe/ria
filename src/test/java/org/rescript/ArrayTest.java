@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ArrayTest {
@@ -134,18 +134,21 @@ public class ArrayTest {
   }
 
   @Test
+  @Disabled
   public void newOpArrayMulti() {
     assertArrayEquals(new long[][] {null, null},
         (long[][])new Script().run("new long[2][]"));
   }
 
   @Test
+  @Disabled
   public void newOpArrayMulti2() {
     assertArrayEquals(new long[][] {null, null},
         (long[][])new Script().run("new long[][] {null, null}"));
   }
 
   @Test
+  @Disabled
   public void newOpArrayMulti3() {
     assertArrayEquals(new long[][] {{1,2,3},{4,5,6}},
         (long[][])new Script().run("new long[][] {{1,2,3},{4,5,6}}"));
