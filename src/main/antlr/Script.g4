@@ -82,6 +82,8 @@ expr
   | '[' expr? ( ',' expr )* ']'
 // array literal, type of array is common super-type
   | 'arrayof' '[' expr? ( ',' expr )* ']'
+  | newArray
+  | newArrayInit
 // empty map literal
   | '[' ':' ']'
 // map literal
@@ -123,8 +125,18 @@ constructorRef
   : type '::' 'new'
   ;
 
-ccall : NEW cname fparams;
-cname : Identifier (DOT Identifier)*;
+ccall
+  : NEW type fparams
+  ;
+
+newArray
+  : NEW ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN ) '[' expr ']'
+  ;
+
+newArrayInit
+  : NEW ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN ) '[' ']' '{' expr? ( ',' expr )* '}'
+  ;
+
 assign: assignmentOp | multiAssignmentOp;
 assignmentOp: ident assignment;
 multiAssignmentOp: LPAREN ident (COMMA ident)* RPAREN assignment;

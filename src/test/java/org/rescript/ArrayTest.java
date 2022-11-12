@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 public class ArrayTest {
@@ -108,6 +111,54 @@ public class ArrayTest {
   @Test
   public void notArray() {
     assertThrows(ScriptException.class, () -> new Script().run("arrayof 1[0]"));
+  }
+
+  @Test
+  public void newOpArrayInit() {
+    assertArrayEquals(new long[] {42, 43, 44}, (long[])new Script().run("new long[] {42,43,44}"));
+  }
+
+  @Test
+  public void newOpEmptyArrayInit() {
+    assertArrayEquals(new float[] {}, (float[])new Script().run("new float[] {}"));
+  }
+
+  @Test
+  public void newOpArray() {
+    assertArrayEquals(new long[] {0, 0, 0}, (long[])new Script().run("new long[3]"));
+  }
+
+  @Test
+  public void newOpArray2() {
+    assertArrayEquals(new Map[] {null, null, null}, (Map[])new Script().run("new java.util.Map[3]"));
+  }
+
+  @Test
+  public void newOpArrayMulti() {
+    assertArrayEquals(new long[][] {null, null},
+        (long[][])new Script().run("new long[2][]"));
+  }
+
+  @Test
+  public void newOpArrayMulti2() {
+    assertArrayEquals(new long[][] {null, null},
+        (long[][])new Script().run("new long[][] {null, null}"));
+  }
+
+  @Test
+  public void newOpArrayMulti3() {
+    assertArrayEquals(new long[][] {{1,2,3},{4,5,6}},
+        (long[][])new Script().run("new long[][] {{1,2,3},{4,5,6}}"));
+  }
+
+  @Test
+  public void arrayLength() {
+    assertEquals(1024, new Script().run("new int[1024].length"));
+  }
+
+  @Test
+  public void arrayLength2() {
+    assertEquals(5, new Script().run("arrayof [1,2,3,4,5].length"));
   }
 
 }

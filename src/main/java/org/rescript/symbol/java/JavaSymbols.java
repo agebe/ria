@@ -272,8 +272,39 @@ public class JavaSymbols {
 // ------------------------------------------------------
 // resolve type -----------------------------------------
 // ------------------------------------------------------
+
+  private Class<?> resolvePrimitive(String name) {
+    if("double".equals(name)) {
+      return double.class;
+    } else if("float".equals(name)) {
+      return float.class;
+    } else if("long".equals(name)) {
+      return long.class;
+    } else if("int".equals(name)) {
+      return int.class;
+    } else if("char".equals(name)) {
+      return char.class;
+    } else if("short".equals(name)) {
+      return short.class;
+    } else if("byte".equals(name)) {
+      return byte.class;
+    } else if("boolean".equals(name)) {
+      return boolean.class;
+    } else if("char".equals(name)) {
+      return char.class;
+    } else if("void".equals(name)) {
+      return void.class;
+    } else {
+      return null;
+    }
+  }
+
   private Class<?> resolveTypeInternal(String name) {
     log.debug("enter resolveType '{}'", name);
+    Class<?> primitiveType = resolvePrimitive(name);
+    if(primitiveType != null) {
+      return primitiveType;
+    }
     log.debug("probing '{}'...", name);
     Class<?> cls = RUtils.findClass(name);
     if(cls != null) {

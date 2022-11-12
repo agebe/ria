@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -22,7 +21,6 @@ import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CharLiteralContext;
-import org.rescript.antlr.ScriptParser.CnameContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
@@ -52,6 +50,8 @@ import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.MethodRefContext;
 import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
+import org.rescript.antlr.ScriptParser.NewArrayContext;
+import org.rescript.antlr.ScriptParser.NewArrayInitContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
@@ -73,6 +73,8 @@ import org.rescript.expression.Identifier;
 import org.rescript.expression.IntLiteral;
 import org.rescript.expression.MethodReference;
 import org.rescript.expression.MultiAssignmentOp;
+import org.rescript.expression.NewArrayInitOp;
+import org.rescript.expression.NewArrayOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
@@ -574,28 +576,9 @@ public class ParserListener implements ScriptListener {
   public void exitCcall(CcallContext ctx) {
     log.debug("exitCcall '{}'", ctx.getText());
     FunctionParameters params = (FunctionParameters)stack.pop();
-    TypeName name = (TypeName)stack.pop();
-    // exitCname already popped the the 'new' terminal of the stack
-    stack.push(new NewOp(name.getName(), params.getParameters()));
-  }
-
-  @Override
-  public void enterCname(CnameContext ctx) {
-    log.debug("enterCname '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitCname(CnameContext ctx) {
-    log.debug("exitCname '{}'", ctx.getText());
-    LinkedList<String> l = new LinkedList<>();
-    for(;;) {
-      String t = popTerminal().getText();
-      if("new".equals(t)) {
-        break;
-      }
-      l.addFirst(t);
-    }
-    stack.push(new TypeName(l.stream().collect(Collectors.joining())));
+    Type type = (Type)stack.pop();
+    popTerminal("new");
+    stack.push(new NewOp(type.getIdent(), params.getParameters()));
   }
 
   @Override
@@ -1030,6 +1013,65 @@ public class ParserListener implements ScriptListener {
       stack.pop();
     }
     stack.push(new Type(ctx.getText()));
+  }
+
+  @Override
+  public void enterNewArray(NewArrayContext ctx) {
+    log.debug("enterNewArray '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitNewArray(NewArrayContext ctx) {
+    log.debug("exitNewArray '{}'", ctx.getText());
+    popTerminal("]");
+    Expression arraySize = popExpression();
+    popTerminal("[");
+    if(nextItemIs(Terminal.class)) {
+      Terminal type = popTerminal();
+      popTerminal("new");
+      stack.push(new NewArrayOp(type.getText(), arraySize));
+    } else {
+      Type type = (Type)popExpression();
+      popTerminal("new");
+      stack.push(new NewArrayOp(type.getIdent(), arraySize));
+    }
+  }
+
+  @Override
+  public void enterNewArrayInit(NewArrayInitContext ctx) {
+    log.debug("enterNewArrayInit '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitNewArrayInit(NewArrayInitContext ctx) {
+    log.debug("exitNewArrayInit '{}'", ctx.getText());
+    popTerminal("}");
+    LinkedList<Expression> elements = new LinkedList<>();
+    for(;;) {
+      if(nextItemIs(Terminal.class)) {
+        Terminal t = popTerminal();
+        if(t.getText().equals(",")) {
+          // nothing to do
+        } else if(t.getText().equals("{")) {
+          break;
+        } else {
+          fail("unexpected terminal in array init " + t.getText());
+        }
+      } else {
+        elements.addFirst(popExpression());
+      }
+    }
+    popTerminal("]");
+    popTerminal("[");
+    if(nextItemIs(Terminal.class)) {
+      Terminal type = popTerminal();
+      popTerminal("new");
+      stack.push(new NewArrayInitOp(type.getText(), elements));
+    } else {
+      Type type = (Type)popExpression();
+      popTerminal("new");
+      stack.push(new NewArrayInitOp(type.getIdent(), elements));
+    }
   }
 
 }
