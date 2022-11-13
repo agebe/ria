@@ -58,6 +58,7 @@ import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.TypeContext;
+import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.Assignment;
@@ -349,6 +350,10 @@ public class ParserListener implements ScriptListener {
 
   private void popSemi() {
     popTerminal(";");
+  }
+
+  private <T> T pop(Class<T> cls) {
+    return cls.cast(stack.pop());
   }
 
   private boolean nextTerminalIs(String text) {
@@ -1023,18 +1028,26 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitNewArray(NewArrayContext ctx) {
     log.debug("exitNewArray '{}'", ctx.getText());
-    popTerminal("]");
-    Expression arraySize = popExpression();
-    popTerminal("[");
-    if(nextItemIs(Terminal.class)) {
-      Terminal type = popTerminal();
-      popTerminal("new");
-      stack.push(new NewArrayOp(type.getText(), arraySize));
-    } else {
-      Type type = (Type)popExpression();
-      popTerminal("new");
-      stack.push(new NewArrayOp(type.getIdent(), arraySize));
+    LinkedList<Expression> dims = new LinkedList<>();
+    for(;;) {
+      if(nextTerminalIs("]")) {
+        popTerminal("]");
+        if(nextItemIsExpression()) {
+          dims.addFirst(popExpression());
+        } else {
+          dims.addFirst(null);
+        }
+        popTerminal("[");
+      } else if(nextItemIs(TypeOrPrimitive.class)) {
+        break;
+      } else {
+        fail("unexpected stack item " + stack.peek());
+      }
     }
+    TypeOrPrimitive type = pop(TypeOrPrimitive.class);
+    popTerminal("new");
+    NewArrayOp.checkDimensions(dims);
+    stack.push(new NewArrayOp(type.getType(), dims));
   }
 
   @Override
@@ -1063,14 +1076,25 @@ public class ParserListener implements ScriptListener {
     }
     popTerminal("]");
     popTerminal("[");
+    TypeOrPrimitive type = pop(TypeOrPrimitive.class);
+    popTerminal("new");
+    stack.push(new NewArrayInitOp(type.getType(), elements));
+  }
+
+  @Override
+  public void enterTypeOrPrimitive(TypeOrPrimitiveContext ctx) {
+    log.debug("enterTypeOrPrimitive '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitTypeOrPrimitive(TypeOrPrimitiveContext ctx) {
+    log.debug("exitTypeOrPrimitive '{}'", ctx.getText());
     if(nextItemIs(Terminal.class)) {
       Terminal type = popTerminal();
-      popTerminal("new");
-      stack.push(new NewArrayInitOp(type.getText(), elements));
-    } else {
-      Type type = (Type)popExpression();
-      popTerminal("new");
-      stack.push(new NewArrayInitOp(type.getIdent(), elements));
+      stack.push(new TypeOrPrimitive(type.getText()));
+    } else if(nextItemIs(Type.class)) {
+      Type type = pop(Type.class);
+      stack.push(new TypeOrPrimitive(type.getIdent()));
     }
   }
 

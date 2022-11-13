@@ -129,12 +129,17 @@ ccall
   : NEW type fparams
   ;
 
-newArray
-  : NEW ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN ) '[' expr ']'
+typeOrPrimitive
+  : ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN )
   ;
 
+newArray
+  : NEW  typeOrPrimitive '[' expr ']' ( '[' expr? ']' )*
+  ;
+
+// TODO support multi dimensional array init
 newArrayInit
-  : NEW ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN ) '[' ']' '{' expr? ( ',' expr )* '}'
+  : NEW typeOrPrimitive ( '[' ']' )+ '{' expr? ( ',' expr )* '}'
   ;
 
 assign: assignmentOp | multiAssignmentOp;

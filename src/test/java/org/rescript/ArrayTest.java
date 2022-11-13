@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Disabled;
@@ -79,6 +80,12 @@ public class ArrayTest {
   }
 
   @Test
+  public void multiDimIntArrayAccess() {
+    int i = new Script().evalInt("arrayof [arrayof [1,2],arrayof [3,4]][0][1]");
+    assertEquals(2,i);
+  }
+
+  @Test
   public void javaFunctionCall() {
     new Script().run("org.junit.jupiter.api.Assertions.assertArrayEquals(arrayof [1,2,3],arrayof [1,2,3])");
   }
@@ -125,19 +132,34 @@ public class ArrayTest {
 
   @Test
   public void newOpArray() {
-    assertArrayEquals(new long[] {0, 0, 0}, (long[])new Script().run("new long[3]"));
+    assertArrayEquals(new long[] {0, 0, 0}, (long[])new Script().run("new long[1+2]"));
   }
 
   @Test
   public void newOpArray2() {
-    assertArrayEquals(new Map[] {null, null, null}, (Map[])new Script().run("new java.util.Map[3]"));
+    // FIXME int to double conversion should happen automatically on Math.sqrt(...)
+    assertArrayEquals(new Map[] {null, null, null}, (Map[])new Script().run("new java.util.Map[Math.sqrt(9.)]"));
   }
 
   @Test
-  @Disabled
-  public void newOpArrayMulti() {
-    assertArrayEquals(new long[][] {null, null},
-        (long[][])new Script().run("new long[2][]"));
+  public void newOpArrayMultiLong() {
+    assertArrayEquals(new long[2][], (long[][])new Script().run("new long[2][]"));
+  }
+
+  @Test
+  public void newOpArrayMultiLongWrongDims() {
+    assertThrows(ScriptException.class, () -> new Script().run("new long[][2]"));
+  }
+
+  @Test
+  public void newOpArrayMultiFloat() {
+    assertArrayEquals(new float[2][][], (float[][][])new Script().run("new float[2][][]"));
+  }
+
+  @Test
+  public void newOpArrayMultiList() {
+    assertArrayEquals(new List[4][2][][][],
+        (List[][][][][])new Script().run("new java.util.List[4][2][][][]"));
   }
 
   @Test

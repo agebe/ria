@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.rescript.ScriptException;
+import org.rescript.value.AbstractArrayValue;
 import org.rescript.value.ArrayValue;
 import org.rescript.value.BooleanArrayValue;
 import org.rescript.value.CharArrayValue;
@@ -15,7 +16,7 @@ import org.rescript.value.Value;
 
 public class ArrayUtil {
 
-  public static Value newArray(Class<?> cls, List<Value> vals) {
+  public static AbstractArrayValue newArray(Class<?> cls, List<Value> vals) {
     if(cls.equals(double.class)) {
       double[] arr = new double[vals.size()];
       for(int i=0;i<vals.size();i++) {
@@ -65,7 +66,7 @@ public class ArrayUtil {
     }
   }
 
-  public static Value newArray(Class<?> cls, int size) {
+  public static AbstractArrayValue newArray(Class<?> cls, int size) {
     if(cls.equals(double.class)) {
       double[] arr = new double[size];
       return new DoubleArrayValue(arr);
