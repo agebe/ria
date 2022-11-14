@@ -137,9 +137,12 @@ newArray
   : NEW  typeOrPrimitive '[' expr ']' ( '[' expr? ']' )*
   ;
 
-// TODO support multi dimensional array init
+arrayInit
+  : '{' ( expr | arrayInit )? ( ',' ( expr | arrayInit ) )* '}'
+  ;
+
 newArrayInit
-  : NEW typeOrPrimitive ( '[' ']' )+ '{' expr? ( ',' expr )* '}'
+  : NEW typeOrPrimitive ( '[' ']' )+ arrayInit
   ;
 
 assign: assignmentOp | multiAssignmentOp;

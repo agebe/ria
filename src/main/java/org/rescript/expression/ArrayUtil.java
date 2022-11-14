@@ -95,4 +95,29 @@ public class ArrayUtil {
     }
   }
 
+  public static AbstractArrayValue toArrayValue(Object array) {
+    if(array instanceof double[] a) {
+      return new DoubleArrayValue(a);
+    } else if(array instanceof float[] a) {
+      return new FloatArrayValue(a);
+    } else if(array instanceof long[] a) {
+      return new LongArrayValue(a);
+    } else if(array instanceof int[] a) {
+      return new IntArrayValue(a);
+    } else if(array instanceof char[] a) {
+      return new CharArrayValue(a);
+    } else if(array instanceof short[] a) {
+      // FIXME
+      throw new ScriptException("short array currently not supported");
+    } else if(array instanceof byte[] a) {
+      throw new ScriptException("byte array currently not supported");
+    } else if(array instanceof boolean[] a) {
+      return new BooleanArrayValue(a);
+    } else if(array instanceof Object[] a) {
+      return new ArrayValue(a, a.getClass());
+    } else {
+      throw new ScriptException("unexpected array type '%s'".formatted(array));
+    }
+  }
+
 }

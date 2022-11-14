@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ArrayTest {
@@ -127,7 +126,7 @@ public class ArrayTest {
 
   @Test
   public void newOpEmptyArrayInit() {
-    assertArrayEquals(new float[] {}, (float[])new Script().run("new float[] {}"));
+    assertArrayEquals(new float[0], (float[])new Script().run("new float[] {}"));
   }
 
   @Test
@@ -163,15 +162,19 @@ public class ArrayTest {
   }
 
   @Test
-  @Disabled
   public void newOpArrayMulti2() {
-    assertArrayEquals(new long[][] {null, null},
-        (long[][])new Script().run("new long[][] {null, null}"));
+    assertArrayEquals(new long[][] {null, {1,2,3}, {}},
+        (long[][])new Script().run("new long[][] {null, {1,2,3}, {}}"));
   }
 
   @Test
-  @Disabled
   public void newOpArrayMulti3() {
+    assertArrayEquals(new long[][][] { {{},{},{},{0}}, null, {}},
+        (long[][][])new Script().run("new long[][][] { {{},{},{},{0}}, null, {}}"));
+  }
+
+  @Test
+  public void newOpArrayMulti4() {
     assertArrayEquals(new long[][] {{1,2,3},{4,5,6}},
         (long[][])new Script().run("new long[][] {{1,2,3},{4,5,6}}"));
   }

@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
+import org.rescript.antlr.ScriptParser.ArrayInitContext;
 import org.rescript.antlr.ScriptParser.AssignContext;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
@@ -1058,27 +1059,23 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitNewArrayInit(NewArrayInitContext ctx) {
     log.debug("exitNewArrayInit '{}'", ctx.getText());
-    popTerminal("}");
-    LinkedList<Expression> elements = new LinkedList<>();
+    ArrayInit init = pop(ArrayInit.class);
+    int dim = 0;
     for(;;) {
-      if(nextItemIs(Terminal.class)) {
-        Terminal t = popTerminal();
-        if(t.getText().equals(",")) {
-          // nothing to do
-        } else if(t.getText().equals("{")) {
-          break;
-        } else {
-          fail("unexpected terminal in array init " + t.getText());
-        }
+      if(nextTerminalIs("]")) {
+        dim++;
+        popTerminal();
+      } else if(nextTerminalIs("[")) {
+        popTerminal();
+      } else if(nextItemIs(TypeOrPrimitive.class)) {
+        break;
       } else {
-        elements.addFirst(popExpression());
+        fail("unexpected array new op with initializer element, " + stack.peek());
       }
     }
-    popTerminal("]");
-    popTerminal("[");
     TypeOrPrimitive type = pop(TypeOrPrimitive.class);
     popTerminal("new");
-    stack.push(new NewArrayInitOp(type.getType(), elements));
+    stack.push(new NewArrayInitOp(type.getType(), dim, init));
   }
 
   @Override
@@ -1096,6 +1093,33 @@ public class ParserListener implements ScriptListener {
       Type type = pop(Type.class);
       stack.push(new TypeOrPrimitive(type.getIdent()));
     }
+  }
+
+  @Override
+  public void enterArrayInit(ArrayInitContext ctx) {
+    log.debug("enterArrayInit '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitArrayInit(ArrayInitContext ctx) {
+    log.debug("exitArrayInit '{}'", ctx.getText());
+    popTerminal("}");
+    LinkedList<ParseItem> l = new LinkedList<>();
+    for(;;) {
+      if(nextTerminalIs("{")) {
+        popTerminal("{");
+        break;
+      } else if(nextTerminalIs(",")) {
+        popTerminal(",");
+      } else if(nextItemIs(ArrayInit.class)) {
+        l.addFirst(pop(ArrayInit.class));
+      } else if(nextItemIsExpression()) {
+        l.addFirst(popExpression());
+      } else {
+        fail("unexpected array initializer, " + stack.peek());
+      }
+    }
+    stack.push(new ArrayInit(l));
   }
 
 }
