@@ -1,0 +1,14 @@
+plugins {
+  id 'java'
+  id 'java-library'
+  id 'eclipse'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation gradleApi()
+  implementation 'commons-io:commons-io:2.11.0'
+}
