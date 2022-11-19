@@ -65,21 +65,21 @@ public class Test1 {
   @Test
   public void importTest() {
     assertEquals("p1.A", base
-        .setScript("org.rescript.p1.A.test()")
+        .setScript("%s.p1.A.test()".formatted(pkg()))
         .create()
         .runReturning(String.class));
     assertEquals("p2.A", base
-        .setScript("org.rescript.p2.A.test()")
+        .setScript("%s.p2.A.test()".formatted(pkg()))
         .create()
         .runReturning(String.class));
     assertEquals("p1.A", base
-        .addImport("org.rescript.p1.A")
+        .addImport("%s.p1.A".formatted(pkg()))
         .setScript("A.test();")
         .create()
         .runReturning(String.class));
     assertEquals("p2.A", base
-        .addImport("org.rescript.p1.A")
-        .setScript("org.rescript.p2.A.test()")
+        .addImport("%s.p1.A".formatted(pkg()))
+        .setScript("%s.p2.A.test()".formatted(pkg()))
         .create()
         .runReturning(String.class));
   }
@@ -447,7 +447,7 @@ public class Test1 {
   @Test
   public void test1() {
     String script = """
-        var foo = org.rescript.Test1.TestInner1::functionWith2Parameters;
+        var foo = %s.Test1.TestInner1::functionWith2Parameters;
         var v1 = "1";
         assertEquals("1", v1);
         var v2 = "2";
@@ -468,12 +468,12 @@ public class Test1 {
         var v8;
         v8 = 12345;
         assertEquals(12345, v8);
-        org.rescript.Test1.TestInner1.TestInner3.out.println("test");
+        %s.Test1.TestInner1.TestInner3.out.println("test");
         assertEquals("TI3_CONST", org.rescript.Test1.TestInner1.TestInner3.CONST);
         return v1.equals("1");
         // this should not be executed
         assertEquals("2", v1);
-          """.formatted(pkg());
+          """.formatted(pkg(), pkg(), pkg());
     boolean result = base
     .setScript(script)
     .create()
