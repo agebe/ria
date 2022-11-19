@@ -14,6 +14,7 @@ import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
+import org.rescript.expression.CastOp;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.EqualityOp;
@@ -355,6 +356,14 @@ public class ExpressionParser {
     }
   }
 
+  private boolean isCast() {
+    return items.size() == 4 &&
+        isTerminal(0, "(") &&
+        (items.get(1) instanceof TypeOrPrimitive) &&
+        isTerminal(2, ")") &&
+        isExpression(3);
+  }
+
   public void parse() {
     if(isInstanceOf()) {
       stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
@@ -423,6 +432,9 @@ public class ExpressionParser {
       stack.push(new TernaryOp(exp(0), exp(2), exp(4)));
     } else if(isArrayAccess()) {
       stack.push(new ArrayAccessOp(exp(0), exp(2)));
+    } else if(isCast()) {
+      TypeOrPrimitive type = (TypeOrPrimitive)items.get(1);
+      stack.push(new CastOp(type.getType(), exp(3)));
     } else {
       fail("failed to parse expression (unknown, '%s'), '%s'".formatted(items.size(), items));
     }

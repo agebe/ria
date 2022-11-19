@@ -77,6 +77,7 @@ expr
   | expr '[' expr ']'
   | expr ( INC | DEC )
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
+  | '(' typeOrPrimitive ')' expr
   | ccall
 // list literal
   | '[' expr? ( ',' expr )* ']'
