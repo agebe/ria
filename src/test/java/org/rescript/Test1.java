@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.PrintStream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -124,7 +125,7 @@ public class Test1 {
     .run();
   }
 
-//  @Test
+  @Test
   public void importedHello() {
     base
     .setScript("println(\"Hello World\")")
@@ -445,6 +446,7 @@ public class Test1 {
   }
 
   @Test
+  @Disabled
   public void test1() {
     String script = """
         var foo = org.rescript.Test1.TestInner1::functionWith2Parameters;
@@ -484,4 +486,21 @@ public class Test1 {
   public void main() {
     new Script().run("function main() {println(\"main\");} main();");
   }
+
+  @Test
+  public void callWithNull() {
+    new Script().run("""
+        var f = new javax.swing.JFrame();
+        f.setLayout(null);
+        """);
+  }
+
+  @Test
+  public void callWithBorderLayout() {
+    new Script().run("""
+        var f = new javax.swing.JFrame();
+        f.setLayout(new java.awt.BorderLayout());
+        """);
+  }
+
 }

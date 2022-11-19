@@ -1,27 +1,29 @@
 package org.rescript;
 
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 import org.javimmutable.collections.JImmutableList;
 import org.javimmutable.collections.util.JImmutables;
+import org.rescript.symbol.SymbolTable;
 
 public class ScriptBuilder {
 
-  private JImmutableList<String> header = JImmutables.list();
-
   private String script;
+
+  private JImmutableList<String> imports = JImmutables.list();
+
+  private JImmutableList<String> staticImports = JImmutables.list();
 
   public ScriptBuilder() {
     super();
   }
 
   private ScriptBuilder(
-      JImmutableList<String> header,
-      String script) {
+      String script,
+      JImmutableList<String> imports,
+      JImmutableList<String> staticImports) {
     super();
-    this.header = header;
     this.script = script;
+    this.imports = imports;
+    this.staticImports = staticImports;
   }
 
   // TODO set variables
@@ -40,25 +42,28 @@ public class ScriptBuilder {
 //  }
 
   public ScriptBuilder setScript(String script) {
-    return new ScriptBuilder(header, script);
+    return new ScriptBuilder(script, imports, staticImports);
   }
 
   public ScriptBuilder addImport(String imp) {
     return new ScriptBuilder(
-        header.insert("import " + imp + ";"),
-        script);
+        script,
+        imports.insert(imp),
+        staticImports);
   }
 
   public ScriptBuilder addStaticImport(String imp) {
     return new ScriptBuilder(
-        header.insert("import static " + imp + ";"),
-        script);
+        script,
+        imports,
+        staticImports.insert(imp));
   }
 
   public Script create() {
-    String header = this.header.stream().collect(Collectors.joining());
-    String s = header + (StringUtils.isNotBlank(script)?script:"");
-    return new Script(s);
+    SymbolTable symbols = new SymbolTable();
+    imports.forEach(symbols.getJavaSymbols()::addImport);
+    staticImports.forEach(symbols.getJavaSymbols()::addStaticImport);
+    return new Script(script, symbols);
   }
 
 }

@@ -148,6 +148,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitScript(ScriptContext ctx) {
+    log.debug("stack size '{}'", stack.size());
     if(stack.size() == 3) {
       // assume single expression script
       findMostRecentContainerStatement().addStatement(new ExpressionStatement(popExpression()));

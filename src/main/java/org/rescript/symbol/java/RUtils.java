@@ -209,6 +209,10 @@ public class RUtils {
       if(matchLambdaOrRef(mp, params[i])) {
         continue;
       }
+      // null literals are of type object, match them anyway
+      if(params[i].isNull() && (!mp.isPrimitive())) {
+        continue;
+      }
       Class<?> pt = params[i].type();
       if(!isParameterTypeMatch(mp, pt)) {
         log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",

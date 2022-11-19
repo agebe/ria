@@ -79,7 +79,7 @@ public class JavaFunctionCaller {
     if(m != null) {
       try {
         log.debug("invoke method '{}' with parameter types '{}', '{}'",
-            m.getName(),
+            m,
             Arrays.toString(paramTypes),
             Arrays.toString(params));
         Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, parameters, ctx));

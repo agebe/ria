@@ -9,24 +9,29 @@ import org.rescript.value.Value;
 
 public class Script {
 
-  private SymbolTable symbols = new SymbolTable();
+  private SymbolTable symbols;
 
   private String script;
 
+  private Function entry;
+
   public Script() {
-    super();
+    this(null, null);
   }
 
   public Script(String script) {
+    this(script, null);
+  }
+
+  public Script(String script, SymbolTable symbols) {
+    super();
     this.script = script;
+    this.symbols = symbols!=null?symbols:new SymbolTable();
   }
 
   private Value runVal() {
     try {
-      if(script != null) {
-        parse(script);
-        script=null;
-      }
+      parse(script);
       return new ScriptRunner(symbols).run();
     } catch(Exception e) {
       throw new ScriptException("script execution failed", e);
@@ -39,7 +44,7 @@ public class Script {
   }
 
   public Object run(String script) {
-    return parse(script).run();
+    return reparse(script).run();
   }
 
   public <T> T runReturning(Class<T> type) {
@@ -48,7 +53,7 @@ public class Script {
   }
 
   public <T> T runReturning(String script, Class<T> type) {
-    return parse(script).runReturning(type);
+    return reparse(script).runReturning(type);
   }
 
   // TODO also add support for generic types, like e.g. List<String>
@@ -58,7 +63,7 @@ public class Script {
   }
 
   public boolean evalPredicate(String script) {
-    return parse(script).evalPredicate();
+    return reparse(script).evalPredicate();
   }
 
   public double evalDouble() {
@@ -66,7 +71,7 @@ public class Script {
   }
 
   public double evalDouble(String script) {
-    return parse(script).evalDouble();
+    return reparse(script).evalDouble();
   }
 
   public float evalFloat() {
@@ -74,7 +79,7 @@ public class Script {
   }
 
   public float evalFloat(String script) {
-    return parse(script).evalFloat();
+    return reparse(script).evalFloat();
   }
 
   public long evalLong() {
@@ -82,7 +87,7 @@ public class Script {
   }
 
   public long evalLong(String script) {
-    return parse(script).evalLong();
+    return reparse(script).evalLong();
   }
 
   public int evalInt() {
@@ -90,7 +95,7 @@ public class Script {
   }
 
   public int evalInt(String script) {
-    return parse(script).evalInt();
+    return reparse(script).evalInt();
   }
 
   public char evalChar() {
@@ -98,7 +103,7 @@ public class Script {
   }
 
   public int evalChar(String script) {
-    return parse(script).evalChar();
+    return reparse(script).evalChar();
   }
 
   public void setVariable(String name, Object val) {
@@ -115,10 +120,16 @@ public class Script {
     return s!=null?s.getObjectOrNull():null;
   }
 
+  private Script reparse(String script) {
+    this.entry = null;
+    return parse(script);
+  }
+
   private Script parse(String script) {
-    Function entry = new Parser().parse((this.script!=null?this.script:"")+script);
-    this.symbols.getScriptSymbols().setMain(entry);
-    this.script = null;
+    if(this.entry == null) {
+      this.entry = new Parser().parse(script);
+      this.symbols.getScriptSymbols().setMain(entry);
+    }
     return this;
   }
 

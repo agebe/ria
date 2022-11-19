@@ -9,8 +9,12 @@ import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptLexer;
 import org.rescript.antlr.ScriptParser;
 import org.rescript.statement.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Parser {
+
+  private static final Logger log = LoggerFactory.getLogger(Parser.class);
 
   private boolean showErrorsOnConsole;
 
@@ -24,6 +28,7 @@ public class Parser {
   }
 
   public Function parse(String script) {
+    log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
     }
