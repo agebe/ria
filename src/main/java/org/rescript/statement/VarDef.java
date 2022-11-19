@@ -5,7 +5,6 @@ import org.rescript.expression.Assignment;
 import org.rescript.expression.Identifier;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
-import org.rescript.value.VoidValue;
 
 public class VarDef {
 
@@ -25,9 +24,9 @@ public class VarDef {
 
   public void execute(ScriptContext ctx) {
     if(ident != null) {
-      ctx.getSymbols().getScriptSymbols().defineVar(ident.getIdent(), VoidValue.VOID);
+      ctx.getSymbols().getScriptSymbols().defineVar(ident.getIdent(), null);
     } else if(assign != null) {
-      assign.identifiers().forEach(i -> ctx.getSymbols().getScriptSymbols().defineVar(i.getIdent(), VoidValue.VOID));
+      assign.identifiers().forEach(i -> ctx.getSymbols().getScriptSymbols().defineVar(i.getIdent(), null));
       Value v = assign.eval(ctx);
       ctx.setLastResult(v);
     } else {

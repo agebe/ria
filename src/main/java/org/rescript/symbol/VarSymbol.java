@@ -49,4 +49,9 @@ public class VarSymbol implements Symbol {
     return getVal();
   }
 
+  @Override
+  public String toString() {
+    return "VarSymbol [name=" + name + ", val=" + val + "]";
+  }
+
 }

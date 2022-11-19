@@ -19,4 +19,9 @@ public class SymbolValue extends EvaluatedFromValue {
     return symbol;
   }
 
+  @Override
+  public String toString() {
+    return "SymbolValue [symbol=" + symbol + "]";
+  }
+
 }

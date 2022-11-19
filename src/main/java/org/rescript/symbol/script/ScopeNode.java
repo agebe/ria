@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.rescript.ScriptException;
 import org.rescript.symbol.VarSymbol;
+import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
-import org.rescript.value.VoidValue;
 
 public class ScopeNode {
 
@@ -24,7 +24,7 @@ public class ScopeNode {
   }
 
   public void defineVar(String name, Value val) {
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:VoidValue.VOID));
+    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:ObjValue.NULL));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
     }

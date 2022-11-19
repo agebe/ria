@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.PrintStream;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -446,7 +445,6 @@ public class Test1 {
   }
 
   @Test
-  @Disabled
   public void test1() {
     String script = """
         var foo = org.rescript.Test1.TestInner1::functionWith2Parameters;
@@ -461,6 +459,7 @@ public class Test1 {
         println(v3.equals(v1));
         var v4;
         println(v4);
+        println("type of v4 is: " + typeof v4);
         var v5 = %s.Test1.TI2.TI1;
         v5.f2(v4);
         var v6 = "v5 value";
