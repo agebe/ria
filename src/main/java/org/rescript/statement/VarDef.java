@@ -2,7 +2,6 @@ package org.rescript.statement;
 
 import org.rescript.ScriptException;
 import org.rescript.expression.Assignment;
-import org.rescript.expression.CastOp;
 import org.rescript.expression.Identifier;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolNotFoundException;
@@ -32,29 +31,19 @@ public class VarDef {
   }
 
   public void execute(ScriptContext ctx, String type) {
+    // type can be null if e.g. the variable was declared via 'var' terminal.
+    // in this case the variable can freely change it's type (as opposed to java)
+    // otherwise the type is fixed and can't change over it's lifetime (same as in java)
     if(ident != null) {
-      ctx.getSymbols().getScriptSymbols().defineVar(ident.getIdent(), defaultValue(ctx, type));
+      ctx.getSymbols().getScriptSymbols().defineVar(ident.getIdent(), defaultValue(ctx, type), type);
     } else if(assign != null) {
-      assign.identifiers().forEach(i -> ctx.getSymbols().getScriptSymbols().defineVar(i.getIdent(), null));
+      assign.identifiers().forEach(
+          i -> ctx.getSymbols().getScriptSymbols().defineVar(i.getIdent(), defaultValue(ctx, type), type));
       Value v = assign.eval(ctx);
       ctx.setLastResult(v);
-      if(type != null) {
-        castAll(ctx, type);
-      }
     } else {
       throw new ScriptException("invalid state, ident and assign null");
     }
-  }
-
-  private Value castAll(ScriptContext ctx, String type) {
-    Value[] last = new Value[1];
-    assign.identifiers().forEach(i -> {
-      Value v = ctx.getSymbols().getScriptSymbols().getVariable(i.getIdent());
-      Value castValue = new CastOp(type, c -> v).eval(ctx);
-      last[0] = castValue;
-      ctx.getSymbols().getScriptSymbols().assignVar(i.getIdent(), castValue);
-    });
-    return last[0];
   }
 
   private Value defaultValue(ScriptContext ctx, String type) {

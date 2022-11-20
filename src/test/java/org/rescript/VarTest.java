@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class VarTest {
@@ -53,6 +52,11 @@ public class VarTest {
   @Test
   void listVar3() {
     assertEquals("java.util.List", new Script().run("List l;typeof l;"));
+  }
+
+  @Test
+  void listVar4() {
+    assertThrows(ScriptException.class, () -> new Script().run("List l = new Object();"));
   }
 
   @Test
@@ -124,7 +128,6 @@ public class VarTest {
   }
 
   @Test
-  @Disabled
   public void changeType() {
     assertEquals("long", new Script().run("long l = 1;l = 2;typeof l;"));
   }

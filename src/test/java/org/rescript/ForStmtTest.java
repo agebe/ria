@@ -75,6 +75,14 @@ public class ForStmtTest {
   }
 
   @Test
+  public void forMultiAssign3() {
+    Script script = new Script();
+    assertEquals(3, script.evalInt("long a,b;for((a,b)=0;a<3;a++,b--) {}; a;"));
+    assertEquals(-3l, script.getVariable("b"));
+    assertEquals("long", script.run("typeof b;"));
+  }
+
+  @Test
   public void forWithType() {
     Script script = new Script();
     assertEquals("long", script.run("for(long a=0;a<3;a++) {typeof a;};"));

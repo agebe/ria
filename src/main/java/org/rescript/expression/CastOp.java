@@ -27,6 +27,7 @@ public class CastOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     Value v = expression.eval(ctx);
+    // TODO check if value is already of correct type and return v without creating a new value
     if(type.equals("double")) {
       return new DoubleValue(v.toDouble());
     } else if(type.equals("float")) {

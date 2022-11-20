@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rescript.ScriptException;
+import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
@@ -23,11 +24,12 @@ public class ScopeNode {
     this.parent = parent;
   }
 
-  public void defineVar(String name, Value val) {
+  public void defineVar(String name, Value val, String type, ScriptContext ctx) {
 //    if(val == null) {
 //      throw new ScriptException("value is null for variable definition of '{}'".formatted(name));
 //    }
-    VarSymbol v = variables.putIfAbsent(name, new VarSymbol(name, val!=null?val:ObjValue.NULL));
+    VarSymbol v = variables.putIfAbsent(name,
+        new VarSymbol(name, val!=null?val:ObjValue.NULL, type, ctx));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
     }

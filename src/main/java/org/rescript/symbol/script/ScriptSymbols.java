@@ -31,7 +31,11 @@ public class ScriptSymbols {
   }
 
   public void defineVar(String name, Value val) {
-    current.defineVar(name, val);
+    defineVar(name, val, null);
+  }
+
+  public void defineVar(String name, Value val, String type) {
+    current.defineVar(name, val, type, ctx);
   }
 
   public void assignVar(String name, Value val) {
@@ -43,7 +47,7 @@ public class ScriptSymbols {
     if(s != null) {
       s.setVal(val);
     } else {
-      root.defineVar(name, val);
+      root.defineVar(name, val, null, ctx);
     }
   }
 

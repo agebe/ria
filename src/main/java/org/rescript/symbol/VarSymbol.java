@@ -1,5 +1,7 @@
 package org.rescript.symbol;
 
+import org.rescript.expression.CastOp;
+import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
 public class VarSymbol implements Symbol {
@@ -8,10 +10,16 @@ public class VarSymbol implements Symbol {
 
   private Value val;
 
-  public VarSymbol(String name, Value val) {
+  private String type;
+
+  private ScriptContext ctx;
+
+  public VarSymbol(String name, Value val, String type, ScriptContext ctx) {
     super();
     this.name = name;
     this.val = val;
+    this.type = type;
+    this.ctx = ctx;
   }
 
   public String getName() {
@@ -27,7 +35,11 @@ public class VarSymbol implements Symbol {
   }
 
   public void setVal(Value val) {
-    this.val = val;
+    if(type != null) {
+      this.val = new CastOp(type, c -> val).eval(ctx);
+    } else {
+      this.val = val;
+    }
   }
 
   @Override
