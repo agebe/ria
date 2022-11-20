@@ -51,7 +51,7 @@ stmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
-vardefStmt: 'var' ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
+vardefStmt: ( 'var' | typeOrPrimitive ) ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
 
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';

@@ -74,4 +74,10 @@ public class ForStmtTest {
         """));
   }
 
+  @Test
+  public void forWithType() {
+    Script script = new Script();
+    assertEquals("long", script.run("for(long a=0;a<3;a++) {typeof a;};"));
+  }
+
 }

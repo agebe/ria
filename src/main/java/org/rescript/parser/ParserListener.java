@@ -503,10 +503,15 @@ public class ParserListener implements ScriptListener {
     // TODO redo this, it looks more complicated than it should be
     log.debug("exitVardefStmt '{}'", ctx.getText());
     LinkedList<VarDef> vars = new LinkedList<>();
+    String type = null;
     popSemi();
     for(;;) {
       if(nextTerminalIs("var")) {
         popTerminal();
+        break;
+      } else if(nextItemIs(TypeOrPrimitive.class)) {
+        TypeOrPrimitive tp = pop(TypeOrPrimitive.class);
+        type = tp.getType();
         break;
       } else if(nextTerminalIs(",")) {
         popTerminal();
@@ -521,7 +526,7 @@ public class ParserListener implements ScriptListener {
         }
       }
     }
-    stack.push(new VardefStatement(vars));
+    stack.push(new VardefStatement(vars, type));
   }
 
   @Override

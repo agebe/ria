@@ -31,6 +31,12 @@ public class JavaSymbols {
     this.imports = new ArrayList<>();
     this.staticImports = new ArrayList<>();
     imports.add("java.lang.*");
+    // TODO additional default imports should be configurable?
+    imports.add("java.util.*");
+    imports.add("java.stream.*");
+    imports.add("java.time.*");
+    // TODO more...
+    // FIXME add a flag that disables additional default imports (other than java.lang.*)
   }
 
   public void addImport(String imp) {

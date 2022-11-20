@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class VarTest {
@@ -13,6 +14,57 @@ public class VarTest {
     Script script = new Script();
     script.run("var i;");
   }
+
+  @Test
+  public void objectVar() {
+    assertEquals("java.lang.Object", new Script().run("var i;typeof i;"));
+  }
+
+  @Test
+  public void intVar() {
+    assertEquals("int", new Script().run("int i;typeof i;"));
+  }
+
+  @Test
+  public void intVar2() {
+    assertEquals(0, new Script().evalInt("int i;i;"));
+  }
+
+  @Test
+  public void boolVar() {
+    assertEquals("boolean", new Script().run("var b = true;typeof b;"));
+  }
+
+  @Test
+  public void boolVar2() {
+    assertEquals("java.lang.Boolean", new Script().run("Boolean b = true;typeof b;"));
+  }
+
+  @Test
+  void listVar() {
+    assertEquals("java.util.List", new Script().run("List l = new java.util.ArrayList();typeof l;"));
+  }
+
+  @Test
+  void listVar2() {
+    assertEquals("java.util.List", new Script().run("List l = null;typeof l;"));
+  }
+
+  @Test
+  void listVar3() {
+    assertEquals("java.util.List", new Script().run("List l;typeof l;"));
+  }
+
+  @Test
+  void longVar() {
+    assertEquals("long", new Script().run("long l = 1;typeof l;"));
+  }
+
+  @Test
+  void longVar2() {
+    assertEquals("long", new Script().run("long (l1,l2) = [1,2];typeof l2;"));
+  }
+
 
   @Test
   public void multipleSimpleVar() {
@@ -69,6 +121,12 @@ public class VarTest {
   public void multiVar() {
     Script script = new Script();
     script.run("var i=1+1, j, k=Float.MAX_VALUE, (a,b,c)=42;");
+  }
+
+  @Test
+  @Disabled
+  public void changeType() {
+    assertEquals("long", new Script().run("long l = 1;l = 2;typeof l;"));
   }
 
 }
