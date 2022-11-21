@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "bs.h"
 #include "files.h"
@@ -39,6 +40,7 @@ void writeFiles() {
   makedir(bshomelibs);
   //printf("%s\n", bshomelibs);
   initFiles();
+  bool isSnapShotVersion = strstr(version, "SNAPSHOT") != NULL;
   for(int i=0;i<filesCount;i++) {
     char filename[2000];
     snprintf(filename, sizeof(filename), "%s/%s", bshomelibs, files[i].name);
@@ -48,7 +50,7 @@ void writeFiles() {
       strcat(classpath, ":");
     }
     struct stat st = {0};
-    if(stat(filename, &st) == -1) {
+    if(isSnapShotVersion || (stat(filename, &st) == -1)) {
       FILE *write_ptr;
       write_ptr = fopen(filename,"wb");
       fwrite(files[i].content,1,files[i].contentLength,write_ptr);
