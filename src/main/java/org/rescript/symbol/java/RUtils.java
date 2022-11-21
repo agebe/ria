@@ -29,7 +29,9 @@ public class RUtils {
 
   public static Field findStaticField(Class<?> cls, String name) {
     try {
-      for(Field field : cls.getDeclaredFields()) {
+      for(Field field : cls.getFields()) {
+        log.trace("find static field '{}' on type '{}', check field '{}', isStatic '{}'",
+            name, cls.getName(), field.getName(), java.lang.reflect.Modifier.isStatic(field.getModifiers()));
         if(java.lang.reflect.Modifier.isStatic(field.getModifiers()) && field.getName().equals(name)) {
           return field;
         }
