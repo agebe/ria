@@ -96,4 +96,9 @@ public class DoubleValue implements Value {
     return new DoubleValue(this.val-1);
   }
 
+  @Override
+  public byte toByte() {
+    return (byte)val;
+  }
+
 }

@@ -89,4 +89,9 @@ public class LongValue implements Value {
     return (char)val;
   }
 
+  @Override
+  public byte toByte() {
+    return (byte)val;
+  }
+
 }

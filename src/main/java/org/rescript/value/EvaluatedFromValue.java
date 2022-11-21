@@ -29,6 +29,12 @@ public abstract class EvaluatedFromValue implements Value {
   }
 
   @Override
+  public boolean isNotNull() {
+    // TODO Auto-generated method stub
+    return getWrapped().isNotNull();
+  }
+
+  @Override
   public boolean isBoolean() {
     return getWrapped().isBoolean();
   }
@@ -166,6 +172,16 @@ public abstract class EvaluatedFromValue implements Value {
   @Override
   public Array toArray() {
     return getWrapped().toArray();
+  }
+
+  @Override
+  public boolean isByte() {
+    return getWrapped().isByte();
+  }
+
+  @Override
+  public byte toByte() {
+    return getWrapped().toByte();
   }
 
 }

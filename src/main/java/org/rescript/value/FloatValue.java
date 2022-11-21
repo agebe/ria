@@ -84,4 +84,9 @@ public class FloatValue implements Value {
     return new FloatValue(this.val-1);
   }
 
+  @Override
+  public byte toByte() {
+    return (byte)val;
+  }
+
 }

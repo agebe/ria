@@ -45,6 +45,11 @@ public class IntValue implements Value {
   }
 
   @Override
+  public byte toByte() {
+    return (byte)val;
+  }
+
+  @Override
   public boolean isNumber() {
     return true;
   }

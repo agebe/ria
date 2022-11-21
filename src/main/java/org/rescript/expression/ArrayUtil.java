@@ -7,6 +7,7 @@ import org.rescript.ScriptException;
 import org.rescript.value.AbstractArrayValue;
 import org.rescript.value.ArrayValue;
 import org.rescript.value.BooleanArrayValue;
+import org.rescript.value.ByteArrayValue;
 import org.rescript.value.CharArrayValue;
 import org.rescript.value.DoubleArrayValue;
 import org.rescript.value.FloatArrayValue;
@@ -57,6 +58,12 @@ public class ArrayUtil {
         arr[i] = vals.get(i).toBoolean();
       }
       return new BooleanArrayValue(arr);
+    } else if(cls.equals(byte.class)) {
+      byte[] arr = new byte[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toByte();
+      }
+      return new ByteArrayValue(arr);
     } else {
       Object[] arr = (Object[])Array.newInstance(cls, vals.size());
       for(int i=0;i<vals.size();i++) {
@@ -80,7 +87,8 @@ public class ArrayUtil {
       long[] arr = new long[size];
       return new LongArrayValue(arr);
     } else if(cls.equals(byte.class)) {
-      throw new ScriptException("byte array literal not implemented yet");
+      byte[] arr = new byte[size];
+      return new ByteArrayValue(arr);
     } else if(cls.equals(short.class)) {
       throw new ScriptException("short array literal not implemented yet");
     } else if(cls.equals(char.class)) {
@@ -110,7 +118,7 @@ public class ArrayUtil {
       // FIXME
       throw new ScriptException("short array currently not supported");
     } else if(array instanceof byte[] a) {
-      throw new ScriptException("byte array currently not supported");
+      return new ByteArrayValue(a);
     } else if(array instanceof boolean[] a) {
       return new BooleanArrayValue(a);
     } else if(array instanceof Object[] a) {

@@ -93,4 +93,9 @@ public class CharValue implements Value {
     return true;
   }
 
+  @Override
+  public byte toByte() {
+    return (byte)val;
+  }
+
 }

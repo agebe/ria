@@ -44,6 +44,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isByte() {
+    return false;
+  }
+
   default boolean isString() {
     return false;
   }
@@ -100,6 +104,10 @@ public interface Value {
     throw new ScriptException("can't cast '%s' to char".formatted(this.getClass()));
   }
 
+  default byte toByte() {
+    throw new ScriptException("can't cast '%s' to byte".formatted(this.getClass()));
+  }
+
   default FunctionValue toFunctionValue() {
     throw new ScriptException("can't cast '%s' to function value".formatted(this.getClass()));
   }
@@ -144,6 +152,8 @@ public interface Value {
         return new LongValue(val);
       } else if(char.class == cls) {
         return new CharValue(val);
+      } else if(byte.class == cls) {
+        return new ByteValue(val);
       } else {
         throw new ScriptException("primitive type '%s' not implemented yet".formatted(cls));
       }
@@ -163,7 +173,7 @@ public interface Value {
       } else if(cls == short[].class) {
         throw new ScriptException("short array not supported");
       } else if(cls == byte[].class) {
-        throw new ScriptException("byte array not supported");
+        return new ByteArrayValue((byte[])val);
       } else {
         return new ArrayValue((Object[])val, cls);
       }

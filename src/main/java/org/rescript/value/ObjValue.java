@@ -46,7 +46,7 @@ public class ObjValue implements Value {
 
   @Override
   public boolean isNumber() {
-    return isDouble() || isFloat() || isLong() || isInteger();
+    return isDouble() || isFloat() || isLong() || isInteger() || isByte();
   }
 
   @Override
@@ -90,6 +90,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public byte toByte() {
+    return (Byte)val;
+  }
+
+  @Override
   public boolean isDouble() {
     return Double.class.equals(type) || double.class.equals(type);
   }
@@ -115,6 +120,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public boolean isByte() {
+    return Byte.class.equals(type) || byte.class.equals(type);
+  }
+
+  @Override
   public String getText() {
     return isNotNull()?val.toString():null;
   }
@@ -126,7 +136,8 @@ public class ObjValue implements Value {
         float.class.equals(type) ||
         long.class.equals(type) ||
         int.class.equals(type) ||
-        char.class.equals(type);
+        char.class.equals(type) ||
+        byte.class.equals(type);
   }
 
   private boolean isPrimitiveWrapper() {
@@ -147,6 +158,8 @@ public class ObjValue implements Value {
       return new IntValue(toInt());
     } else if(isChar()) {
       return new CharValue(toChar());
+    } else if(isByte()) {
+      return new ByteValue(toByte());
     } else {
       throw new ScriptException("can't unbox type '%s'".formatted(type));
     }
