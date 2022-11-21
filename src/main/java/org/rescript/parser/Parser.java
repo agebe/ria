@@ -18,10 +18,6 @@ public class Parser {
 
   private boolean showErrorsOnConsole;
 
-  public Parser() {
-    this(false);
-  }
-
   public Parser(boolean showErrorsOnConsole) {
     super();
     this.showErrorsOnConsole = showErrorsOnConsole;

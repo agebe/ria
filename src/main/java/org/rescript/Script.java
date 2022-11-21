@@ -15,6 +15,8 @@ public class Script {
 
   private Function entry;
 
+  private boolean showErrorsOnConsole;
+
   public Script() {
     this(null, null);
   }
@@ -127,10 +129,18 @@ public class Script {
 
   private Script parse(String script) {
     if(this.entry == null) {
-      this.entry = new Parser().parse(script);
+      this.entry = new Parser(showErrorsOnConsole).parse(script);
       this.symbols.getScriptSymbols().setMain(entry);
     }
     return this;
+  }
+
+  public boolean isShowErrorsOnConsole() {
+    return showErrorsOnConsole;
+  }
+
+  public void setShowErrorsOnConsole(boolean showErrorsOnConsole) {
+    this.showErrorsOnConsole = showErrorsOnConsole;
   }
 
 }
