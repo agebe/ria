@@ -359,6 +359,10 @@ public class ParserListener implements ScriptListener {
     return cls.cast(stack.pop());
   }
 
+  private <T> T popIfExists(Class<T> cls) {
+    return nextItemIs(cls)?pop(cls):null;
+  }
+
   private boolean nextTerminalIs(String text) {
     ParseItem p = stack.peek();
     if(p instanceof Terminal) {
@@ -854,11 +858,12 @@ public class ParserListener implements ScriptListener {
     Expression expr = popExpression();
     popTerminal(":");
     Identifier ident = popIdentifier();
-    popTerminalIfExists("var");
+    TypeOrPrimitive type = popIfExists(TypeOrPrimitive.class);
     popTerminal("(");
     popTerminal("for");
     ForEachStatement forEach = (ForEachStatement)stack.peek();
     forEach.setIdentifier(ident.getIdent());
+    forEach.setType(type!=null?type.getType():null);
     forEach.setIterable(expr);
   }
 

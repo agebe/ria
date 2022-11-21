@@ -62,7 +62,7 @@ forStmt: FOR LPAREN forInit forTerm forInc RPAREN stmt;
 forInit: vardefStmt | emptyStmt | assign ( ',' assign )* SEMI;
 forTerm: expr? SEMI;
 forInc: expr? ( ',' expr )*;
-forEachStmt : FOR LPAREN 'var'? ident COLON expr RPAREN stmt;
+forEachStmt : FOR LPAREN typeOrPrimitiveOrVar? ident COLON expr RPAREN stmt;
 breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;

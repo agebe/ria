@@ -13,6 +13,8 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
 
   private String identifier;
 
+  private String type;
+
   private Expression iterable;
 
   private Statement statement;
@@ -21,16 +23,12 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
     super();
   }
 
-  public String getIdentifier() {
-    return identifier;
-  }
-
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
   }
 
-  public Expression getIterable() {
-    return iterable;
+  public void setType(String type) {
+    this.type = type;
   }
 
   public void setIterable(Expression iterable) {
@@ -67,7 +65,7 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
       try {
         ctx.getSymbols().getScriptSymbols().enterScope();
         Object o = iter.next();
-        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o));
+        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o), type);
         clearContinue();
         statement.execute(ctx);
         if(ctx.isReturnFlag()) {
@@ -87,7 +85,7 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
       try {
         ctx.getSymbols().getScriptSymbols().enterScope();
         Object o = a.get(i).val();
-        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o));
+        ctx.getSymbols().getScriptSymbols().defineVar(identifier, Value.of(o), type);
         clearContinue();
         statement.execute(ctx);
         if(ctx.isReturnFlag()) {

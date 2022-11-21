@@ -3,13 +3,19 @@ package org.rescript.symbol.script;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.expression.CastOp;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.ObjValue;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScopeNode {
+
+  private static final Logger log = LoggerFactory.getLogger(ScopeNode.class);
 
   private ScopeNode parent;
 
@@ -28,10 +34,19 @@ public class ScopeNode {
 //    if(val == null) {
 //      throw new ScriptException("value is null for variable definition of '{}'".formatted(name));
 //    }
+    log.debug("define variable '{}', type '{}'", name, type);
     VarSymbol v = variables.putIfAbsent(name,
-        new VarSymbol(name, val!=null?val:ObjValue.NULL, type, ctx));
+        new VarSymbol(name, castToNotNull(type, val, ctx), type, ctx));
     if(v != null) {
       throw new ScriptException("variable '%s' already defined".formatted(name));
+    }
+  }
+
+  private Value castToNotNull(String type, Value val, ScriptContext ctx) {
+    if(StringUtils.isBlank(type)) {
+      return val!=null?val:ObjValue.NULL;
+    } else {
+      return val!=null?new CastOp(type, c -> val).eval(ctx):ObjValue.NULL;
     }
   }
 

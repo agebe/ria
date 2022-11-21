@@ -17,7 +17,18 @@ public class ForEachTest {
 
   @Test
   public void iterate() {
-    new Script().run("for(i : java.util.List.of(1,2,3)) println(i);");
+    new Script().run("for(i : java.util.List.of(1,2,3)) println(typeof i);");
+  }
+
+  @Test
+  public void iterateWithType() {
+    new Script().run("for(int i : java.util.List.of(1,2,3)) println(typeof i);");
+  }
+
+  @Test
+  public void iterateWithWrongType() {
+    assertThrows(ScriptException.class,
+        () -> new Script().run("for(boolean i : java.util.List.of(1,2,3)) println(i);"));
   }
 
   @Test

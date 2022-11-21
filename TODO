@@ -8,5 +8,7 @@
 * multi thread support?
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
 * apache license on all files
+
 * script launcher
 * script dependencies
+* add builtin function (e.g. exec) for scripting
