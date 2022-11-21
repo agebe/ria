@@ -621,7 +621,7 @@ COMMENT
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> channel(HIDDEN)
+    :   ( '//' | '#' ) ~[\r\n]* -> channel(HIDDEN)
     ;
 
 // from https://stackoverflow.com/a/23414078
