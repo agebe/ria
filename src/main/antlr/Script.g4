@@ -51,7 +51,7 @@ stmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
-vardefStmt: ( 'var' | typeOrPrimitive ) ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
+vardefStmt: typeOrPrimitiveOrVar ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
 
 returnStmt: 'return' expr? SEMI;
 block : '{' stmt* '}';
@@ -128,6 +128,10 @@ constructorRef
 
 ccall
   : NEW type fparams
+  ;
+
+typeOrPrimitiveOrVar
+  : typeOrPrimitive | 'var'
   ;
 
 typeOrPrimitive

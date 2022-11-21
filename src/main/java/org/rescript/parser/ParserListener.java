@@ -60,6 +60,7 @@ import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.TypeContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
+import org.rescript.antlr.ScriptParser.TypeOrPrimitiveOrVarContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.Assignment;
@@ -500,17 +501,14 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitVardefStmt(VardefStmtContext ctx) {
-    // TODO redo this, it looks more complicated than it should be
     log.debug("exitVardefStmt '{}'", ctx.getText());
     LinkedList<VarDef> vars = new LinkedList<>();
-    String type = null;
+    String type;
     popSemi();
     for(;;) {
-      if(nextTerminalIs("var")) {
-        popTerminal();
-        break;
-      } else if(nextItemIs(TypeOrPrimitive.class)) {
+      if(nextItemIs(TypeOrPrimitive.class)) {
         TypeOrPrimitive tp = pop(TypeOrPrimitive.class);
+        // if the variable was declared with 'var' then tp.getType() returns null
         type = tp.getType();
         break;
       } else if(nextTerminalIs(",")) {
@@ -1126,6 +1124,24 @@ public class ParserListener implements ScriptListener {
       }
     }
     stack.push(new ArrayInit(l));
+  }
+
+  @Override
+  public void enterTypeOrPrimitiveOrVar(TypeOrPrimitiveOrVarContext ctx) {
+    log.debug("enterTypeOrPrimitiveOrVar '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitTypeOrPrimitiveOrVar(TypeOrPrimitiveOrVarContext ctx) {
+    log.debug("exitTypeOrPrimitiveOrVar '{}'", ctx.getText());
+    if(nextTerminalIs("var")) {
+      popTerminal("var");
+      stack.push(new TypeOrPrimitive(null));
+    } else if(nextItemIs(TypeOrPrimitive.class)) {
+      // nothing to do, just keep TypeOrPrimitive on the stack
+    } else {
+      fail("expected TypeOrPrimitive or 'var' but stack has '%s'".formatted(stack.peek()));
+    }
   }
 
 }
