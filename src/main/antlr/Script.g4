@@ -7,7 +7,7 @@ package org.rescript.antlr;
 
 // script can either be a list of statements or a single expression (no need for semicolon in this case)
 script
-  : header ( stmt* | expr )
+  : header ( stmt+ | expr )
   ;
 
 header
