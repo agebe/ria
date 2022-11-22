@@ -5,7 +5,6 @@ import java.util.Deque;
 
 import org.rescript.ScriptException;
 import org.rescript.statement.Function;
-import org.rescript.statement.Statement;
 import org.rescript.symbol.SymbolTable;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
@@ -15,8 +14,6 @@ public class ScriptContext {
   private SymbolTable symbols;
 
   private FunctionCaller functions;
-
-  private Statement current;
 
   private Value lastResult = VoidValue.VOID;
 
@@ -31,15 +28,6 @@ public class ScriptContext {
     super();
     this.symbols = symbols;
     this.functions = new FunctionCaller(this);
-    this.current = symbols.getScriptSymbols().getMain();
-  }
-
-  public Statement getCurrent() {
-    return current;
-  }
-
-  public void setCurrent(Statement current) {
-    this.current = current;
   }
 
   public Value getLastResult() {

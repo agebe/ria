@@ -28,7 +28,6 @@ public class ReturnStatement implements Statement {
       ctx.setLastResult(VoidValue.VOID);
     }
     ctx.setReturnFlag(true);
-    ctx.setCurrent(null);
   }
 
   @Override
