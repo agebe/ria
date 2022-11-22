@@ -32,11 +32,18 @@ public class JavaSymbols {
     this.staticImports = new ArrayList<>();
     imports.add("java.lang.*");
     // TODO additional default imports should be configurable?
-    imports.add("java.util.*");
-    imports.add("java.stream.*");
-    imports.add("java.time.*");
-    // TODO more...
     // FIXME add a flag that disables additional default imports (other than java.lang.*)
+    imports.add("java.math.*");
+    imports.add("java.util.*");
+    imports.add("java.util.concurrent.*");
+    imports.add("java.util.concurrent.atomic.*");
+    imports.add("java.util.concurrent.locks.*");
+    imports.add("java.util.concurrent.function.*");
+    imports.add("java.util.stream.*");
+    imports.add("java.time.*");
+    imports.add("java.time.format.*");
+    imports.add("java.time.temporal.*");
+    imports.add("java.io.*");
   }
 
   public void addImport(String imp) {
