@@ -2,6 +2,8 @@ package org.rescript.value;
 
 import java.lang.reflect.Method;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 public class MethodValue implements Value {
 
   private Class<?> targetType;
@@ -29,7 +31,10 @@ public class MethodValue implements Value {
 
   @Override
   public Object val() {
-    return target;
+    return "method %s::%s, %s".formatted(
+        targetType.getName(),
+        methodName,
+        target!=null?("on object " + ObjectUtils.identityToString(target)):"static");
   }
 
   @Override
