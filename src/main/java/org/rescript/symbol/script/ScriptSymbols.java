@@ -33,6 +33,14 @@ public class ScriptSymbols {
     defineVar(name, val, null);
   }
 
+  public ScopeNode getCurrentScope() {
+    return current.get();
+  }
+
+  public void setCurrentScope(ScopeNode scope) {
+    current.set(scope);
+  }
+
   public void defineVar(String name, Value val, String type) {
     current.get().defineVar(name, val, type, ctx);
   }
