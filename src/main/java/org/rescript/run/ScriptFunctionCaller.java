@@ -34,8 +34,10 @@ public class ScriptFunctionCaller {
   public Value call(FunctionValue val, Object[] args) {
     // TODO find function if there are multiple
     Function function = val.getFunctions().get(0);
-    for(Object o : args) {
-      ctx.getStack().push(Value.of(o));
+    if(args != null) {
+      for(Object o : args) {
+        ctx.getStack().push(Value.of(o));
+      }
     }
     function.executeFunction(ctx);
     return ctx.getStack().pop();

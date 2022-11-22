@@ -11,18 +11,24 @@ import org.rescript.value.VoidValue;
 
 public class ScriptContext {
 
+  private static class Context {
+
+    private Value lastResult = VoidValue.VOID;
+
+    private boolean returnFlag;
+
+    private Deque<Stackframe> functionStack = new ArrayDeque<>();
+
+    // for parameter and return value passing into/from functions
+    private Deque<Value> stack = new ArrayDeque<>();
+
+  }
+
   private SymbolTable symbols;
 
   private FunctionCaller functions;
 
-  private Value lastResult = VoidValue.VOID;
-
-  private boolean returnFlag;
-
-  private Deque<Stackframe> functionStack = new ArrayDeque<>();
-
-  // for parameter and return value passing into/from functions
-  private Deque<Value> stack = new ArrayDeque<>();
+  private ThreadLocal<Context> contexts = ThreadLocal.withInitial(Context::new);
 
   public ScriptContext(SymbolTable symbols) {
     super();
@@ -31,14 +37,14 @@ public class ScriptContext {
   }
 
   public Value getLastResult() {
-    return lastResult;
+    return contexts.get().lastResult;
   }
 
   public void setLastResult(Value lastResult) {
     if(lastResult == null) {
       throw new ScriptException("last result can not be null");
     }
-    this.lastResult = lastResult;
+    contexts.get().lastResult = lastResult;
   }
 
   public SymbolTable getSymbols() {
@@ -50,34 +56,34 @@ public class ScriptContext {
   }
 
   public boolean isReturnFlag() {
-    return returnFlag;
+    return contexts.get().returnFlag;
   }
 
   public void setReturnFlag(boolean returnFlag) {
-    this.returnFlag = returnFlag;
+    contexts.get().returnFlag = returnFlag;
   }
 
   public void enterFunction(Function function) {
-    functionStack.push(new Stackframe(function));
+    contexts.get().functionStack.push(new Stackframe(function));
   }
 
   public void exitFunction(Function function) {
-    Stackframe frame = functionStack.pop();
+    Stackframe frame = contexts.get().functionStack.pop();
     if(frame.getFunction() != function) {
       throw new ScriptException("expected function '%s' but got '%s'".formatted(function, frame.getFunction()));
     }
   }
 
   public Function currentFunction() {
-    return functionStack.peek().getFunction();
+    return contexts.get().functionStack.peek().getFunction();
   }
 
   public Stackframe getCurrentFrame() {
-    return functionStack.peek();
+    return contexts.get().functionStack.peek();
   }
 
   public Deque<Value> getStack() {
-    return stack;
+    return contexts.get().stack;
   }
 
 }

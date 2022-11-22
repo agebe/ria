@@ -122,4 +122,28 @@ public class LambdaTest {
         """));
   }
 
+  @Test
+  public void accessOuter() {
+    assertEquals(2, new Script().run("""
+        var v = 2;
+        java.util.List.of(42,10,99).stream()
+          .map(i -> v)
+          .findFirst()
+          .orElse(null);
+        """));
+  }
+
+  @Test
+  public void accessOuterFunction() {
+    assertEquals(2, new Script().run("""
+        function test(v) {
+          return java.util.List.of(42,10,99).stream()
+            .map(i -> v)
+            .findFirst()
+            .orElse(null);
+        }
+        test(2);
+        """));
+  }
+
 }

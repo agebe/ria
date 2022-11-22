@@ -30,7 +30,7 @@ public class ScopeNode {
     this.parent = parent;
   }
 
-  public void defineVar(String name, Value val, String type, ScriptContext ctx) {
+  public synchronized void defineVar(String name, Value val, String type, ScriptContext ctx) {
 //    if(val == null) {
 //      throw new ScriptException("value is null for variable definition of '{}'".formatted(name));
 //    }
@@ -64,7 +64,7 @@ public class ScopeNode {
     return sym!=null?sym.getVal():null;
   }
 
-  public VarSymbol getVarSymbol(String name) {
+  public synchronized VarSymbol getVarSymbol(String name) {
     VarSymbol sym = variables.get(name);
     if(sym != null) {
       return sym;
@@ -79,7 +79,7 @@ public class ScopeNode {
     return parent;
   }
 
-  public VarSymbol unset(String name) {
+  public synchronized VarSymbol unset(String name) {
     VarSymbol sym = variables.get(name);
     if(sym != null) {
       variables.remove(name);

@@ -19,14 +19,13 @@ public class ScriptSymbols {
 
   private ScopeNode root;
 
-  private ScopeNode current;
+  private ThreadLocal<ScopeNode> current = ThreadLocal.withInitial(() -> root);
 
   private ScriptContext ctx;
 
   public ScriptSymbols() {
     super();
     root = new ScopeNode();
-    current = root;
     defineVar("println", new MethodValue(System.out.getClass(), System.out, "println"));
   }
 
@@ -35,11 +34,11 @@ public class ScriptSymbols {
   }
 
   public void defineVar(String name, Value val, String type) {
-    current.defineVar(name, val, type, ctx);
+    current.get().defineVar(name, val, type, ctx);
   }
 
   public void assignVar(String name, Value val) {
-    current.assignVar(name, val);
+    current.get().assignVar(name, val);
   }
 
   public void defineOrAssignVarRoot(String name, Value val) {
@@ -56,22 +55,23 @@ public class ScriptSymbols {
   }
 
   public Value getVariable(String name) {
-    return current.getVariable(name);
+    return current.get().getVariable(name);
   }
 
   public VarSymbol resolveVar(String ident) {
-    return current.getVarSymbol(ident);
+    return current.get().getVarSymbol(ident);
   }
 
   public void enterScope() {
-    current = new ScopeNode(current);
+    ScopeNode parent = current.get();
+    current.set(new ScopeNode(parent));
   }
 
   public void exitScope() {
-    if(current.getParent() == null) {
+    if(current.get().getParent() == null) {
       throw new ScriptException("can't exit root scope");
     } else {
-      current = current.getParent();
+      current.set(current.get().getParent());
     }
   }
 
