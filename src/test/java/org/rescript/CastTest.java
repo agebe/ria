@@ -55,5 +55,9 @@ public class CastTest {
         """.formatted(pkg, pkg)).run());
   }
 
+  @Test
+  public void bitCount() {
+    assertEquals(2, new Script().evalInt("Integer.bitCount(17l)"));
+  }
 
 }

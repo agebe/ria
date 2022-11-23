@@ -281,7 +281,7 @@ public class RUtils {
               new Class[] {expected},
               new ConstructorReferenceInvocationHandler(supplied.toConstructorValue(), ctx));
         } else {
-          preparedParams[i] = params[i].val();
+          preparedParams[i] = CastOp.castTo(params[i], expected.getName(), ctx).val();
         }
       }
       return preparedParams;
