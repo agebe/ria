@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.expression.CastOp;
 import org.rescript.run.ConstructorReferenceInvocationHandler;
 import org.rescript.run.MethodReferenceInvocationHandler;
 import org.rescript.run.ScriptContext;
@@ -105,9 +106,9 @@ public class RUtils {
     }
   }
 
-  public static <T extends Executable> T matchSignature(Value[] params, List<T> executables) {
+  public static <T extends Executable> T matchSignature(Value[] params, List<T> executables, ScriptContext ctx) {
     return matchSignatureExactly(params, executables)
-        .orElseGet(() -> matchSignatureFuzzy(params, executables).orElse(null));
+        .orElseGet(() -> matchSignatureFuzzy(params, executables, ctx).orElse(null));
   }
 
   public static <T extends Executable> Optional<T> matchSignatureExactly(Value[] params, List<T> executables) {
@@ -153,16 +154,18 @@ public class RUtils {
     return true;
   }
 
-  public static <T extends Executable> Optional<T> matchSignatureFuzzy(Value[] params,
-      List<T> executables) {
+  public static <T extends Executable> Optional<T> matchSignatureFuzzy(
+      Value[] params,
+      List<T> executables,
+      ScriptContext ctx) {
     return executables.stream()
-        .filter(e -> e.isVarArgs()?matchSignatureVarargs(params, e):matchSignatureFuzzy(params, e))
+        .filter(e -> e.isVarArgs()?matchSignatureVarargs(params, e, ctx):matchSignatureFuzzy(params, e, ctx))
         .findFirst();
   }
 
-  public static boolean matchSignatureVarargs(Value[] params, Executable executable) {
+  public static boolean matchSignatureVarargs(Value[] params, Executable executable, ScriptContext ctx) {
     if(!executable.isVarArgs()) {
-      return matchSignatureFuzzy(params, executable);
+      return matchSignatureFuzzy(params, executable, ctx);
     }
     Class<?>[] methodParams = executable.getParameterTypes();
     // check params before the vararg first
@@ -198,9 +201,9 @@ public class RUtils {
     return true;
   }
 
-  public static boolean matchSignatureFuzzy(Value[] params, Executable executable) {
+  public static boolean matchSignatureFuzzy(Value[] params, Executable executable, ScriptContext ctx) {
     if(executable.isVarArgs()) {
-      return matchSignatureVarargs(params, executable);
+      return matchSignatureVarargs(params, executable, ctx);
     }
     Class<?>[] methodParams = executable.getParameterTypes();
     if(methodParams.length != params.length) {
@@ -215,8 +218,7 @@ public class RUtils {
       if(params[i].isNull() && (!mp.isPrimitive())) {
         continue;
       }
-      Class<?> pt = params[i].type();
-      if(!isParameterTypeMatch(mp, pt)) {
+      if(!isParameterTypeMatch(mp, params[i], ctx)) {
         log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",
             executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
         return false;
@@ -227,26 +229,16 @@ public class RUtils {
     return true;
   }
 
-  public static boolean isParameterTypeMatch(Class<?> target, Class<?> from) {
+  public static boolean isParameterTypeMatch(Class<?> target, Value from, ScriptContext ctx) {
     if(target.equals(Object.class)) {
       return true;
     }
-    if(target.isAssignableFrom(from)) {
+    if(target.isAssignableFrom(from.type())) {
       return true;
     }
-    // added this to get the LambdaTest.asJavaLambda() going
-    // requires better fix!
-    if(target.equals(int.class) && from.equals(Integer.class)) {
+    if(CastOp.canCast(from, target.getName(), ctx)) {
       return true;
     }
-    // FIXME all of the following are false but should be ok for function calling
-//    System.out.println(Object.class.isAssignableFrom(int.class));
-//    System.out.println(Integer.class.isAssignableFrom(int.class));
-//    System.out.println(int.class.isAssignableFrom(Integer.class));
-//    System.out.println(int.class.isAssignableFrom(long.class));
-//    System.out.println(long.class.isAssignableFrom(int.class));
-//    System.out.println(Integer.class.isAssignableFrom(Long.class));
-//    System.out.println(Long.class.isAssignableFrom(Integer.class));
 //    https://stackoverflow.com/questions/12559634/java-autoboxing-rules
 //    https://docs.oracle.com/javase/specs/jls/se7/html/jls-5.html
     return false;

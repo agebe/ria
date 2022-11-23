@@ -56,4 +56,13 @@ public class CastOp implements Expression {
       return new ObjValue(cls, cls.cast(v.val()));
     }
   }
+
+  public static boolean canCast(Value v, String type, ScriptContext ctx) {
+    try {
+      castTo(v, type, ctx);
+      return true;
+    } catch(Exception e) {
+      return false;
+    }
+  }
 }

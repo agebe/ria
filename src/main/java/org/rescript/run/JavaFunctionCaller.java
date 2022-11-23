@@ -75,7 +75,7 @@ public class JavaFunctionCaller {
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();
     Class<?>[] paramTypes = Arrays.stream(parameters).map(Value::type).toArray(Class[]::new);
     Class<?> cls = symbol.getTargetType();
-    Method m = RUtils.matchSignature(parameters, RUtils.findAccessibleMethods(cls, symbol.getTarget(), fname));
+    Method m = RUtils.matchSignature(parameters, RUtils.findAccessibleMethods(cls, symbol.getTarget(), fname), ctx);
     if(m != null) {
       try {
         log.debug("invoke method '{}' with parameter types '{}', '{}'",

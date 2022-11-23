@@ -35,7 +35,7 @@ public class JavaConstructorCaller {
   public Value call(Class<?> cls, List<FunctionParameter> plist) {
     try {
       Value[] parameters = resolveParameters(plist, ctx);
-      Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()));
+      Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()), ctx);
       if( c == null) {
         throw new ScriptException("no constructor matching parameters found " + Arrays.toString(parameters));
       }
