@@ -2,10 +2,12 @@ package org.rescript.expression;
 
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.ByteValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
+import org.rescript.value.ShortValue;
 import org.rescript.value.Value;
 
 public class UnaryMinusOp implements Expression {
@@ -32,6 +34,10 @@ public class UnaryMinusOp implements Expression {
         return new LongValue(-val.toLong());
       } else if(val.isInteger()) {
         return new IntValue(-val.toInt());
+      } else if(val.isShort()) {
+        return new ShortValue(-val.toShort());
+      } else if(val.isByte()) {
+        return new ByteValue(-val.toByte());
       } else {
         throw new ScriptException("unsupported number type: " + val.type());
       }

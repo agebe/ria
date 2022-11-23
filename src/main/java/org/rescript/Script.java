@@ -104,8 +104,24 @@ public class Script {
     return runVal().toChar();
   }
 
-  public int evalChar(String script) {
+  public char evalChar(String script) {
     return reparse(script).evalChar();
+  }
+
+  public short evalShort() {
+    return runVal().toShort();
+  }
+
+  public short evalShort(String script) {
+    return reparse(script).evalShort();
+  }
+
+  public byte evalByte() {
+    return runVal().toByte();
+  }
+
+  public byte evalByte(String script) {
+    return reparse(script).evalByte();
   }
 
   public void setVariable(String name, Object val) {

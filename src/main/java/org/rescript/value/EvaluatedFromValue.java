@@ -184,4 +184,14 @@ public abstract class EvaluatedFromValue implements Value {
     return getWrapped().toByte();
   }
 
+  @Override
+  public boolean isShort() {
+    return getWrapped().isShort();
+  }
+
+  @Override
+  public short toShort() {
+    return getWrapped().toShort();
+  }
+
 }

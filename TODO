@@ -2,10 +2,8 @@
 * other assign operator e.g. +=, -= etc.
 * text blocks
 * switch statement?
-* byte, short primitive type support?
 * throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 * try-catch (with resources?)
-* multi thread support?
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
 * apache license on all files
 

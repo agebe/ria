@@ -36,6 +36,10 @@ public class GeOp extends TripleOp {
         return new BooleanValue(v1.toLong() >= v2.toLong());
       } else if(v1.isInteger() || v2.isInteger()) {
         return new BooleanValue(v1.toInt() >= v2.toInt());
+      } else if(v1.isShort() || v2.isShort()) {
+        return new BooleanValue(v1.toShort() >= v2.toShort());
+      } else if(v1.isByte() || v2.isByte()) {
+        return new BooleanValue(v1.toByte() >= v2.toByte());
       } else 
         throw new ScriptException("unexpected case on '%s', types '%s' and '%s'"
             .formatted(getOp(), v1.type(), v2.type()));

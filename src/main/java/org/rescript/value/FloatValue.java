@@ -89,4 +89,9 @@ public class FloatValue implements Value {
     return (byte)val;
   }
 
+  @Override
+  public short toShort() {
+    return (short)val;
+  }
+
 }

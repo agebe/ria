@@ -9,6 +9,7 @@ import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
 public class NewArrayInitOp implements Expression {
+
   private String type;
 
   private int dimensions;
@@ -37,7 +38,8 @@ public class NewArrayInitOp implements Expression {
       if(p instanceof ArrayInit nested) {
         Array.set(array, i, initArray(ctx, cls, dim-1, nested));
       } else if(p instanceof Expression exp) {
-        Array.set(array, i, exp.eval(ctx).val());
+        Value v = exp.eval(ctx);
+        Array.set(array, i, v.isNotNull()?CastOp.castTo(v, type, ctx).val():null);
       } else {
         throw new ScriptException("unexpected array initializer '%s'".formatted(p));
       }

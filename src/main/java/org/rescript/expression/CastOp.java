@@ -1,15 +1,16 @@
 package org.rescript.expression;
 
-import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.BooleanValue;
+import org.rescript.value.ByteValue;
 import org.rescript.value.CharValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
 import org.rescript.value.ObjValue;
+import org.rescript.value.ShortValue;
 import org.rescript.value.Value;
 
 public class CastOp implements Expression {
@@ -26,7 +27,10 @@ public class CastOp implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Value v = expression.eval(ctx);
+    return castTo(expression.eval(ctx), type, ctx);
+  }
+
+  public static Value castTo(Value v, String type, ScriptContext ctx) {
     // TODO check if value is already of correct type and return v without creating a new value
     if(type.equals("double")) {
       return new DoubleValue(v.toDouble());
@@ -39,9 +43,9 @@ public class CastOp implements Expression {
     } else if(type.equals("char")) {
       return new CharValue(v.toChar());
     } else if(type.equals("byte")) {
-      throw new ScriptException("cast to byte not implemented");
+      return new ByteValue(v.toByte());
     } else if(type.equals("short")) {
-      throw new ScriptException("cast to short not implemented");
+      return new ShortValue(v.toShort());
     } else if(type.equals("boolean")) {
       return new BooleanValue(v.toBoolean());
     } else {

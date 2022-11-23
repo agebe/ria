@@ -1,21 +1,21 @@
 package org.rescript.value;
 
-public class ByteValue implements Value {
+public class ShortValue implements Value {
 
-  private final byte val;
+  private final short val;
 
-  public ByteValue(byte val) {
+  public ShortValue(short val) {
     super();
     this.val = val;
   }
 
-  public ByteValue(Object o) {
-    this(((Number)o).byteValue());
+  public ShortValue(Object o) {
+    this(((Number)o).shortValue());
   }
 
   @Override
   public Class<?> type() {
-    return byte.class;
+    return short.class;
   }
 
   @Override
@@ -30,7 +30,7 @@ public class ByteValue implements Value {
 
   @Override
   public boolean equalsOp(Value other) {
-    return this.val == other.toByte();
+    return this.val == other.toShort();
   }
 
   @Override
@@ -65,7 +65,7 @@ public class ByteValue implements Value {
 
   @Override
   public byte toByte() {
-    return val;
+    return (byte)val;
   }
 
   @Override
@@ -75,22 +75,22 @@ public class ByteValue implements Value {
 
   @Override
   public boolean isByte() {
-    return true;
-  }
-
-  @Override
-  public boolean isShort() {
     return false;
   }
 
   @Override
+  public boolean isShort() {
+    return true;
+  }
+
+  @Override
   public Value inc() {
-    return new ByteValue(this.val+1);
+    return new ShortValue(this.val+1);
   }
 
   @Override
   public Value dec() {
-    return new ByteValue(this.val-1);
+    return new ShortValue(this.val-1);
   }
 
 }

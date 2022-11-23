@@ -13,6 +13,7 @@ import org.rescript.value.DoubleArrayValue;
 import org.rescript.value.FloatArrayValue;
 import org.rescript.value.IntArrayValue;
 import org.rescript.value.LongArrayValue;
+import org.rescript.value.ShortArrayValue;
 import org.rescript.value.Value;
 
 public class ArrayUtil {
@@ -43,9 +44,17 @@ public class ArrayUtil {
       }
       return new LongArrayValue(arr);
     } else if(cls.equals(byte.class)) {
-      throw new ScriptException("byte array literal not implemented yet");
+      byte[] arr = new byte[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toByte();
+      }
+      return new ByteArrayValue(arr);
     } else if(cls.equals(short.class)) {
-      throw new ScriptException("short array literal not implemented yet");
+      short[] arr = new short[vals.size()];
+      for(int i=0;i<vals.size();i++) {
+        arr[i] = vals.get(i).toShort();
+      }
+      return new ShortArrayValue(arr);
     } else if(cls.equals(char.class)) {
       char[] arr = new char[vals.size()];
       for(int i=0;i<vals.size();i++) {
@@ -90,7 +99,8 @@ public class ArrayUtil {
       byte[] arr = new byte[size];
       return new ByteArrayValue(arr);
     } else if(cls.equals(short.class)) {
-      throw new ScriptException("short array literal not implemented yet");
+      short[] arr = new short[size];
+      return new ShortArrayValue(arr);
     } else if(cls.equals(char.class)) {
       char[] arr = new char[size];
       return new CharArrayValue(arr);
@@ -115,8 +125,7 @@ public class ArrayUtil {
     } else if(array instanceof char[] a) {
       return new CharArrayValue(a);
     } else if(array instanceof short[] a) {
-      // FIXME
-      throw new ScriptException("short array currently not supported");
+      return new ShortArrayValue(a);
     } else if(array instanceof byte[] a) {
       return new ByteArrayValue(a);
     } else if(array instanceof boolean[] a) {

@@ -48,6 +48,10 @@ public interface Value {
     return false;
   }
 
+  default boolean isShort() {
+    return false;
+  }
+
   default boolean isString() {
     return false;
   }
@@ -106,6 +110,10 @@ public interface Value {
 
   default byte toByte() {
     throw new ScriptException("can't cast '%s' to byte".formatted(this.getClass()));
+  }
+
+  default short toShort() {
+    throw new ScriptException("can't cast '%s' to short".formatted(this.getClass()));
   }
 
   default FunctionValue toFunctionValue() {
@@ -171,7 +179,7 @@ public interface Value {
       } else if(cls == char[].class) {
         return new CharArrayValue((char[])val);
       } else if(cls == short[].class) {
-        throw new ScriptException("short array not supported");
+        return new ShortArrayValue((short[])val);
       } else if(cls == byte[].class) {
         return new ByteArrayValue((byte[])val);
       } else {

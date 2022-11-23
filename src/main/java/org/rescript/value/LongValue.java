@@ -94,4 +94,9 @@ public class LongValue implements Value {
     return (byte)val;
   }
 
+  @Override
+  public short toShort() {
+    return (short)val;
+  }
+
 }

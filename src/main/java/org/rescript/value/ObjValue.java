@@ -46,7 +46,7 @@ public class ObjValue implements Value {
 
   @Override
   public boolean isNumber() {
-    return isDouble() || isFloat() || isLong() || isInteger() || isByte();
+    return isDouble() || isFloat() || isLong() || isInteger() || isByte() || isShort();
   }
 
   @Override
@@ -95,6 +95,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public short toShort() {
+    return (Short)val;
+  }
+
+  @Override
   public boolean isDouble() {
     return Double.class.equals(type) || double.class.equals(type);
   }
@@ -125,6 +130,11 @@ public class ObjValue implements Value {
   }
 
   @Override
+  public boolean isShort() {
+    return Short.class.equals(type) || short.class.equals(type);
+  }
+
+  @Override
   public String getText() {
     return isNotNull()?val.toString():null;
   }
@@ -137,7 +147,8 @@ public class ObjValue implements Value {
         long.class.equals(type) ||
         int.class.equals(type) ||
         char.class.equals(type) ||
-        byte.class.equals(type);
+        byte.class.equals(type) ||
+        short.class.equals(type);
   }
 
   private boolean isPrimitiveWrapper() {
@@ -160,6 +171,8 @@ public class ObjValue implements Value {
       return new CharValue(toChar());
     } else if(isByte()) {
       return new ByteValue(toByte());
+    } else if(isShort()) {
+      return new ShortValue(toShort());
     } else {
       throw new ScriptException("can't unbox type '%s'".formatted(type));
     }

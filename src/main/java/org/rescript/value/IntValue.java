@@ -94,4 +94,9 @@ public class IntValue implements Value {
     return (char)val;
   }
 
+  @Override
+  public short toShort() {
+    return (short)val;
+  }
+
 }

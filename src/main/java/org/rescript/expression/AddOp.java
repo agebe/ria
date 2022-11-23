@@ -2,11 +2,13 @@ package org.rescript.expression;
 
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.ByteValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
 import org.rescript.value.ObjValue;
+import org.rescript.value.ShortValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,11 @@ public class AddOp extends TripleOp {
         return new LongValue(v1.toLong() + v2.toLong());
       } else if(v1.isInteger() || v2.isInteger()) {
         return new IntValue(v1.toInt() + v2.toInt());
-      } else 
+      } else if(v1.isShort() || v2.isShort()) {
+        return new ShortValue(v1.toShort() + v2.toShort());
+      } else if(v1.isByte() || v2.isByte()) {
+        return new ByteValue(v1.toByte() + v2.toByte());
+      } else
         throw new ScriptException("unexpected case on '%s', types '%s' and '%s'"
             .formatted(getOp(), v1.type(), v2.type()));
     } else if(v1.isString() || v2.isString()) {

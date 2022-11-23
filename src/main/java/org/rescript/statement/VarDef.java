@@ -6,12 +6,14 @@ import org.rescript.expression.Identifier;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.BooleanValue;
+import org.rescript.value.ByteValue;
 import org.rescript.value.CharValue;
 import org.rescript.value.DoubleValue;
 import org.rescript.value.FloatValue;
 import org.rescript.value.IntValue;
 import org.rescript.value.LongValue;
 import org.rescript.value.ObjValue;
+import org.rescript.value.ShortValue;
 import org.rescript.value.Value;
 
 public class VarDef {
@@ -58,11 +60,11 @@ public class VarDef {
     } else if(type.equals("int")) {
       return new IntValue(0);
     } else if(type.equals("char")) {
-      return new CharValue(0);
+      return new CharValue((char)0);
     } else if(type.equals("byte")) {
-      throw new ScriptException("byte value not implemented");
+      return new ByteValue((byte)0);
     } else if(type.equals("short")) {
-      throw new ScriptException("short value not implemented");
+      return new ShortValue((short)0);
     } else if(type.equals("boolean")) {
       return BooleanValue.FALSE;
     } else {
