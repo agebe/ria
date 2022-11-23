@@ -14,22 +14,30 @@ public class ScriptLauncher {
   private static final Logger log = LoggerFactory.getLogger(ScriptLauncher.class);
 
   public static void main(String[] args) {
+    if(args.length == 0) {
+      System.err.println("script file parameter missing");
+      System.exit(1);
+    }
     try {
-      if(args.length == 1) {
-        File f = new File(args[0]);
-        if(f.exists()) {
-          String script = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
-          Script s = new Script(script);
-          s.setShowErrorsOnConsole(true);
-          s.run();
+      File f = new File(args[0]);
+      if(f.exists()) {
+        String script = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+        Script s = new Script(script);
+        s.setShowErrorsOnConsole(true);
+        if(args.length > 1) {
+          String[] a = new String[args.length-1];
+          System.arraycopy(args, 1, a, 0, args.length-1);
+          for(int i=0;i<a.length;i++) {
+            s.setVariable("$"+i, a[i]);
+          }
+          s.setVariable("$", a);
+        } else {
+          s.setVariable("$", new String[0]);
         }
+        s.run();
       } else {
-        System.out.println("script launcher");
-        System.out.println("number of arguments '%s'".formatted(args.length));
-        for(int i=0;i<args.length;i++) {
-          System.out.println(args[i]);
-        }
-        System.out.println("done");
+        System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
+        System.exit(1);
       }
     } catch(Throwable t) {
       String msg = "script failed with exception";

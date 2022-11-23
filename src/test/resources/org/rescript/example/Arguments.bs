@@ -1,0 +1,10 @@
+#!/usr/bin/env bs
+if($.length > 0)
+  println("number of arguments is " + $.length);
+else
+  println("script executed without arguments");
+for(int i=0;i<$.length;i++)
+  println("arg %s: %s".formatted(i, $[i]));
+if($.length > 0)
+  println("first argument is " + $0);
+println("done");
