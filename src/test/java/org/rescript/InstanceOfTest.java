@@ -47,21 +47,29 @@ public class InstanceOfTest {
         """));
   }
 
-//  @Test
-//  @Disabled
-//  public void isIstanceOf3() {
-//    // does not work as 'int' is not resolved
-//    assertTrue(new Script().evalPredicate("function f() {42;} 1 instanceof int;"));
-//  }
+  @Test
+  public void isIstanceOf3() {
+    assertTrue(new Script().evalPredicate("function f() {42;} 1 instanceof int;"));
+  }
 
   @Test
-  public void isIstanceOf4() {
-    assertTrue(new Script().evalPredicate("function f() {42;} 1 instanceof f();"));
+  public void isIstanceOfBoolean() {
+    assertTrue(new Script().evalPredicate("true instanceof boolean"));
+  }
+
+  @Test
+  public void isIstanceOfBoolean2() {
+    assertFalse(new Script().evalPredicate("true instanceof Boolean"));
+  }
+
+  @Test
+  public void isIstanceOfBoolean3() {
+    assertTrue(new Script().evalPredicate("Boolean.TRUE instanceof Boolean"));
   }
 
   @Test
   public void isIstanceOf5() {
-    assertTrue(new Script().evalPredicate("1 instanceof 42"));
+    assertTrue(new Script().evalPredicate("1f instanceof float"));
   }
 
   @Test

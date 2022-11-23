@@ -102,6 +102,14 @@ public class ExpressionParser {
     return (Expression)items.get(index);
   }
 
+  private boolean is(int index, Class<?> type) {
+    return type.isAssignableFrom(items.get(index).getClass());
+  }
+
+  private <T> T get(int index, Class<T> type) {
+    return type.cast(items.get(index));
+  }
+
   private boolean isSingle() {
     return items.size() == 1;
   }
@@ -245,7 +253,7 @@ public class ExpressionParser {
   }
 
   private boolean isInstanceOf() {
-    return (items.size() >= 3) && isTerminal(1, "instanceof") && isExpression(0) && isExpression(2);
+    return (items.size() >= 3) && isTerminal(1, "instanceof") && isExpression(0) && is(2, TypeOrPrimitive.class);
   }
 
   private boolean isListLiteral() {
@@ -366,7 +374,10 @@ public class ExpressionParser {
 
   public void parse() {
     if(isInstanceOf()) {
-      stack.push(new InstanceOfOp(exp(0), exp(2), (items.size() == 4)?(Identifier)items.get(3):null));
+      stack.push(new InstanceOfOp(
+          exp(0),
+          get(2, TypeOrPrimitive.class),
+          (items.size() == 4)?(Identifier)items.get(3):null));
     } else if(isListLiteral()) {
       stack.push(listLiteral());
     } else if(isArrayLiteral()) {

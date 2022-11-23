@@ -94,7 +94,7 @@ expr
   | expr ( GT | LT | GE | LE ) expr
   | 'typeof' expr
 // https://docs.oracle.com/en/java/javase/14/language/pattern-matching-instanceof-operator.html
-  | expr 'instanceof' expr ident?
+  | expr 'instanceof' typeOrPrimitive ident?
   | expr ( EQUAL | NOTEQUAL) expr
   | expr AND expr
   | expr OR expr
