@@ -1,6 +1,7 @@
 package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,6 +79,16 @@ public class CastTest {
   @Test
   public void stringToCharCast() {
     assertEquals('A', new Script().evalChar("char c = \"A\";c;"));
+  }
+
+  @Test
+  public void stringToIntegerCast() {
+    assertEquals(42, new Script().run("Integer i = \"42\";i;"));
+  }
+
+  @Test
+  public void stringToBooleanWrapperCast() {
+    assertFalse(new Script().evalPredicate("Boolean b = \"false\";b;"));
   }
 
 }

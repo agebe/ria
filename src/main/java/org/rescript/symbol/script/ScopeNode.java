@@ -46,7 +46,7 @@ public class ScopeNode {
     if(StringUtils.isBlank(type)) {
       return val!=null?val:ObjValue.NULL;
     } else {
-      return val!=null?new CastOp(type, c -> val).eval(ctx):ObjValue.NULL;
+      return val!=null?CastOp.castTo(val, type, ctx):ObjValue.NULL;
     }
   }
 
