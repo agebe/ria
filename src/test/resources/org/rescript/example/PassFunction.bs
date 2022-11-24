@@ -1,0 +1,19 @@
+#!/usr/bin/env bs
+
+function startsWithLetter(x) {
+  if(x instanceof String s) {
+    return s.length() > 0?Character.isLetter(s.charAt(0)):false;
+  } else {
+    return false;
+  }
+}
+
+["123", "abc", 42, "x", ""]
+  .stream()
+  .filter(startsWithLetter)
+  .forEach(println);
+
+println(typeof startsWithLetter);
+println(startsWithLetter);
+println(typeof println);
+println(println);
