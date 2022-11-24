@@ -56,17 +56,17 @@ public class ObjValue implements Value {
 
   @Override
   public boolean toBoolean() {
-    return (Boolean)val;
+    return isString()?Boolean.parseBoolean((String)val):(Boolean)val;
   }
 
   @Override
   public double toDouble() {
-    return ((Number)val).doubleValue();
+    return isString()?Double.parseDouble((String)val):((Number)val).doubleValue();
   }
 
   @Override
   public float toFloat() {
-    return ((Number)val).floatValue();
+    return isString()?Float.parseFloat((String)val):((Number)val).floatValue();
   }
 
   @Override
@@ -76,27 +76,27 @@ public class ObjValue implements Value {
 
   @Override
   public int toInt() {
-    return ((Number)val).intValue();
+    return isString()?Integer.parseInt((String)val):((Number)val).intValue();
   }
 
   @Override
   public long toLong() {
-    return ((Number)val).longValue();
+    return isString()?Long.parseLong((String)val):((Number)val).longValue();
   }
 
   @Override
   public char toChar() {
-    return (Character)val;
+    return isString() && (((String)val).length() == 1)?((String)val).charAt(0):(Character)val;
   }
 
   @Override
   public byte toByte() {
-    return (Byte)val;
+    return isString()?Byte.parseByte((String)val):((Number)val).byteValue();
   }
 
   @Override
   public short toShort() {
-    return (Short)val;
+    return isString()?Short.parseShort((String)val):((Number)val).shortValue();
   }
 
   @Override

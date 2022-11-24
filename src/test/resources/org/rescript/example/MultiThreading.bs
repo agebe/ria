@@ -1,2 +1,4 @@
 #!/usr/bin/env bs
-IntStream.range(0,$.length>0?Integer.parseInt($0):1_000_000).parallel().forEach(i -> println("%s / %s".formatted(Thread.currentThread().getName(), i)))
+IntStream.range(0,$.length>0?$0:1_000_000)
+  .parallel()
+  .forEach(i -> println("%s / %s".formatted(Thread.currentThread().getName(), i)))

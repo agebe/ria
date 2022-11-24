@@ -56,8 +56,28 @@ public class CastTest {
   }
 
   @Test
-  public void bitCount() {
+  public void longToInt() {
     assertEquals(2, new Script().evalInt("Integer.bitCount(17l)"));
+  }
+
+  @Test
+  public void stringToIntCast() {
+    assertEquals(2, new Script().evalInt("Integer.bitCount(\"17\")"));
+  }
+
+  @Test
+  public void stringToLongCast() {
+    assertEquals(42, new Script().evalInt("long l = \"42\";l;"));
+  }
+
+  @Test
+  public void stringToBooleanCast() {
+    assertTrue(new Script().evalPredicate("boolean b = \"true\";b;"));
+  }
+
+  @Test
+  public void stringToCharCast() {
+    assertEquals('A', new Script().evalChar("char c = \"A\";c;"));
   }
 
 }
