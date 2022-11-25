@@ -24,12 +24,16 @@ import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CharLiteralContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
+import org.rescript.antlr.ScriptParser.DependencyBlockContext;
+import org.rescript.antlr.ScriptParser.DependencyContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.ExprStmtContext;
 import org.rescript.antlr.ScriptParser.FDefParamsContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
+import org.rescript.antlr.ScriptParser.FileDependencyContext;
+import org.rescript.antlr.ScriptParser.FileTreeDependencyContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
 import org.rescript.antlr.ScriptParser.ForEachStmtContext;
@@ -40,7 +44,9 @@ import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.FunctionDefinitionContext;
+import org.rescript.antlr.ScriptParser.GradleShortDependencyContext;
 import org.rescript.antlr.ScriptParser.HeaderContext;
+import org.rescript.antlr.ScriptParser.HeaderElementContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
 import org.rescript.antlr.ScriptParser.IfElseStmtContext;
 import org.rescript.antlr.ScriptParser.IfStmtContext;
@@ -55,6 +61,7 @@ import org.rescript.antlr.ScriptParser.NewArrayContext;
 import org.rescript.antlr.ScriptParser.NewArrayInitContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
+import org.rescript.antlr.ScriptParser.ScopeContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
@@ -63,6 +70,9 @@ import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveOrVarContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
+import org.rescript.dependency.Dependency;
+import org.rescript.dependency.FileTreeDependency;
+import org.rescript.dependency.GradleShortDependency;
 import org.rescript.expression.Assignment;
 import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
@@ -111,12 +121,18 @@ public class ParserListener implements ScriptListener {
 
   private Deque<ParseItem> stack = new ArrayDeque<>();
 
+  private List<Dependency> dependencies = new ArrayList<>();
+
   public ParserListener() {
     // add main function
     Function main = Function.main();
     stack.push(main);
     // add main function body
     stack.push(main.getStatements());
+  }
+
+  public List<Dependency> getDependencies() {
+    return dependencies;
   }
 
   @Override
@@ -1147,6 +1163,91 @@ public class ParserListener implements ScriptListener {
     } else {
       fail("expected TypeOrPrimitive or 'var' but stack has '%s'".formatted(stack.peek()));
     }
+  }
+
+  @Override
+  public void enterDependencyBlock(DependencyBlockContext ctx) {
+    log.debug("enterDependencyBlock '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitDependencyBlock(DependencyBlockContext ctx) {
+    log.debug("exitDependencyBlock '{}'", ctx.getText());
+    popTerminal("}");
+    popTerminal("{");
+    popTerminal("dependencies");
+  }
+
+  @Override
+  public void enterDependency(DependencyContext ctx) {
+    log.debug("enterDependency '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitDependency(DependencyContext ctx) {
+    log.debug("exitDependency '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterScope(ScopeContext ctx) {
+    log.debug("enterScope '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitScope(ScopeContext ctx) {
+    log.debug("exitScope '{}'", ctx.getText());
+    // ignore, for now all are runtime dependencies
+    // this is just to make it easier to copy&paste from gradle
+    // might want to ignore provided and test dependencies later...
+    popTerminal();
+  }
+
+  @Override
+  public void enterFileDependency(FileDependencyContext ctx) {
+    log.debug("enterFileDependency '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitFileDependency(FileDependencyContext ctx) {
+    log.debug("exitFileDependency '{}'", ctx.getText());
+    fail("not implemented");
+  }
+
+  @Override
+  public void enterFileTreeDependency(FileTreeDependencyContext ctx) {
+    log.debug("enterFileTreeDependency '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitFileTreeDependency(FileTreeDependencyContext ctx) {
+    log.debug("exitFileTreeDependency '{}'", ctx.getText());
+    popTerminal(")");
+    StringLiteral baseDir = pop(StringLiteral.class);
+    popTerminal("(");
+    popTerminal("fileTree");
+    dependencies.add(new FileTreeDependency(baseDir.getUnescaped()));
+  }
+
+  @Override
+  public void enterGradleShortDependency(GradleShortDependencyContext ctx) {
+    log.debug("enterGradleShortDependency '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitGradleShortDependency(GradleShortDependencyContext ctx) {
+    log.debug("exitGradleShortDependency '{}'", ctx.getText());
+    StringLiteral gradleShort = pop(StringLiteral.class);
+    dependencies.add(new GradleShortDependency(gradleShort.getUnescaped()));
+  }
+
+  @Override
+  public void enterHeaderElement(HeaderElementContext ctx) {
+    log.debug("enterHeaderElement '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitHeaderElement(HeaderElementContext ctx) {
+    log.debug("exitHeaderElement '{}'", ctx.getText());
   }
 
 }

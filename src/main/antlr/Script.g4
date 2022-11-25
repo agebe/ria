@@ -11,7 +11,43 @@ script
   ;
 
 header
-  : importStmt*
+  : headerElement*
+  ;
+
+headerElement
+  : importStmt
+  | dependencyBlock
+  ;
+
+dependencyBlock
+  : 'dependencies' '{' dependency* '}'
+  ;
+
+//dependencies {
+//    runtimeOnly files('libs/a.jar', 'libs/b.jar')
+//    runtimeOnly fileTree('libs') { include '*.jar' }
+//}
+dependency
+  :  scope? ( fileDependency | fileTreeDependency | gradleShortDependency )
+  ;
+
+// TODO list all of them
+scope
+  : 'implementation'
+  | 'runtimeOnly'
+  | 'testImplementation'
+  ;
+
+fileDependency
+  : 'files' '(' strLiteral? ( ',' strLiteral )* ')'
+  ;
+
+fileTreeDependency
+  : 'fileTree' '(' strLiteral ')'
+  ;
+
+gradleShortDependency
+  : strLiteral
   ;
 
 importStmt

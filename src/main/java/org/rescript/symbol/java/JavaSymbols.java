@@ -26,6 +26,8 @@ public class JavaSymbols {
 
   private List<String> staticImports;
 
+  private ClassLoader classLoader = this.getClass().getClassLoader();
+
   public JavaSymbols() {
     super();
     this.imports = new ArrayList<>();
@@ -54,6 +56,14 @@ public class JavaSymbols {
     staticImports.add(imp);
   }
 
+  public ClassLoader getClassLoader() {
+    return classLoader;
+  }
+
+  public void setClassLoader(ClassLoader classLoader) {
+    this.classLoader = classLoader;
+  }
+
   // ----------------------------------------------------------------------
   // resolve from here ----------------------------------------------------
   // ----------------------------------------------------------------------
@@ -79,14 +89,14 @@ public class JavaSymbols {
     List<String> split = RUtils.splitTypeName(ident);
     String s0 = split.get(0);
     // check FQCN
-    Class<?> fqcn = RUtils.forName(ident);
+    Class<?> fqcn = RUtils.forName(ident, classLoader);
     if(fqcn != null) {
       // in this case there is nothing remaining
       return new ObjValue(fqcn, null);
     }
     for(int i=1;i<split.size();i++) {
       String s = split.stream().limit(i).collect(Collectors.joining("."));
-      Class<?> cls = RUtils.forName(s);
+      Class<?> cls = RUtils.forName(s, classLoader);
       if(cls != null) {
         return resolveRemaining(split.stream().skip(i).toList(), new ObjValue(cls, null));
       }
@@ -98,18 +108,18 @@ public class JavaSymbols {
       if("*".equals(impLast)) {
         impSplit.removeLast();
         String probe = impSplit.stream().collect(Collectors.joining(".")) + "." + s0;
-        Class<?> cls = RUtils.forName(probe);
+        Class<?> cls = RUtils.forName(probe, classLoader);
         if(cls != null) {
           return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
         }
         // also try inner class, but shouldn't this be a static import?
         probe = impSplit.stream().collect(Collectors.joining(".")) + "$" + s0;
-        cls = RUtils.forName(probe);
+        cls = RUtils.forName(probe, classLoader);
         if(cls != null) {
           return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
         }
       } else if(StringUtils.equals(s0, impLast)) {
-        Class<?> cls = RUtils.forName(imp);
+        Class<?> cls = RUtils.forName(imp, classLoader);
         if(cls != null) {
           return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
         } else {
@@ -126,7 +136,7 @@ public class JavaSymbols {
       if("*".equals(impLast)) {
         impSplit.removeLast();
         String probe = impSplit.stream().collect(Collectors.joining("."));
-        Class<?> cls = RUtils.forName(probe);
+        Class<?> cls = RUtils.forName(probe, classLoader);
         if(cls != null) {
           // it could be a static field or a static inner type, check both
           Field f = RUtils.findStaticField(cls, s0);
@@ -143,7 +153,7 @@ public class JavaSymbols {
       } else if(StringUtils.equals(s0, impLast)) {
         impSplit.removeLast();
         String probe = impSplit.stream().collect(Collectors.joining("."));
-        Class<?> cls = RUtils.forName(probe);
+        Class<?> cls = RUtils.forName(probe, classLoader);
         log.debug("probe '{}', '{}'", probe, cls);
         if(cls != null) {
           Field f = RUtils.findStaticField(cls, s0);
@@ -280,7 +290,7 @@ public class JavaSymbols {
 
   private Class<?> findClassExact(String name) {
     try {
-      return Class.forName(name);
+      return Class.forName(name, true, classLoader);
     } catch(ClassNotFoundException e) {
       return null;
     }
@@ -323,7 +333,7 @@ public class JavaSymbols {
       return primitiveType;
     }
     log.debug("probing '{}'...", name);
-    Class<?> cls = RUtils.findClass(name);
+    Class<?> cls = RUtils.findClass(name, classLoader);
     if(cls != null) {
       log.debug("found '{}' for name '{}'", cls.getName(), name);
       return cls;
@@ -331,14 +341,14 @@ public class JavaSymbols {
     for(String im : imports) {
       LinkedList<String> split = RUtils.splitTypeName(im);
       if(StringUtils.equals(name, split.getLast())) {
-        Class<?> c = RUtils.findClass(im);
+        Class<?> c = RUtils.findClass(im, classLoader);
         log.debug("found '{}' for name '{}'", c.getName(), im);
         return c;
       } else if(StringUtils.equals("*", split.getLast())) {
         split.removeLast();
         String joined = split.stream().collect(Collectors.joining("."));
         log.debug("probing '{}.{}", joined, name);
-        Class<?> c = RUtils.findClass(joined, name);
+        Class<?> c = RUtils.findClass(joined, name, classLoader);
         if(c != null) {
           log.debug("found '{}'", c.getName());
           return c;
@@ -348,14 +358,14 @@ public class JavaSymbols {
     for(String im : staticImports) {
       LinkedList<String> split = RUtils.splitTypeName(im);
       if(StringUtils.equals(name, split.getLast())) {
-        Class<?> c = RUtils.findClass(im);
+        Class<?> c = RUtils.findClass(im, classLoader);
         log.debug("found '{}' for name '{}'", c.getName(), im);
         return c;
       } else if(StringUtils.equals("*", split.getLast())) {
         split.removeLast();
         String joined = split.stream().collect(Collectors.joining("."));
         log.debug("probing '{}.{}", joined, name);
-        Class<?> c = RUtils.findClass(joined, name);
+        Class<?> c = RUtils.findClass(joined, name, classLoader);
         if(c != null) {
           log.debug("found '{}'", c.getName());
           return c;

@@ -9,16 +9,23 @@ public class StringLiteral implements Expression {
 
   private String literal;
 
+  private String unescaped;
+
   private Value val;
 
   public StringLiteral(String literal) {
     super();
     this.literal = literal;
-    val = new ObjValue(String.class, StringEscapeUtils.unescapeJava(literal).intern());
+    this.unescaped = StringEscapeUtils.unescapeJava(literal).intern();
+    val = new ObjValue(String.class, unescaped);
   }
 
   public String getLiteral() {
     return literal;
+  }
+
+  public String getUnescaped() {
+    return unescaped;
   }
 
   @Override

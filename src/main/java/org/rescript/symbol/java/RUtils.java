@@ -64,8 +64,8 @@ public class RUtils {
     return new LinkedList<>(List.of(StringUtils.split(name, ".")));
   }
 
-  public static Class<?> findClass(String prefix, String name) {
-    return findClass(prefix + "." + name);
+  public static Class<?> findClass(String prefix, String name, ClassLoader loader) {
+    return findClass(prefix + "." + name, loader);
   }
 
   /**
@@ -73,8 +73,8 @@ public class RUtils {
    * @param name - name of the class separated by dots
    * @return
    */
-  public static Class<?> findClass(String name) {
-    Class<?> cls = forName(name);
+  public static Class<?> findClass(String name, ClassLoader loader) {
+    Class<?> cls = forName(name, loader);
     if(cls != null) {
       return cls;
     }
@@ -87,7 +87,7 @@ public class RUtils {
       if(cls == null) {
         // find outer class
         outer = StringUtils.isBlank(outer)?split.removeFirst():outer + "." +split.removeFirst();
-        cls = forName(outer);
+        cls = forName(outer, loader);
       } else {
         cls = innerClass(cls, split.removeFirst());
         if(cls == null) {
@@ -98,9 +98,9 @@ public class RUtils {
     return cls;
   }
 
-  public static Class<?> forName(String name) {
+  public static Class<?> forName(String name, ClassLoader loader) {
     try {
-      return Class.forName(name);
+      return Class.forName(name, true, loader);
     } catch(Exception e) {
       return null;
     }

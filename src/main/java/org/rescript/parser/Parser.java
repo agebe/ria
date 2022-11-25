@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptLexer;
 import org.rescript.antlr.ScriptParser;
-import org.rescript.statement.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class Parser {
     this.showErrorsOnConsole = showErrorsOnConsole;
   }
 
-  public Function parse(String script) {
+  public ParserListener parse(String script) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -46,7 +45,7 @@ public class Parser {
     ScriptParser.ScriptContext scriptCtx = parser.script();
     ParserListener listener = new ParserListener();
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
-    return listener.getMainFunction();
+    return listener;
   }
 
 }
