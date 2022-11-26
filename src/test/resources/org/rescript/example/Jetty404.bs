@@ -1,6 +1,6 @@
 #!/usr/bin/env bs
 dependencies {
-  runtimeOnly fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
+  fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
 }
 // copied from https://www.eclipse.org/jetty/documentation/jetty-9/index.html#jetty-helloworld
 import org.eclipse.jetty.server.Server;

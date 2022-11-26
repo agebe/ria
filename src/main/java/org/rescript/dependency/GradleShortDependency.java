@@ -1,6 +1,7 @@
 package org.rescript.dependency;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 public class GradleShortDependency implements Dependency {
@@ -14,8 +15,8 @@ public class GradleShortDependency implements Dependency {
 
   @Override
   public List<File> resolve() {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO
+    return Collections.emptyList();
   }
 
 }

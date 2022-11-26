@@ -1,6 +1,6 @@
 #!/usr/bin/env bs
 dependencies {
-  runtimeOnly fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
+  fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
 }
 
 import java.nio.file.Path;

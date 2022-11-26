@@ -1,11 +1,6 @@
 package org.rescript;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
-
+import org.rescript.dependency.DependencyResolver;
 import org.rescript.parser.Parser;
 import org.rescript.parser.ParserListener;
 import org.rescript.run.ScriptRunner;
@@ -150,29 +145,14 @@ public class Script {
     return parse(script);
   }
 
-  private URL toUrl(File f) {
-    try {
-      return f.toURI().toURL();
-    } catch (MalformedURLException e) {
-      throw new ScriptException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
-    }
-  }
-
   private Script parse(String script) {
     if(this.entry == null) {
       ParserListener listener = new Parser(showErrorsOnConsole).parse(script);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
-      List<URL> resolved = listener.getDependencies()
-          .stream()
-          .flatMap(dep -> dep.resolve().stream())
-          .map(this::toUrl)
-          .toList();
-      if(!resolved.isEmpty()) {
-        this.symbols.getJavaSymbols().setClassLoader(new URLClassLoader(
-            "scriptClassLoader",
-            resolved.toArray(new URL[0]),
-            this.getClass().getClassLoader()));
+      ClassLoader loader = new DependencyResolver().resolveAll(listener.getDependencies());
+      if(loader != null) {
+        this.symbols.getJavaSymbols().setClassLoader(loader);
       }
     }
     return this;

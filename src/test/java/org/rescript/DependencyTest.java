@@ -9,18 +9,18 @@ public class DependencyTest {
     new Script("""
         dependencies {
         // FIXME comment out line below and fix exception (at end of this file)
-          runtimeOnly fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
-          //implementation "foo:bar:1"
+          fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
+          //"foo:bar:1"
         }
         
         import org.eclipse.jetty.server.Server;
         
         //var server = new org.eclipse.jetty.server.Server(8080);
         var server = new Server(8080);
-
+        
         println(typeof server);
         println(server);
-
+        
         """).run();
   }
 

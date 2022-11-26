@@ -140,6 +140,14 @@ public class Function implements Statement, Expression {
     return f;
   }
 
+  public static Function dependencies() {
+    Function f = new Function();
+    f.name = "__dependencies";
+    f.parameterNames = new ArrayList<>();
+    f.statements = new BlockStatement(true);
+    return f;
+  }
+
   @Override
   public String toString() {
     return "Function [name=" + name + "]";
