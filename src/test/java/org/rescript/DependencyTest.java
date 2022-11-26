@@ -9,7 +9,7 @@ public class DependencyTest {
     new Script("""
         dependencies {
         // FIXME comment out line below and fix exception (at end of this file)
-          fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
+          fileTree('/home/andre/rescript/workspace/jetty/build/install/jetty/lib')
           //"foo:bar:1"
         }
         

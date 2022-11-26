@@ -86,7 +86,7 @@ public class ObjValue implements Value {
 
   @Override
   public char toChar() {
-    return isString() && (((String)val).length() == 1)?((String)val).charAt(0):(Character)val;
+    return (isString() && (((String)val).length() == 1))?((String)val).charAt(0):(Character)val;
   }
 
   @Override

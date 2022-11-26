@@ -432,6 +432,12 @@ public class ParserListener implements ScriptListener {
       }
       String literal = StringUtils.substring(s, 1, s.length()-1).intern();
       stack.push(new StringLiteral(literal));
+    } else if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
+      if(s.length() == 1) {
+        fail("invalid string literal " + s);
+      }
+      String literal = StringUtils.substring(s, 1, s.length()-1).intern();
+      stack.push(new StringLiteral(literal));
     } else {
       fail("unsupported literal " + s);
     }

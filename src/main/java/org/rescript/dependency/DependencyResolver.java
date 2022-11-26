@@ -51,6 +51,9 @@ public class DependencyResolver {
     return f;
   }
 
+  // TODO add function file(string) to resolve a single file
+  // TODO add function files([string]) to resolve all files in the list
+
   private List<File> resolveDependencies(List<Expression> expressions) {
     ScriptContext ctx = new ScriptContext(new SymbolTable());
     ctx.getSymbols().getScriptSymbols().setCtx(ctx);

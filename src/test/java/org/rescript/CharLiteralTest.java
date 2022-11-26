@@ -122,8 +122,16 @@ public class CharLiteralTest {
   }
 
   @Test
-  public void invalidCharLiteral() {
-    assertThrows(ScriptException.class, () -> new Script().run("'ab'"));
+  public void castToString() {
+    assertEquals("a", new Script().run("""
+        String s = 'a';
+        s;
+        """));
+  }
+
+  @Test
+  public void invalidCharCast() {
+    assertThrows(ScriptException.class, () -> new Script().run("(char)'ab'"));
   }
 
 }

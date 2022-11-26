@@ -61,16 +61,18 @@ public class CastOp implements Expression {
           return new ObjValue(cls, v.isNotNull()?v.toFloat():null);
         } else if(cls == Long.class) {
           return new ObjValue(cls, v.isNotNull()?v.toLong():null);
-        } if(cls == Integer.class) {
+        } else if(cls == Integer.class) {
           return new ObjValue(cls, v.isNotNull()?v.toInt():null);
-        } if(cls == Character.class) {
+        } else if(cls == Character.class) {
           return new ObjValue(cls, v.isNotNull()?v.toChar():null);
-        } if(cls == Byte.class) {
+        } else if(cls == Byte.class) {
           return new ObjValue(cls, v.isNotNull()?v.toByte():null);
-        } if(cls == Short.class) {
+        } else if(cls == Short.class) {
           return new ObjValue(cls, v.isNotNull()?v.toShort():null);
-        } if(cls == Boolean.class) {
+        } else if(cls == Boolean.class) {
           return new ObjValue(cls, v.isNotNull()?v.toBoolean():null);
+        } else if(cls == String.class) {
+          return new ObjValue(cls, v.isNotNull()?v.val().toString():null);
         } else {
           return new ObjValue(cls, cls.cast(v.val()));
         }

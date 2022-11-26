@@ -54,12 +54,12 @@ public class Test1 {
 
   @Test
   public void hello() throws Exception {
-    base.setScript("java.lang.System.out.println(\"Hello World\")").create().run();
+    base.setScript("java.lang.System.out.println('Hello World')").create().run();
   }
 
   @Test
   public void helloWithDefaultImport() {
-    base.setScript("System.out.println(\"Hello World\")").create().run();
+    base.setScript("System.out.println('Hello World')").create().run();
   }
 
   @Test

@@ -173,12 +173,12 @@ fparams: LPAREN fparam? (COMMA fparam)* RPAREN;
 fparam: expr;
 
 literal
-  : strLiteral
-  | boolLiteral
+  : boolLiteral
   | intLiteral
   | floatLiteral
   | nullLiteral
   | charLiteral
+  | strLiteral
   ;
 strLiteral: StringLiteral ;
 boolLiteral: BooleanLiteral ;
@@ -488,19 +488,35 @@ fragment
 SingleCharacter
 	:	~['\\\r\n]
 	;
+
 // §3.10.5 String Literals
 StringLiteral
-	:	'"' StringCharacters? '"'
+	:	'"' DoubleQuoteEnclosedStringCharacters? '"'
+	|	'\'' SingleQuoteEnclosedStringCharacters? '\''
 	;
+
 fragment
-StringCharacters
-	:	StringCharacter+
+DoubleQuoteEnclosedStringCharacters
+	:	DoubleQuoteStringCharacter+
 	;
+
 fragment
-StringCharacter
+SingleQuoteEnclosedStringCharacters
+	:	SingleQuoteStringCharacter+
+	;
+
+fragment
+DoubleQuoteStringCharacter
 	:	~["\\\r\n]
 	|	EscapeSequence
 	;
+
+fragment
+SingleQuoteStringCharacter
+	:	~['\\\r\n]
+	|	EscapeSequence
+	;
+
 // §3.10.6 Escape Sequences for Character and String Literals
 fragment
 EscapeSequence
