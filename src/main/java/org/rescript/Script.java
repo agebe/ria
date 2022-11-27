@@ -19,6 +19,8 @@ public class Script {
 
   private boolean showErrorsOnConsole;
 
+  private String[] arguments;
+
   public Script() {
     this(null, null);
   }
@@ -36,9 +38,23 @@ public class Script {
   private Value runVal() {
     try {
       parse(script);
+      setupArguments();
       return new ScriptRunner(symbols).run();
     } catch(Exception e) {
       throw new ScriptException("script execution failed", e);
+    }
+  }
+
+  private void setupArguments() {
+    if(this.arguments != null) {
+      String[] a = new String[arguments.length-1];
+      System.arraycopy(arguments, 1, a, 0, arguments.length-1);
+      for(int i=0;i<a.length;i++) {
+        this.setVariable("$"+i, a[i]);
+      }
+      this.setVariable("$", a);
+    } else {
+      this.setVariable("$", new String[0]);
     }
   }
 
@@ -164,6 +180,14 @@ public class Script {
 
   public void setShowErrorsOnConsole(boolean showErrorsOnConsole) {
     this.showErrorsOnConsole = showErrorsOnConsole;
+  }
+
+  public String[] getArguments() {
+    return arguments;
+  }
+
+  public void setArguments(String[] arguments) {
+    this.arguments = arguments;
   }
 
 }

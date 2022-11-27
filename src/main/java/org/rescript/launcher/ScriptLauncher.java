@@ -24,16 +24,7 @@ public class ScriptLauncher {
         String script = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
         Script s = new Script(script);
         s.setShowErrorsOnConsole(true);
-        if(args.length > 1) {
-          String[] a = new String[args.length-1];
-          System.arraycopy(args, 1, a, 0, args.length-1);
-          for(int i=0;i<a.length;i++) {
-            s.setVariable("$"+i, a[i]);
-          }
-          s.setVariable("$", a);
-        } else {
-          s.setVariable("$", new String[0]);
-        }
+        s.setArguments(args);
         s.run();
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
