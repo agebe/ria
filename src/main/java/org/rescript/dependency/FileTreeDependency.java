@@ -20,7 +20,7 @@ public class FileTreeDependency implements Dependency {
   }
 
   @Override
-  public List<File> resolve() {
+  public List<DependencyNode> resolve() {
     File base = new File(baseDir);
     if(!base.exists()) {
       throw new ScriptException("file tree base not found, " + base.getAbsolutePath());
@@ -33,6 +33,7 @@ public class FileTreeDependency implements Dependency {
       .filter(Files::isRegularFile)
       .map(Path::toFile)
       .filter(f -> StringUtils.endsWith(f.getName(), ".jar"))
+      .map(DependencyNode::new)
       .toList();
     } catch(IOException e) {
       throw new ScriptException(
