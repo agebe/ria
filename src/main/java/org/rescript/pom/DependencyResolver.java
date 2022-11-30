@@ -46,6 +46,9 @@ public class DependencyResolver {
         throw new ScriptException("can't resolve version of " + d);
       }
       d.setVersion(dp.getVersion());
+      if(StringUtils.isBlank(d.getScope())) {
+        d.setScope(dp.getScope());
+      }
     }
     d.setVersion(properties.resolve(d.getVersion()));
     return d;
