@@ -46,11 +46,25 @@ public class DependencyResolver {
         throw new ScriptException("can't resolve version of " + d);
       }
       d.setVersion(dp.getVersion());
+    }
+    d.setVersion(properties.resolve(d.getVersion()));
+    if(dp != null) {
       if(StringUtils.isBlank(d.getScope())) {
         d.setScope(dp.getScope());
       }
+      if(StringUtils.isBlank(d.getOptional())) {
+        d.setOptional(dp.getOptional());
+      }
+      if(dp.getExclusions() != null) {
+        if(d.getExclusions() != null) {
+          d.setExclusions(dp.getExclusions());
+        } else {
+          // copying all exclusions from the parent could produce duplicates in the resolved exclusions list
+          // but does it matter?
+          d.getExclusions().addAll(dp.getExclusions());
+        }
+      }
     }
-    d.setVersion(properties.resolve(d.getVersion()));
     return d;
   }
 
