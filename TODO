@@ -1,3 +1,5 @@
+* enable/disable script features
+* script firewall (which java methods are allowed/denied)
 * bit operators?
 * other assign operator e.g. +=, -= etc.
 * text blocks
@@ -5,8 +7,12 @@
 * throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 * try-catch (with resources?)
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
+  -> actually allow any statements in the objects scope like e.g. expr : expr { stmt* }
+     The difference to the block statement is that we are in the objects scope, changing fields
+     (if public otherwise call setter) or calling methods. the expression evaluates to the same object, with
+     its internal state modified as per the statements.
+     Adding or overwriting methods should probably only be possible together with the new operator?
 * apache license on all files
-
 * script launcher
 * script dependencies
 * add builtin function (e.g. exec) for scripting
