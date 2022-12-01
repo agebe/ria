@@ -17,7 +17,13 @@ public class DependencyNode {
 
   private File file;
 
+  private DependencyNode parent;
+
   private List<DependencyNode> children = new ArrayList<>();
+
+  private List<Exclusion> exclusions = new ArrayList<>();
+
+  private boolean optional;
 
   public DependencyNode() {
     super();
@@ -28,7 +34,7 @@ public class DependencyNode {
     this.file = file;
   }
 
-  public DependencyNode(String group, String artifact, String version, File file) {
+  public DependencyNode(String group, String artifact, String version, List<Exclusion> exclusions, boolean optional) {
     super();
     if(StringUtils.isBlank(group)) {
       throw new ScriptException("group is blank");
@@ -42,7 +48,8 @@ public class DependencyNode {
     this.group = group;
     this.artifact = artifact;
     this.version = version;
-    this.file = file;
+    this.exclusions = exclusions != null?exclusions:List.of();
+    this.optional = optional;
   }
 
   public boolean isManaged() {
@@ -58,7 +65,19 @@ public class DependencyNode {
   }
 
   public void addChild(DependencyNode child) {
+    if((child.parent != null) && !child.parent.equals(this)) {
+      throw new ScriptException("child dependency node has already other parent");
+    }
+    child.parent = this;
     children.add(child);
+  }
+
+  public void addChildren(List<DependencyNode> children) {
+    children.forEach(this::addChild);
+  }
+
+  public void addExclusion(Exclusion exclusion) {
+    this.exclusions.add(exclusion);
   }
 
   public String getGroup() {
@@ -75,10 +94,6 @@ public class DependencyNode {
 
   public File getFile() {
     return file;
-  }
-
-  public List<DependencyNode> getChildren() {
-    return children;
   }
 
   public List<File> filesRecursive() {
@@ -102,5 +117,41 @@ public class DependencyNode {
     children.forEach(node -> node.asList(nodes));
     return nodes;
   }
- 
+
+  public DependencyNode getParent() {
+    return parent;
+  }
+
+  public List<Exclusion> getExclusions() {
+    return exclusions;
+  }
+
+  public void setExclusions(List<Exclusion> exclusions) {
+    this.exclusions = exclusions;
+  }
+
+  public boolean isExcluded(DependencyNode node) {
+    boolean excluded = this.exclusions
+        .stream()
+        .anyMatch(e -> e.group().equals(node.getGroup()) && e.artifact().equals(node.getArtifact()));
+    if(excluded) {
+      return true;
+    } else {
+      if(parent != null) {
+        return parent.isExcluded(node);
+      } else {
+        return false;
+      }
+    }
+  }
+
+  public boolean isOptional() {
+    return optional;
+  }
+
+  @Override
+  public String toString() {
+    return group + ":" + artifact + ":" + version;
+  }
+
 }

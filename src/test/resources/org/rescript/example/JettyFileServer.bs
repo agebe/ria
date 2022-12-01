@@ -1,6 +1,5 @@
 #!/usr/bin/env bs
 dependencies {
-//  fileTree("/home/andre/rescript/workspace/jetty/build/install/jetty/lib")
   'org.eclipse.jetty.aggregate:jetty-all:9.4.49.v20220914'
 }
 

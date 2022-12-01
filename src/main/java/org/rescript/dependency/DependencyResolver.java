@@ -5,11 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -79,7 +79,7 @@ public class DependencyResolver {
     .map(val -> {
       if(val.val() instanceof String s) {
         // TODO guess by content of string, could also be a file or fileTree
-        return new GradleShortDependency(s, mavenCentral);
+        return new GradleShortDependency(s);
       } else if(val.val() instanceof Dependency d) {
         return d;
       } else {
@@ -88,8 +88,7 @@ public class DependencyResolver {
             + " but expected an instanceof String or Dependency");
       }
     })
-    .forEach(dep -> root.getChildren().addAll(dep.resolve()));
-    // TODO do transitive dependencies next
+    .forEach(dep -> root.addChildren(dep.resolve()));
     // make sure to resolve different versions of the same group:artifact
     // dependency node might require a type so jar and pom dependencies can be distinguished
     // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies
@@ -99,31 +98,51 @@ public class DependencyResolver {
     // store group:artifact id in explored so we don't add the same library in different versions
     // as described below, first dependency wins
     // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-    Set<String> explored = new HashSet<>();
+    Map<String, String> explored = new HashMap<>();
     List<DependencyNode> managedDependencies = new ArrayList<>();
     root.asList()
     .stream()
     .filter(DependencyNode::isManaged)
     .forEach(d -> {
       String gaId = d.groupArtifactId();
-      if(!explored.contains(gaId)) {
-        explored.add(gaId);
+      if(!explored.containsKey(gaId)) {
+        explored.put(gaId, d.getVersion());
         queue.add(d);
       }
     });
+    // ignore the optional flag on all direct dependencies
+    // also direct dependency can not be excluded
     managedDependencies.addAll(queue);
+//    managedDependencies.forEach(System.out::println);
     while(!queue.isEmpty()) {
       DependencyNode v = queue.remove();
-      GradleShortDependency resolver = new GradleShortDependency(v.id(), mavenCentral);
+      PomDependency resolver = new PomDependency(v.id(), mavenCentral);
       List<DependencyNode> transitiveDependencies = resolver.resolve();
+      v.addChildren(transitiveDependencies);
       for(DependencyNode transitive : transitiveDependencies) {
-        if(!explored.contains(transitive.groupArtifactId())) {
-          explored.add(transitive.groupArtifactId());
-          queue.add(transitive);
-          managedDependencies.add(transitive);
+        if(transitive.isOptional()) {
+//          System.out.println("ignoring optional transitive dependeny '%s' from this path ".formatted(transitive.id()) + "TODO");
+        } else if(v.isExcluded(transitive)) {
+//          System.out.println("transitive dependeny '%s' is excluded from this path ".formatted(transitive.id()) + "TODO");
         } else {
-          System.out.println(
-              "ignoring transitive dependency '%s', as we have this dependency already".formatted(transitive.id()));
+          if(!explored.containsKey(transitive.groupArtifactId())) {
+            explored.put(transitive.groupArtifactId(), transitive.getVersion());
+            queue.add(transitive);
+            managedDependencies.add(transitive);
+          } else {
+            // in this case even if a dependency is already explored we have to go down the dependency path anyway
+            // because it may not contain the same exclusions.
+            // make sure to use the same version as the explored dependency though
+            // i think the dependency node needs to be merged. id from the explored, but exclusion list from the current node
+            DependencyNode n2 = new DependencyNode(
+                transitive.getGroup(),
+                transitive.getArtifact(),
+                explored.get(transitive.groupArtifactId()),
+                transitive.getExclusions(),
+                false);
+            v.addChild(n2);
+            queue.add(n2);
+          }
         }
       }
     }
