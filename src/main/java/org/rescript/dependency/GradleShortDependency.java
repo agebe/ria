@@ -31,4 +31,12 @@ public class GradleShortDependency implements Dependency {
     return List.of(new DependencyNode(group, artifact, version, List.of(), false));
   }
 
+  public static boolean isGradleShortFormat(String s) {
+    String[] split = StringUtils.split(s, ':');
+    return (split.length == 3) &&
+        StringUtils.isNotBlank(split[0]) &&
+        StringUtils.isNotBlank(split[1]) &&
+        StringUtils.isNotBlank(split[2]);
+  }
+
 }

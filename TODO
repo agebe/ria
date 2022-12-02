@@ -13,6 +13,5 @@
      its internal state modified as per the statements.
      Adding or overwriting methods should probably only be possible together with the new operator?
 * apache license on all files
-* script launcher
-* script dependencies
+* add maven script dependencies
 * add builtin function (e.g. exec) for scripting

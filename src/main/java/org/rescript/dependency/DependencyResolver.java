@@ -62,8 +62,6 @@ public class DependencyResolver {
     return f;
   }
 
-  // TODO add function file(string) to resolve a single file
-  // TODO add function files([string]) to resolve all files in the list
   private List<File> resolveDependencies(List<Expression> expressions) {
     // FIXME repository need to be configurable
     MavenRepository mavenCentral = new MavenRepository("https://repo.maven.apache.org/maven2/");
@@ -74,12 +72,12 @@ public class DependencyResolver {
     ctx.enterFunction(ctx.getSymbols().getScriptSymbols().getMain());
     dependencyMain.addFunction(fileTree());
     final DependencyNode root = new DependencyNode();
+    // TODO add support for variables and variable replacements in the dependencies e.g. for versions
     expressions.stream()
     .map(expr -> expr.eval(ctx))
     .map(val -> {
       if(val.val() instanceof String s) {
-        // TODO guess by content of string, could also be a file or fileTree
-        return new GradleShortDependency(s);
+        return new MultiFormatDependency(s);
       } else if(val.val() instanceof Dependency d) {
         return d;
       } else {

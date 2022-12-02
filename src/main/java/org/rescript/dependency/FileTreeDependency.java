@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 
 public class FileTreeDependency implements Dependency {
@@ -32,13 +31,21 @@ public class FileTreeDependency implements Dependency {
       return stream
       .filter(Files::isRegularFile)
       .map(Path::toFile)
-      .filter(f -> StringUtils.endsWith(f.getName(), ".jar"))
       .map(DependencyNode::new)
       .toList();
     } catch(IOException e) {
       throw new ScriptException(
           "failed to resolves dependencies from file tree base '%s'".formatted(
               base.getAbsolutePath()), e);
+    }
+  }
+
+  public static boolean isFileTreeDependency(String s) {
+    try {
+      File f = new File(s);
+      return f.isDirectory();
+    } catch(Exception e) {
+      return false;
     }
   }
 

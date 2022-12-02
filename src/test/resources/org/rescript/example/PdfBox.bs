@@ -31,5 +31,10 @@ contentStream.endText();
 contentStream.close();
 
 // Save the results and ensure that the document is properly closed:
+// TODO make sure not to overwrite the file if it already exists
 document.save( "Hello World.pdf");
 document.close();
+
+// maybe open pdf-viewer as described here:
+// https://stackoverflow.com/questions/5226212/how-to-open-the-default-webbrowser-using-java
+// use xdg-open as suggested in comments

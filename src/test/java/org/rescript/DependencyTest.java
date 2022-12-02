@@ -8,31 +8,24 @@ public class DependencyTest {
   public void simple() {
     new Script("""
         dependencies {
-        // FIXME comment out line below and fix exception (at end of this file)
-          fileTree('/home/andre/rescript/workspace/jetty/build/install/jetty/lib')
-          //"foo:bar:1"
+          'io.github.agebe:kvd-client:0.6.2'
         }
-        
-        import org.eclipse.jetty.server.Server;
-        
-        //var server = new org.eclipse.jetty.server.Server(8080);
-        var server = new Server(8080);
-        
-        println(typeof server);
-        println(server);
-        
+        import kvd.client.KvdClientBuilder;
+        var builder = new KvdClientBuilder();
+        println(typeof builder);
+        println(builder);
         """).run();
   }
 
 }
 
 /*
-FIXME
+FIXME comment out dependency and fix the exception
 
 org.rescript.ScriptException: script execution failed
-  at org.rescript.Script.runVal(Script.java:46)
-  at org.rescript.Script.run(Script.java:51)
-  at org.rescript.DependencyTest.simple(DependencyTest.java:23)
+  at org.rescript.Script.runVal(Script.java:44)
+  at org.rescript.Script.run(Script.java:62)
+  at org.rescript.DependencyTest.simple(DependencyTest.java:17)
   at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
   at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
   at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -115,9 +108,7 @@ Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Class.getNam
   at org.rescript.statement.BlockStatement.execute(BlockStatement.java:48)
   at org.rescript.statement.Function.executeFunction(Function.java:68)
   at org.rescript.run.ScriptRunner.run(ScriptRunner.java:17)
-  at org.rescript.Script.runVal(Script.java:44)
+  at org.rescript.Script.runVal(Script.java:42)
   ... 71 more
-
-
 
 */
