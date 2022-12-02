@@ -31,10 +31,16 @@ contentStream.endText();
 contentStream.close();
 
 // Save the results and ensure that the document is properly closed:
-// TODO make sure not to overwrite the file if it already exists
-document.save( "Hello World.pdf");
+File f = new File("HelloWorld.pdf");
+if(f.exists()) {
+  println("file '%s' already exists".formatted(f.getAbsolutePath()));
+} else {
+  document.save(f);
+  println("written pdf to '%s'".formatted(f.getAbsolutePath()));
+}
+
 document.close();
 
-// maybe open pdf-viewer as described here:
 // https://stackoverflow.com/questions/5226212/how-to-open-the-default-webbrowser-using-java
-// use xdg-open as suggested in comments
+// requires linux check
+Runtime.getRuntime().exec(arrayof ["xdg-open", f.getAbsolutePath()]);
