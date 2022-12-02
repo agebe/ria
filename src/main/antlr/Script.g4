@@ -180,7 +180,7 @@ literal
   | charLiteral
   | strLiteral
   ;
-strLiteral: StringLiteral ;
+strLiteral: TextBlock | StringLiteral ;
 boolLiteral: BooleanLiteral ;
 intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
@@ -516,6 +516,27 @@ SingleQuoteStringCharacter
 	:	~['\\\r\n]
 	|	EscapeSequence
 	;
+
+TextBlock
+  :  DoubleQuoteEnclosedTextBlock
+  |  SingleQuoteEnclosedTextBlock
+  ;
+
+fragment
+SingleQuoteEnclosedTextBlock
+  : '\'\'\''[\r\n] TextBlockCharacter* '\'\'\''
+  ;
+
+fragment
+DoubleQuoteEnclosedTextBlock
+  : '"""'[\r\n] TextBlockCharacter* '"""'
+  ;
+
+fragment
+TextBlockCharacter
+  : ~[\\]
+  | EscapeSequence
+  ;
 
 // §3.10.6 Escape Sequences for Character and String Literals
 fragment

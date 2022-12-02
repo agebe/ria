@@ -1,0 +1,16 @@
+#!/usr/bin/env bs
+
+var sq = '''
+  a
+  b
+  c
+''';
+
+var dq = """
+a
+b
+c""";
+
+println(sq);
+println(dq);
+
