@@ -2,7 +2,6 @@
 * script firewall (which java methods are allowed/denied)
 * bit operators?
 * other assign operator e.g. +=, -= etc.
-* text blocks
 * switch statement?
 * throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
 * try-catch (with resources?)
@@ -13,5 +12,4 @@
      its internal state modified as per the statements.
      Adding or overwriting methods should probably only be possible together with the new operator?
 * apache license on all files
-* add maven script dependencies
 * add builtin function (e.g. exec) for scripting

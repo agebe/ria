@@ -21,6 +21,8 @@ public class MultiFormatDependency implements Dependency {
       return new FileTreeDependency(dependency).resolve();
     } else if(FileDependency.isFileDependency(dependency)) {
       return new FileDependency(dependency).resolve();
+    } else if(MavenDependency.isMavenFormat(dependency)) {
+      return new MavenDependency(dependency).resolve();
     } else {
       throw new ScriptException("unsupported dependeny format '%s'".formatted(dependency));
     }

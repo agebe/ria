@@ -8,7 +8,20 @@ public class DependencyTest {
   public void simple() {
     new Script("""
         dependencies {
-          'io.github.agebe:kvd-client:0.6.2'
+          '''
+          <dependency>
+            <groupId>io.github.agebe</groupId>
+            <artifactId>kvd-client</artifactId>
+            <version>0.6.2</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          '''
+          //'io.github.agebe:kvd-client:0.6.2'
         }
         import kvd.client.KvdClientBuilder;
         var builder = new KvdClientBuilder();
