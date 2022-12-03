@@ -26,7 +26,7 @@ public class TextBlockTest {
   public void doubleQuoteTextblock() {
     String script = """
         var s = \"\"\"
-       a
+        a
         b\"\"\";
         println(s);
         s;
@@ -36,9 +36,18 @@ public class TextBlockTest {
     System.out.println(s);
     String expect = """
       a
-       b""";
+      b""";
     System.out.println(expect);
     assertEquals(expect, s);
+  }
+
+  @Test
+  public void empty() {
+    String s = (String)new Script().run("""
+        var s = '''
+        ''';
+        """);
+    assertEquals("", s);
   }
 
 }

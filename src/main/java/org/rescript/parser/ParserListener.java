@@ -426,19 +426,8 @@ public class ParserListener implements ScriptListener {
     log.debug("exit strLiteral '{}'", ctx.getText());
     Terminal t = (Terminal)stack.pop();
     String s = t.getToken().getText();
-    //https://docs.oracle.com/en/java/javase/15/text-blocks/index.html
-    String doubleQuoteTextBlockStart = "\"\"\"\n";
-    String doubleQuoteTextBlockEnd = "\"\"\"";
-    String singleQuoteTextBlockStart = "'''\n";
-    String singleQuoteTextBlockEnd = "'''";
-    if(StringUtils.startsWith(s, doubleQuoteTextBlockStart) && StringUtils.endsWith(s, doubleQuoteTextBlockEnd)) {
-      // TODO apply indentation rules
-      stack.push(new StringLiteral(StringUtils.removeStart(
-          StringUtils.removeEnd(s, doubleQuoteTextBlockEnd), doubleQuoteTextBlockStart)));
-    } else if(StringUtils.startsWith(s, singleQuoteTextBlockStart) && StringUtils.endsWith(s, singleQuoteTextBlockEnd)) {
-      // TODO apply indentation rules
-      stack.push(new StringLiteral(StringUtils.removeStart(
-          StringUtils.removeEnd(s, singleQuoteTextBlockEnd), singleQuoteTextBlockStart)));
+    if(TextBlockUtil.isTextBlock(s)) {
+      stack.push(new StringLiteral(TextBlockUtil.toString(s)));
     } else if(StringUtils.startsWith(s, "\"") && StringUtils.endsWith(s, "\"")) {
       if(s.length() == 1) {
         fail("invalid string literal " + s);

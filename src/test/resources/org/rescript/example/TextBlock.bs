@@ -2,14 +2,14 @@
 
 var sq = '''
   a
-  b
+  b 
   c
 ''';
 
 var dq = """
-a
-b
-c""";
+  a
+  b
+ c""";
 
 println(sq);
 println(dq);
