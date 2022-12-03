@@ -3,6 +3,7 @@ package org.rescript.parser;
 import static org.apache.commons.lang3.StringUtils.endsWith;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -57,11 +58,10 @@ public class TextBlockUtil {
   }
 
   private static String removeIncidentalWhiteSpace(String org, int len) {
-    String[] arr = splitPreserveAllLines(org)
+    return splitPreserveAllLines(org)
         .map(s -> StringUtils.substring(s, len))
         .map(s -> StringUtils.stripEnd(s, " \t\\u00A0\\u2007\\u202F"))
-        .toArray(String[]::new);
-    return StringUtils.join(arr, '\n');
+        .collect(Collectors.joining("\n"));
   }
 
   private static String removeIncidentalWhiteSpace(String org) {
