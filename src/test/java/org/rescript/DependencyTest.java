@@ -20,6 +20,12 @@ public class DependencyTest {
               </exclusion>
             </exclusions>
           </dependency>
+          <!-- commons lang not really required, just testing pom import -->
+          <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+          </dependency>
           '''
           //'io.github.agebe:kvd-client:0.6.2'
         }
