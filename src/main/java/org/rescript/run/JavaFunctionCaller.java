@@ -83,8 +83,12 @@ public class JavaFunctionCaller {
             Arrays.toString(paramTypes),
             Arrays.toString(params));
         Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, parameters, ctx));
-        Class<?> returnType = m.getReturnType();
-        return Value.of(returnType, result);
+        if(result != null) {
+          return Value.of(result.getClass(), result);
+        } else {
+          Class<?> returnType = m.getReturnType();
+          return Value.of(returnType, result);
+        }
       } catch(InvocationTargetException e) {
         throw new ScriptException("function '%s' exception".formatted(fname), e);
       } catch(IllegalAccessException e) {
