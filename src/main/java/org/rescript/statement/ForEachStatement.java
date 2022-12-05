@@ -7,13 +7,14 @@ import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Array;
 import org.rescript.value.Value;
+import org.rescript.parser.Type;
 
 //https://docs.oracle.com/javase/8/docs/technotes/guides/language/foreach.html
 public class ForEachStatement extends AbstractLoop implements ContainerStatement {
 
   private String identifier;
 
-  private String type;
+  private Type type;
 
   private Expression iterable;
 
@@ -27,7 +28,7 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
     this.identifier = identifier;
   }
 
-  public void setType(String type) {
+  public void setType(Type type) {
     this.type = type;
   }
 

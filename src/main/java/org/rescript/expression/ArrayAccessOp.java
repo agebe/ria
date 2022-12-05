@@ -5,8 +5,12 @@ import java.util.List;
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArrayAccessOp implements Expression {
+
+  private static final Logger log = LoggerFactory.getLogger(ArrayAccessOp.class);
 
   private Expression arrayExpr;
 
@@ -23,6 +27,7 @@ public class ArrayAccessOp implements Expression {
     Value v = arrayExpr.eval(ctx);
     Value index = indexExpr.eval(ctx);
     int i = index.toInt();
+    log.debug("array access operation on value '{}'", v);
     if(v.isArray()) {
       return v.toArray().get(i);
     } else {

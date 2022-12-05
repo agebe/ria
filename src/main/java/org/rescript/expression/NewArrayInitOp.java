@@ -7,19 +7,17 @@ import org.rescript.parser.ArrayInit;
 import org.rescript.parser.ParseItem;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
+import org.rescript.parser.Type;
 
 public class NewArrayInitOp implements Expression {
 
-  private String type;
-
-  private int dimensions;
+  private Type type;
 
   private ArrayInit init;
 
-  public NewArrayInitOp(String type, int dimensions, ArrayInit init) {
+  public NewArrayInitOp(Type type, ArrayInit init) {
     super();
     this.type = type;
-    this.dimensions = dimensions;
     this.init = init;
   }
 
@@ -39,7 +37,7 @@ public class NewArrayInitOp implements Expression {
         Array.set(array, i, initArray(ctx, cls, dim-1, nested));
       } else if(p instanceof Expression exp) {
         Value v = exp.eval(ctx);
-        Array.set(array, i, v.isNotNull()?CastOp.castTo(v, type, ctx).val():null);
+        Array.set(array, i, v.isNotNull()?CastOp.castTo(v, new Type(cls), ctx).val():null);
       } else {
         throw new ScriptException("unexpected array initializer '%s'".formatted(p));
       }
@@ -49,8 +47,8 @@ public class NewArrayInitOp implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
-    Object array = initArray(ctx, cls, dimensions, init);
+    Class<?> cls = type.resolveBaseType(ctx);
+    Object array = initArray(ctx, cls, type.getDim(), init);
     return ArrayUtil.toArrayValue(array);
   }
 }

@@ -1,5 +1,6 @@
 package org.rescript;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class TypesTest {
@@ -9,6 +10,16 @@ public class TypesTest {
     new Script().run("""
         var l = List.of("1,2", "2", 'foo');
         println(l.get(0).split(",")[0]);
+        """);
+  }
+
+  @Test
+  @Disabled
+  public void arrayType() {
+    // FIXME
+    new Script().run("""
+        String[] arr = arrayof ["1,2", "2", 'foo'];
+        println(arr[0].split(",")[0]);
         """);
   }
 

@@ -3,6 +3,7 @@ package org.rescript.symbol.script;
 import java.util.List;
 
 import org.rescript.ScriptException;
+import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
 import org.rescript.statement.Function;
 import org.rescript.symbol.VarSymbol;
@@ -41,7 +42,7 @@ public class ScriptSymbols {
     current.set(scope);
   }
 
-  public void defineVar(String name, Value val, String type) {
+  public void defineVar(String name, Value val, Type type) {
     current.get().defineVar(name, val, type, ctx);
   }
 

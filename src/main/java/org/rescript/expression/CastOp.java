@@ -1,8 +1,8 @@
 package org.rescript.expression;
 
 import org.rescript.ScriptException;
+import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
-import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.ByteValue;
 import org.rescript.value.CharValue;
@@ -16,11 +16,11 @@ import org.rescript.value.Value;
 
 public class CastOp implements Expression {
 
-  private String type;
+  private Type type;
 
   private Expression expression;
 
-  public CastOp(String type, Expression expression) {
+  public CastOp(Type type, Expression expression) {
     super();
     this.type = type;
     this.expression = expression;
@@ -31,31 +31,30 @@ public class CastOp implements Expression {
     return castTo(expression.eval(ctx), type, ctx);
   }
 
-  public static Value castTo(Value v, String type, ScriptContext ctx) throws ClassCastException {
+  public static Value castTo(Value v, Type type, ScriptContext ctx) throws ClassCastException {
     try {
       // TODO check if value is already of correct type and return v without creating a new value
-      if(type.equals("double")) {
+      if(type.isDouble()) {
         return new DoubleValue(v.toDouble());
-      } else if(type.equals("float")) {
+      } else if(type.isFloat()) {
         return new FloatValue(v.toFloat());
-      } else if(type.equals("long")) {
+      } else if(type.isLong()) {
         return new LongValue(v.toLong());
-      } else if(type.equals("int")) {
+      } else if(type.isInt()) {
         return new IntValue(v.toInt());
-      } else if(type.equals("char")) {
+      } else if(type.isChar()) {
         return new CharValue(v.toChar());
-      } else if(type.equals("byte")) {
+      } else if(type.isByte()) {
         return new ByteValue(v.toByte());
-      } else if(type.equals("short")) {
+      } else if(type.isShort()) {
         return new ShortValue(v.toShort());
-      } else if(type.equals("boolean")) {
+      } else if(type.isBoolean()) {
         return new BooleanValue(v.toBoolean());
       } else {
-        Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
+        Class<?> cls = type.resolve(ctx);
         if(cls == null) {
-          throw new SymbolNotFoundException("type '%s' could not be resolved".formatted(type));
-        }
-        if(cls == Double.class) {
+          return v!=null?v:ObjValue.NULL;
+        } else if(cls == Double.class) {
           return new ObjValue(cls, v.isNotNull()?v.toDouble():null);
         } else if(cls == Float.class) {
           return new ObjValue(cls, v.isNotNull()?v.toFloat():null);
@@ -82,7 +81,7 @@ public class CastOp implements Expression {
     }
   }
 
-  public static boolean canCast(Value v, String type, ScriptContext ctx) {
+  public static boolean canCast(Value v, Type type, ScriptContext ctx) {
     try {
       castTo(v, type, ctx);
       return true;

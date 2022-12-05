@@ -19,9 +19,7 @@ public class ArrayTest {
 
   @Test
   public void stringArray() {
-    assertArrayEquals(new String[] { "foo", "bar" }, (String[])new Script().run("""
-        arrayof ["foo", "bar"]
-        """));
+    assertArrayEquals(new String[] { "foo", "bar" }, (String[])new Script().run("arrayof ['foo', 'bar']"));
   }
 
   @Test
@@ -29,6 +27,7 @@ public class ArrayTest {
     assertArrayEquals(new int[] { 42,43,44 }, (int[])new Script().run("arrayof [42,43,44]"));
   }
 
+  @Test
   public void intArrayEq() {
     // this calls Arrays.equals(...) behind the scenes
     assertTrue(new Script().evalPredicate("arrayof [1,2] == arrayof [1,2]"));
@@ -121,7 +120,8 @@ public class ArrayTest {
 
   @Test
   public void newOpArrayInit() {
-    assertArrayEquals(new long[] {42, 43, 44}, (long[])new Script().run("new long[] {42,43,44}"));
+    assertArrayEquals(new long[] {42, 43, 44},
+        (long[])new Script().run("new long[] {42,43,44}"));
   }
 
   @Test
@@ -152,7 +152,8 @@ public class ArrayTest {
 
   @Test
   public void newOpArrayMultiFloat() {
-    assertArrayEquals(new float[2][][], (float[][][])new Script().run("new float[2][][]"));
+    assertArrayEquals(new float[2][][],
+        (float[][][])new Script().run("new float[2][][]"));
   }
 
   @Test

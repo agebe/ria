@@ -3,7 +3,6 @@ package org.rescript.expression;
 import org.rescript.ScriptException;
 import org.rescript.parser.TypeOrPrimitive;
 import org.rescript.run.ScriptContext;
-import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.Value;
 
@@ -29,33 +28,30 @@ public class InstanceOfOp implements Expression {
     if(v1 == null) {
       throw new ScriptException("left operand failed to evaluate '%s'".formatted(expr1.getText()));
     }
-    if(type.isPrimitive()) {
-      if(type.isDouble()) {
+    if(type.getType().isPrimitive()) {
+      if(type.getType().isDouble()) {
         isInstanceOf = v1.type() == double.class;
-      } else if(type.isFloat()) {
+      } else if(type.getType().isFloat()) {
         isInstanceOf = v1.type() == float.class;
-      } else if(type.isLong()) {
+      } else if(type.getType().isLong()) {
         isInstanceOf = v1.type() == long.class;
-      } else if(type.isInt()) {
+      } else if(type.getType().isInt()) {
         isInstanceOf = v1.type() == int.class;
-      } else if(type.isBoolean()) {
+      } else if(type.getType().isBoolean()) {
         isInstanceOf = v1.type() == boolean.class;
-      } else if(type.isChar()) {
+      } else if(type.getType().isChar()) {
         isInstanceOf = v1.type() == char.class;
-      } else if(type.isByte()) {
+      } else if(type.getType().isByte()) {
         isInstanceOf = v1.type() == byte.class;
-      } else if(type.isShort()) {
+      } else if(type.getType().isShort()) {
         isInstanceOf = v1.type() == short.class;
-      } else if(type.isVoid()) {
+      } else if(type.getType().isVoid()) {
         isInstanceOf = v1.type() == void.class;
       } else {
         throw new ScriptException("unknown primitive type '%s'".formatted(type.getType()));
       }
     } else {
-      Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type.getType());
-      if(cls == null) {
-        throw new SymbolNotFoundException("type '%s' not found".formatted(type.getType()));
-      }
+      Class<?> cls = type.getType().resolve(ctx);
       isInstanceOf = cls.isAssignableFrom(v1.type());
     }
     if(isInstanceOf && (this.bind != null)) {

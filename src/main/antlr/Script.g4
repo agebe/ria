@@ -92,12 +92,12 @@ expr
   | ( ADD | SUB | BANG | TILDE | INC | DEC ) expr
   | '(' typeOrPrimitive ')' expr
   | ccall
+  | newArray
+  | newArrayInit
 // list literal
   | '[' expr? ( ',' expr )* ']'
 // array literal, type of array is common super-type
   | 'arrayof' '[' expr? ( ',' expr )* ']'
-  | newArray
-  | newArrayInit
 // empty map literal
   | '[' ':' ']'
 // map literal
@@ -147,12 +147,14 @@ typeOrPrimitiveOrVar
   : typeOrPrimitive | 'var'
   ;
 
+
+// the optional square brackets at the end to denote (multidimensional) arrays
 typeOrPrimitive
-  : ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN )
+  : ( type | DOUBLE | FLOAT | LONG | INT | CHAR | SHORT | BYTE | BOOLEAN ) ( '[' ']' )*
   ;
 
 newArray
-  : NEW  typeOrPrimitive '[' expr ']' ( '[' expr? ']' )*
+  : NEW typeOrPrimitive '[' expr ']' ( '[' expr? ']' )*
   ;
 
 arrayInit
@@ -160,7 +162,7 @@ arrayInit
   ;
 
 newArrayInit
-  : NEW typeOrPrimitive ( '[' ']' )+ arrayInit
+  : NEW typeOrPrimitive arrayInit
   ;
 
 assign: assignmentOp | multiAssignmentOp;

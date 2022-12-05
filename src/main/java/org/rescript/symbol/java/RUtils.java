@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.expression.CastOp;
+import org.rescript.parser.Type;
 import org.rescript.run.ConstructorReferenceInvocationHandler;
 import org.rescript.run.MethodReferenceInvocationHandler;
 import org.rescript.run.ScriptContext;
@@ -236,7 +237,7 @@ public class RUtils {
     if(target.isAssignableFrom(from.type())) {
       return true;
     }
-    if(CastOp.canCast(from, target.getName(), ctx)) {
+    if(CastOp.canCast(from, new Type(target), ctx)) {
       return true;
     }
 //    https://stackoverflow.com/questions/12559634/java-autoboxing-rules
@@ -281,7 +282,7 @@ public class RUtils {
               new Class[] {expected},
               new ConstructorReferenceInvocationHandler(supplied.toConstructorValue(), ctx));
         } else {
-          preparedParams[i] = CastOp.castTo(params[i], expected.getName(), ctx).val();
+          preparedParams[i] = CastOp.castTo(params[i], new Type(expected), ctx).val();
         }
       }
       return preparedParams;

@@ -3,9 +3,9 @@ package org.rescript.symbol.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.expression.CastOp;
+import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.ObjValue;
@@ -30,11 +30,11 @@ public class ScopeNode {
     this.parent = parent;
   }
 
-  public synchronized void defineVar(String name, Value val, String type, ScriptContext ctx) {
+  public synchronized void defineVar(String name, Value val, Type type, ScriptContext ctx) {
 //    if(val == null) {
 //      throw new ScriptException("value is null for variable definition of '{}'".formatted(name));
 //    }
-    log.debug("define variable '{}', type '{}'", name, type);
+    log.debug("define variable '{}', type '{}', value '{}'", name, type, val);
     VarSymbol v = variables.putIfAbsent(name,
         new VarSymbol(name, castToNotNull(type, val, ctx), type, ctx));
     if(v != null) {
@@ -42,8 +42,8 @@ public class ScopeNode {
     }
   }
 
-  private Value castToNotNull(String type, Value val, ScriptContext ctx) {
-    if(StringUtils.isBlank(type)) {
+  private Value castToNotNull(Type type, Value val, ScriptContext ctx) {
+    if(type == null) {
       return val!=null?val:ObjValue.NULL;
     } else {
       return val!=null?CastOp.castTo(val, type, ctx):ObjValue.NULL;

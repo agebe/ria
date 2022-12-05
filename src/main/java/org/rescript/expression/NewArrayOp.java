@@ -8,14 +8,15 @@ import java.util.Objects;
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
+import org.rescript.parser.Type;
 
 public class NewArrayOp implements Expression {
 
-  private String type;
+  private Type type;
 
   private List<Expression> dimensions;
 
-  public NewArrayOp(String type, List<Expression> dimensions) {
+  public NewArrayOp(Type type, List<Expression> dimensions) {
     super();
     this.type = type;
     this.dimensions = dimensions;
@@ -24,7 +25,7 @@ public class NewArrayOp implements Expression {
   @Override
   public Value eval(ScriptContext ctx) {
     checkDimensions(dimensions);
-    Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
+    Class<?> cls = type.resolveBaseType(ctx);
     int[] dims = dimensions.stream()
         .filter(Objects::nonNull)
         .mapToInt(dim -> dim.eval(ctx).toInt())

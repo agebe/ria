@@ -12,7 +12,7 @@ public class ObjValue implements Value {
 
   public ObjValue(Class<?> type, Object val) {
     super();
-    this.type = type;
+    this.type = type!=null?type:Object.class;
     this.val = val;
   }
 

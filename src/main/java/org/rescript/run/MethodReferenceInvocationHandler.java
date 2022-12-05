@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.rescript.ScriptException;
 import org.rescript.expression.CastOp;
+import org.rescript.parser.Type;
 import org.rescript.symbol.java.RUtils;
 import org.rescript.value.MethodValue;
 import org.rescript.value.Value;
@@ -56,7 +57,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
     }
     Object[] result = new Object[args.length];
     for(int i=0;i<args.length;i++) {
-      result[i] = CastOp.castTo(Value.of(args[i]), m.getParameterTypes()[i].getName(), ctx).val();
+      result[i] = CastOp.castTo(Value.of(args[i]), new Type(m.getParameterTypes()[i]), ctx).val();
     }
     return result;
   }
@@ -89,7 +90,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
       Class<?> at = types.get(i);
       Value v = Value.of(at, args[i]);
       try {
-        Value cast = CastOp.castTo(v, mpt.getName(), ctx);
+        Value cast = CastOp.castTo(v, new Type(mpt), ctx);
         if(!mpt.isAssignableFrom(cast.type())) {
           log.debug("filter out method '{}', parameter '{}' type '{}' is not assignable from supplied type '{}'",
               m.getName(),

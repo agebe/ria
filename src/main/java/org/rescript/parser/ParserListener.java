@@ -142,14 +142,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterEveryRule(ParserRuleContext ctx) {
-    // TODO Auto-generated method stub
-    
+//    log.debug("enterEveryRule '{}'", ctx.getText());
   }
 
   @Override
   public void exitEveryRule(ParserRuleContext ctx) {
-    // TODO Auto-generated method stub
-    
+//    log.debug("exitEveryRule '{}'", ctx.getText());
   }
 
   @Override
@@ -525,7 +523,7 @@ public class ParserListener implements ScriptListener {
   public void exitVardefStmt(VardefStmtContext ctx) {
     log.debug("exitVardefStmt '{}'", ctx.getText());
     LinkedList<VarDef> vars = new LinkedList<>();
-    String type;
+    org.rescript.parser.Type type;
     popSemi();
     for(;;) {
       if(nextItemIs(TypeOrPrimitive.class)) {
@@ -1073,6 +1071,9 @@ public class ParserListener implements ScriptListener {
       }
     }
     TypeOrPrimitive type = pop(TypeOrPrimitive.class);
+    if(type.getType().getDim() > 0) {
+      throw new ScriptException("first dimension required");
+    }
     popTerminal("new");
     NewArrayOp.checkDimensions(dims);
     stack.push(new NewArrayOp(type.getType(), dims));
@@ -1087,22 +1088,9 @@ public class ParserListener implements ScriptListener {
   public void exitNewArrayInit(NewArrayInitContext ctx) {
     log.debug("exitNewArrayInit '{}'", ctx.getText());
     ArrayInit init = pop(ArrayInit.class);
-    int dim = 0;
-    for(;;) {
-      if(nextTerminalIs("]")) {
-        dim++;
-        popTerminal();
-      } else if(nextTerminalIs("[")) {
-        popTerminal();
-      } else if(nextItemIs(TypeOrPrimitive.class)) {
-        break;
-      } else {
-        fail("unexpected array new op with initializer element, " + stack.peek());
-      }
-    }
     TypeOrPrimitive type = pop(TypeOrPrimitive.class);
     popTerminal("new");
-    stack.push(new NewArrayInitOp(type.getType(), dim, init));
+    stack.push(new NewArrayInitOp(type.getType(), init));
   }
 
   @Override
@@ -1113,12 +1101,23 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitTypeOrPrimitive(TypeOrPrimitiveContext ctx) {
     log.debug("exitTypeOrPrimitive '{}'", ctx.getText());
+    int arrayDimensions = 0;
+    for(;;) {
+      if(nextTerminalIs("]")) {
+        popTerminal("]");
+        popTerminal("[");
+        arrayDimensions++;
+      } else {
+        break;
+      }
+    }
+    log.debug("array dimensions '{}'", arrayDimensions);
     if(nextItemIs(Terminal.class)) {
       Terminal type = popTerminal();
-      stack.push(new TypeOrPrimitive(type.getText()));
+      stack.push(new TypeOrPrimitive(new org.rescript.parser.Type(type.getText(), arrayDimensions)));
     } else if(nextItemIs(Type.class)) {
       Type type = pop(Type.class);
-      stack.push(new TypeOrPrimitive(type.getIdent()));
+      stack.push(new TypeOrPrimitive(new org.rescript.parser.Type(type.getIdent(), arrayDimensions)));
     }
   }
 
@@ -1159,7 +1158,7 @@ public class ParserListener implements ScriptListener {
     log.debug("exitTypeOrPrimitiveOrVar '{}'", ctx.getText());
     if(nextTerminalIs("var")) {
       popTerminal("var");
-      stack.push(new TypeOrPrimitive(null));
+      stack.push(new TypeOrPrimitive());
     } else if(nextItemIs(TypeOrPrimitive.class)) {
       // nothing to do, just keep TypeOrPrimitive on the stack
     } else {

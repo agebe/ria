@@ -3,8 +3,9 @@ package org.rescript.statement;
 import org.rescript.ScriptException;
 import org.rescript.expression.Assignment;
 import org.rescript.expression.Identifier;
+import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
-import org.rescript.symbol.SymbolNotFoundException;
+import org.rescript.value.ArrayValue;
 import org.rescript.value.BooleanValue;
 import org.rescript.value.ByteValue;
 import org.rescript.value.CharValue;
@@ -32,7 +33,7 @@ public class VarDef {
     this.assign = assign;
   }
 
-  public void execute(ScriptContext ctx, String type) {
+  public void execute(ScriptContext ctx, Type type) {
     // type can be null if e.g. the variable was declared via 'var' terminal.
     // in this case the variable can freely change it's type (as opposed to java)
     // otherwise the type is fixed and can't change over it's lifetime (same as in java)
@@ -48,32 +49,41 @@ public class VarDef {
     }
   }
 
-  private Value defaultValue(ScriptContext ctx, String type) {
+  private Value defaultValue(ScriptContext ctx, Type type) {
+    // FIXME add primitive arrays
     if(type == null) {
       return ObjValue.NULL;
-    } else if(type.equals("double")) {
+    } else if(type.isDouble()) {
       return new DoubleValue(0);
-    } else if(type.equals("float")) {
+    } else if(type.isFloat()) {
       return new FloatValue(0);
-    } else if(type.equals("long")) {
+    } else if(type.isLong()) {
       return new LongValue(0);
-    } else if(type.equals("int")) {
+    } else if(type.isInt()) {
       return new IntValue(0);
-    } else if(type.equals("char")) {
+    } else if(type.isChar()) {
       return new CharValue((char)0);
-    } else if(type.equals("byte")) {
+    } else if(type.isByte()) {
       return new ByteValue((byte)0);
-    } else if(type.equals("short")) {
+    } else if(type.isShort()) {
       return new ShortValue((short)0);
-    } else if(type.equals("boolean")) {
+    } else if(type.isBoolean()) {
       return BooleanValue.FALSE;
     } else {
-      Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
+      Class<?> cls = type.resolve(ctx);
       if(cls == null) {
-        throw new SymbolNotFoundException("type '%s' could not be resolved".formatted(type));
+        return ObjValue.NULL;
+      } else if(cls.isArray()) {
+        return new ArrayValue(null, cls);
+      } else {
+        return new ObjValue(cls, null);
       }
-      return new ObjValue(cls, null);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "VarDef [ident=" + ident + ", assign=" + assign + "]";
   }
 
 }

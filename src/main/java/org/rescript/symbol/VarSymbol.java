@@ -1,6 +1,7 @@
 package org.rescript.symbol;
 
 import org.rescript.expression.CastOp;
+import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
@@ -10,11 +11,11 @@ public class VarSymbol implements Symbol {
 
   private Value val;
 
-  private String type;
+  private Type type;
 
   private ScriptContext ctx;
 
-  public VarSymbol(String name, Value val, String type, ScriptContext ctx) {
+  public VarSymbol(String name, Value val, Type type, ScriptContext ctx) {
     super();
     this.name = name;
     this.val = val;
