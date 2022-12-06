@@ -6,8 +6,12 @@ import org.rescript.run.ScriptContext;
 import org.rescript.symbol.SymbolNotFoundException;
 import org.rescript.value.UnresolvedIdentifier;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Identifier implements TargetExpression, Ident {
+
+  private static final Logger log = LoggerFactory.getLogger(Identifier.class);
 
   private String ident;
 
@@ -29,7 +33,9 @@ public class Identifier implements TargetExpression, Ident {
   @Override
   public Value eval(ScriptContext ctx) {
     try {
-      return ctx.getSymbols().resolveVarOrTypeOrStaticMember(ident);
+      Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(ident);
+      log.debug("ident resolved to '{}'", v);
+      return v;
     } catch(SymbolNotFoundException e) {
       return new UnresolvedIdentifier(ident);
     }

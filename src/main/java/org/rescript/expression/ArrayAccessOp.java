@@ -35,7 +35,8 @@ public class ArrayAccessOp implements Expression {
       if(o instanceof List<?> l) {
         return Value.of(l.get(i));
       } else {
-        throw new ScriptException("array or list expected from expression but got '%s'".formatted(v.type()));
+        throw new ScriptException("array or list expected from expression but got '%s', type '%s'"
+            .formatted(v, v.type()));
       }
     }
   }

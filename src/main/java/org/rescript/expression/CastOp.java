@@ -13,8 +13,12 @@ import org.rescript.value.LongValue;
 import org.rescript.value.ObjValue;
 import org.rescript.value.ShortValue;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CastOp implements Expression {
+
+  private static final Logger log = LoggerFactory.getLogger(CastOp.class);
 
   private Type type;
 
@@ -32,6 +36,17 @@ public class CastOp implements Expression {
   }
 
   public static Value castTo(Value v, Type type, ScriptContext ctx) throws ClassCastException {
+    if(type.isArray()) {
+      if((v!=null) && (v.isArray())) {
+        return v;
+      } else {
+        // TODO should the interpreter automatically convert a scalar value into an array of size 1 on cast?
+        log.debug("casting value '{}' to array type '{}' not implemented", v, type);
+      }
+      return v;
+    } else {
+      log.debug("cast value '{}' to type '{}'", v, type);
+    }
     try {
       // TODO check if value is already of correct type and return v without creating a new value
       if(type.isDouble()) {
