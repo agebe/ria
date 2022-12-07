@@ -5,14 +5,14 @@ import java.util.List;
 import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
 
-public class VardefStatement implements Statement {
+public class VardefStatement extends AbstractStatement implements Statement {
 
   private List<VarDef> vars;
 
   private Type type;
 
-  public VardefStatement(List<VarDef> vars, Type type) {
-    super();
+  public VardefStatement(int lineNumber, List<VarDef> vars, Type type) {
+    super(lineNumber);
     this.vars = vars;
     this.type = type;
   }

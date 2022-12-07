@@ -3,7 +3,11 @@ package org.rescript.statement;
 import org.rescript.ScriptException;
 import org.rescript.run.ScriptContext;
 
-public class BreakStatement implements Statement {
+public class BreakStatement extends AbstractStatement {
+
+  public BreakStatement(int lineNumber) {
+    super(lineNumber);
+  }
 
   @Override
   public void execute(ScriptContext ctx) {

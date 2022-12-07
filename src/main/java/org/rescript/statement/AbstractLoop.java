@@ -2,11 +2,15 @@ package org.rescript.statement;
 
 import org.rescript.run.ScriptContext;
 
-public abstract class AbstractLoop implements Breakable, Continueable, Statement {
+public abstract class AbstractLoop extends AbstractStatement implements Breakable, Continueable, Statement {
 
   private boolean breakFlag;
 
   private boolean continueFlag;
+
+  public AbstractLoop(int lineNumber) {
+    super(lineNumber);
+  }
 
   @Override
   public void setContinue() {

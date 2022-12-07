@@ -7,14 +7,14 @@ import org.rescript.value.VoidValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReturnStatement implements Statement {
+public class ReturnStatement extends AbstractStatement implements Statement {
 
   private static final Logger log = LoggerFactory.getLogger(ReturnStatement.class);
 
   private Expression expression;
 
-  public ReturnStatement(Expression expression) {
-    super();
+  public ReturnStatement(int lineNumber, Expression expression) {
+    super(lineNumber);
     this.expression = expression;
   }
 

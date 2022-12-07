@@ -10,8 +10,8 @@ public class WhileStatement extends AbstractLoop implements ContainerStatement {
 
   private Statement statement;
 
-  public WhileStatement() {
-    super();
+  public WhileStatement(int lineNumber) {
+    super(lineNumber);
   }
 
   public Expression getExpression() {

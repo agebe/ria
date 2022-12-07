@@ -10,7 +10,7 @@ import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IfStatement implements ContainerStatement {
+public class IfStatement extends AbstractStatement implements ContainerStatement {
 
   private static final Logger log = LoggerFactory.getLogger(IfStatement.class);
 
@@ -18,8 +18,8 @@ public class IfStatement implements ContainerStatement {
 
   private List<Statement> statements = new ArrayList<>();
 
-  public IfStatement() {
-    super();
+  public IfStatement(int lineNumber) {
+    super(lineNumber);
   }
 
   public Expression getExpression() {

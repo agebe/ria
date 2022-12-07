@@ -7,7 +7,7 @@ import org.rescript.run.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BlockStatement implements ContainerStatement {
+public class BlockStatement extends AbstractStatement implements ContainerStatement {
 
   private static final Logger log = LoggerFactory.getLogger(BlockStatement.class);
 
@@ -15,12 +15,12 @@ public class BlockStatement implements ContainerStatement {
 
   private boolean root;
 
-  public BlockStatement() {
-    this(false);
+  public BlockStatement(int line) {
+    this(line, false);
   }
 
-  public BlockStatement(boolean root) {
-    super();
+  public BlockStatement(int line, boolean root) {
+    super(line);
     this.root = root;
   }
 
@@ -32,6 +32,7 @@ public class BlockStatement implements ContainerStatement {
         ctx.getSymbols().getScriptSymbols().enterScope();
       }
       for(Statement s : statements) {
+        ctx.getCurrentFrame().setLine(s.getLineNumber());
         if(ctx.isReturnFlag()) {
           log.debug("return flag set, break out of block");
           break;

@@ -50,12 +50,12 @@ public class DependencyResolver {
   }
 
   private Function fileTree() {
-    BlockStatement block = new BlockStatement();
+    BlockStatement block = new BlockStatement(0);
     FunctionParameter p0 = new FunctionParameter(
         ctx -> ctx.getSymbols().getScriptSymbols().resolveVar("baseDir").getVal());
     NewOp n = new NewOp(FileTreeDependency.class.getName(), List.of(p0));
-    block.addStatement(new ExpressionStatement(n));
-    Function f = new Function();
+    block.addStatement(new ExpressionStatement(0, n));
+    Function f = new Function(0);
     f.setName("fileTree");
     f.setParameterNames(List.of("baseDir"));
     f.setStatements(block);

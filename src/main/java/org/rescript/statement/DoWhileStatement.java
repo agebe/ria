@@ -10,8 +10,8 @@ public class DoWhileStatement extends AbstractLoop implements ContainerStatement
 
   private Statement statement;
 
-  public DoWhileStatement() {
-    super();
+  public DoWhileStatement(int lineNumber) {
+    super(lineNumber);
   }
 
   public void setExpression(Expression expression) {

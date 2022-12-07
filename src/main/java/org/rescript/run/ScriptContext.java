@@ -86,4 +86,12 @@ public class ScriptContext {
     return contexts.get().stack;
   }
 
+  public StackTraceElement[] getStackTrace() {
+    return contexts.get().functionStack
+        .stream()
+        // TODO if the script was executed from a file the file name should appear in the stack trace instead of 'inline' 
+        .map(sf -> new StackTraceElement("script", sf.getFunction().getName(), "inline", sf.getLine()))
+        .toArray(StackTraceElement[]::new);
+  }
+
 }

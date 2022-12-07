@@ -95,7 +95,6 @@ import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
 import org.rescript.statement.ForEachStatement;
 import org.rescript.statement.ForInitStatement;
-import org.rescript.statement.ForStatement;
 import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.Function;
 import org.rescript.statement.IfStatement;
@@ -162,7 +161,8 @@ public class ParserListener implements ScriptListener {
     log.debug("stack size '{}'", stack.size());
     if(stack.size() == 3) {
       // assume single expression script
-      findMostRecentContainerStatement().addStatement(new ExpressionStatement(popExpression()));
+      // FIXME line number should be of the expression
+      findMostRecentContainerStatement().addStatement(new ExpressionStatement(0, popExpression()));
     }
     if(stack.size() != 2) {
       log.warn("stack should have single item but has '{}', '{}'", stack.size(), stack);
@@ -217,7 +217,7 @@ public class ParserListener implements ScriptListener {
       expr = popExpression();
     }
     popTerminal("return");
-    stack.push(new ReturnStatement(expr));
+    stack.push(new ReturnStatement(ctx.getStart().getLine(), expr));
   }
 
   @Override
@@ -501,7 +501,7 @@ public class ParserListener implements ScriptListener {
   public void exitEmptyStmt(EmptyStmtContext ctx) {
     log.debug("exitEmptyStmt '{}'", ctx.getText());
     popSemi();
-    stack.push(new EmptyStatement());
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -513,7 +513,7 @@ public class ParserListener implements ScriptListener {
   public void exitExprStmt(ExprStmtContext ctx) {
     log.debug("exitExprStmt '{}'", ctx.getText());
     popSemi();
-    stack.push(new ExpressionStatement(popExpression()));
+    stack.push(new ExpressionStatement(ctx.getStart().getLine(), popExpression()));
   }
 
   @Override
@@ -546,13 +546,13 @@ public class ParserListener implements ScriptListener {
         }
       }
     }
-    stack.push(new VardefStatement(vars, type));
+    stack.push(new VardefStatement(ctx.getStart().getLine(), vars, type));
   }
 
   @Override
   public void enterBlock(BlockContext ctx) {
     log.debug("enterBlock '{}'", ctx.getText());
-    stack.push(new BlockStatement());
+    stack.push(new BlockStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -566,7 +566,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterIfStmt(IfStmtContext ctx) {
     log.debug("enterIfStmt '{}'", ctx.getText());
-    stack.push(new IfStatement());
+    stack.push(new IfStatement(ctx.getStop().getLine()));
   }
 
   @Override
@@ -584,7 +584,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterIfElseStmt(IfElseStmtContext ctx) {
     log.debug("enterIfElseStmt '{}'", ctx.getText());
-    stack.push(new IfStatement());
+    stack.push(new IfStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -628,7 +628,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterWhileStmt(WhileStmtContext ctx) {
     log.debug("enterWhileStmt '{}'", ctx.getText());
-    stack.push(new WhileStatement());
+    stack.push(new WhileStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -645,7 +645,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterForStmt(ForStmtContext ctx) {
     log.debug("enterForStmt '{}'", ctx.getText());
-    stack.push(new ForStatementBuilder());
+    stack.push(new ForStatementBuilder(ctx.getStart().getLine()));
   }
 
   @Override
@@ -654,7 +654,7 @@ public class ParserListener implements ScriptListener {
     printStack();
     popTerminal(")");
     ForStatementBuilder b = (ForStatementBuilder)stack.pop();
-    var forStmt = new ForStatement(b.getForInit(), b.getForTerm(), b.getForInc(), b.getStatement());
+    var forStmt = b.create();
     log.debug("adding '{}' to stack", forStmt);
     stack.push(forStmt);
   }
@@ -681,11 +681,13 @@ public class ParserListener implements ScriptListener {
         popTerminalIfExists(",");
       }
       printStack();
-      ((ForStatementBuilder)stack.peek()).setForInit(new ForInitStatement(l));
+      ((ForStatementBuilder)stack.peek()).setForInit(
+          new ForInitStatement(ctx.getStart().getLine(),l));
     } else {
       Statement s = popStatement();
       if(s instanceof VardefStatement) {
-        ((ForStatementBuilder)stack.peek()).setForInit(new ForInitStatement((VardefStatement)s));
+        ((ForStatementBuilder)stack.peek()).setForInit(
+            new ForInitStatement(ctx.getStart().getLine(), (VardefStatement)s));
       } else if(!(s instanceof EmptyStatement)) {
         throw new ScriptException("expected var def or empty statement but got, " + s);
       }
@@ -752,9 +754,11 @@ public class ParserListener implements ScriptListener {
     ImportType type = (ImportType)stack.pop();
     if(nextTerminalIs("static")) {
       popTerminal("static");
-      findMostRecentContainerStatement().addStatement(new ImportStaticStatement(type.getType()));
+      findMostRecentContainerStatement().addStatement(
+          new ImportStaticStatement(ctx.getStart().getLine(), type.getType()));
     } else {
-      findMostRecentContainerStatement().addStatement(new ImportStatement(type.getType()));
+      findMostRecentContainerStatement().addStatement(
+          new ImportStatement(ctx.getStart().getLine(), type.getType()));
     }
     popTerminal("import");
   }
@@ -782,7 +786,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterFunctionDefinition(FunctionDefinitionContext ctx) {
     log.debug("enterFunctionDefinition '{}'", ctx.getText());
-    stack.push(new Function());
+    stack.push(new Function(ctx.getStart().getLine()));
   }
 
   @Override
@@ -811,7 +815,7 @@ public class ParserListener implements ScriptListener {
     log.debug("exitBreakStmt '{}'", ctx.getText());
     popSemi();
     popTerminal("break");
-    stack.push(new BreakStatement());
+    stack.push(new BreakStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -824,13 +828,13 @@ public class ParserListener implements ScriptListener {
     log.debug("exitContinueStmt '{}'", ctx.getText());
     popSemi();
     popTerminal("continue");
-    stack.push(new ContinueStatement());
+    stack.push(new ContinueStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void enterDoWhileStmt(DoWhileStmtContext ctx) {
     log.debug("enterDoWhileStmt '{}'", ctx.getText());
-    stack.push(new DoWhileStatement());
+    stack.push(new DoWhileStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -866,7 +870,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterForEachStmt(ForEachStmtContext ctx) {
     log.debug("enterForEachStmt '{}'", ctx.getText());
-    stack.push(new ForEachStatement());
+    stack.push(new ForEachStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -926,12 +930,12 @@ public class ParserListener implements ScriptListener {
   public void enterLambda(LambdaContext ctx) {
     log.debug("enterLambda '{}'", ctx.getText());
     // push a function so nested function (inside the lambda are added to the lambda)
-    stack.push(new Function());
+    stack.push(new Function(ctx.getStart().getLine()));
     // push a block as statements are automatically added to outer blocks (and not left on the stack)
     // if the lambda defines a block body it is nested inside this block but does it matter?
     // function definitions do not need this because the block is mandated through the grammar.
     // for lambdas any statement or expression is fine as lambda body
-    stack.push(new BlockStatement());
+    stack.push(new BlockStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -956,7 +960,8 @@ public class ParserListener implements ScriptListener {
     }
     BlockStatement block = (BlockStatement)stack.pop();
     if(expr != null) {
-      block.addStatement(new ExpressionStatement(expr));
+      // TODO the ExpressionStatement should have the line number of the expression
+      block.addStatement(new ExpressionStatement(ctx.getStart().getLine(), expr));
     }
     // pop the lambda of the stack first so findMostRecentFunction finds the parent function
     Function lambda = (Function)stack.pop();
@@ -1213,7 +1218,7 @@ public class ParserListener implements ScriptListener {
     popSemi();
     Expression expr = popExpression();
     popTerminal("throw");
-    stack.push(new ThrowStatement(expr));
+    stack.push(new ThrowStatement(ctx.getStart().getLine(), expr));
   }
 
 }

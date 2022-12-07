@@ -6,19 +6,23 @@ import org.rescript.ScriptException;
 import org.rescript.expression.Assignment;
 import org.rescript.run.ScriptContext;
 
-public class ForInitStatement implements Statement {
+public class ForInitStatement extends AbstractStatement implements Statement {
 
   private VardefStatement vardef;
 
   private List<Assignment> assigments;
 
-  public ForInitStatement(VardefStatement vardef) {
-    super();
+  public ForInitStatement(int lineNumber) {
+    super(lineNumber);
+  }
+
+  public ForInitStatement(int lineNumber, VardefStatement vardef) {
+    super(lineNumber);
     this.vardef = vardef;
   }
 
-  public ForInitStatement(List<Assignment> assigments) {
-    super();
+  public ForInitStatement(int lineNumber, List<Assignment> assigments) {
+    super(lineNumber);
     this.assigments = assigments;
   }
 

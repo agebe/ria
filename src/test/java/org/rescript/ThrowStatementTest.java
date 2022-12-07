@@ -29,9 +29,18 @@ public class ThrowStatementTest {
     assertThrows(AssertionError.class, () -> new Script().run("throw new AssertionError('test');"));
   }
 
-//  @Test
-//  public void test() {
-//    new Script().run("throw new RuntimeException('test');");
-//  }
+  @Test
+  public void test() {
+    new Script().run("""
+        function foo() {
+          function bar() {
+            var e = new RuntimeException('test');
+            e.printStackTrace();
+          }
+          bar();
+        }
+        foo();
+        """);
+  }
 
 }

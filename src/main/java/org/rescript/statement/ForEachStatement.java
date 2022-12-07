@@ -20,8 +20,8 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
 
   private Statement statement;
 
-  public ForEachStatement() {
-    super();
+  public ForEachStatement(int lineNumber) {
+    super(lineNumber);
   }
 
   public void setIdentifier(String identifier) {

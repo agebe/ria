@@ -6,12 +6,12 @@ import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 import org.rescript.value.Value;
 
-public class ThrowStatement implements Statement {
+public class ThrowStatement extends AbstractStatement implements Statement {
 
   private Expression expression;
 
-  public ThrowStatement(Expression expression) {
-    super();
+  public ThrowStatement(int lineNumber, Expression expression) {
+    super(lineNumber);
     this.expression = expression;
   }
 

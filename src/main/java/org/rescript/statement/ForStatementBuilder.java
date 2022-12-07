@@ -6,7 +6,7 @@ import org.rescript.ScriptException;
 import org.rescript.expression.Expression;
 import org.rescript.run.ScriptContext;
 
-public class ForStatementBuilder implements ContainerStatement {
+public class ForStatementBuilder extends AbstractStatement implements ContainerStatement {
 
   private ForInitStatement forInit;
 
@@ -15,6 +15,10 @@ public class ForStatementBuilder implements ContainerStatement {
   private List<Expression> forInc;
 
   private Statement statement;
+
+  public ForStatementBuilder(int lineNumber) {
+    super(lineNumber);
+  }
 
   public ForInitStatement getForInit() {
     return forInit;
@@ -45,7 +49,7 @@ public class ForStatementBuilder implements ContainerStatement {
   }
 
   public ForStatement create() {
-    return new ForStatement(forInit, forTerm, forInc, statement);
+    return new ForStatement(this.getLineNumber(), forInit, forTerm, forInc, statement);
   }
 
   @Override

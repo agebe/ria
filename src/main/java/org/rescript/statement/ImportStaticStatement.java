@@ -2,12 +2,12 @@ package org.rescript.statement;
 
 import org.rescript.run.ScriptContext;
 
-public class ImportStaticStatement implements Statement {
+public class ImportStaticStatement extends AbstractStatement implements Statement {
 
   private String imp;
 
-  public ImportStaticStatement(String imp) {
-    super();
+  public ImportStaticStatement(int lineNumber, String imp) {
+    super(lineNumber);
     this.imp = imp;
   }
 

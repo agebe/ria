@@ -21,7 +21,11 @@ public class NewOp implements Expression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    return new JavaConstructorCaller(ctx).call(type, plist);
+    Value v = new JavaConstructorCaller(ctx).call(type, plist);
+    if(v.val() instanceof Throwable t) {
+      t.setStackTrace(ctx.getStackTrace());
+    }
+    return v;
   }
 
   @Override

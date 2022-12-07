@@ -5,14 +5,14 @@ import org.rescript.run.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExpressionStatement implements Statement {
+public class ExpressionStatement extends AbstractStatement implements Statement {
 
   private static final Logger log = LoggerFactory.getLogger(ExpressionStatement.class);
 
   private Expression expression;
 
-  public ExpressionStatement(Expression expression) {
-    super();
+  public ExpressionStatement(int lineNumber, Expression expression) {
+    super(lineNumber);
     this.expression = expression;
   }
 

@@ -12,6 +12,8 @@ public class Stackframe {
 
   private Function function;
 
+  private int line;
+
   private Deque<Breakable> breakStack = new ArrayDeque<>();
 
   private Deque<Continueable> continueStack = new ArrayDeque<>();
@@ -59,6 +61,14 @@ public class Stackframe {
 
   public Continueable peekContinueable() {
     return continueStack.peek();
+  }
+
+  public int getLine() {
+    return line;
+  }
+
+  public void setLine(int line) {
+    this.line = line;
   }
 
 }

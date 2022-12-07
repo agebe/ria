@@ -16,8 +16,13 @@ public class ForStatement extends AbstractLoop {
 
   private Statement statement;
 
-  public ForStatement(ForInitStatement forInit, Expression forTerm, List<Expression> forInc, Statement statement) {
-    super();
+  public ForStatement(
+      int lineNumber,
+      ForInitStatement forInit,
+      Expression forTerm,
+      List<Expression> forInc,
+      Statement statement) {
+    super(lineNumber);
     this.forInit = forInit;
     this.forTerm = forTerm;
     this.forInc = forInc;
