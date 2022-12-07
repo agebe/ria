@@ -36,7 +36,7 @@ public class ListTest {
 
   @Test
   public void listLiteralIndexOutOfBounds() {
-    assertThrows(ScriptException.class, () -> new Script().run("[1,2,3][3]"));
+    assertThrows(IndexOutOfBoundsException.class, () -> new Script().run("[1,2,3][3]"));
   }
 
 }

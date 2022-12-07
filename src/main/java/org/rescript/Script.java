@@ -36,13 +36,9 @@ public class Script {
   }
 
   private Value runVal() {
-    try {
-      parse(script);
-      setupArguments();
-      return new ScriptRunner(symbols).run();
-    } catch(Exception e) {
-      throw new ScriptException("script execution failed", e);
-    }
+    parse(script);
+    setupArguments();
+    return new ScriptRunner(symbols).run();
   }
 
   private void setupArguments() {
@@ -63,8 +59,24 @@ public class Script {
     return v!=null?v.val():null;
   }
 
+  public Object runUnwrapException() throws Throwable {
+    try {
+      return run();
+    } catch(CheckedExceptionWrapper e) {
+      throw e.getCause();
+    }
+  }
+
   public Object run(String script) {
     return reparse(script).run();
+  }
+
+  public Object runUnwrapException(String script) throws Throwable {
+    try {
+      return run(script);
+    } catch(CheckedExceptionWrapper e) {
+      throw e.getCause();
+    }
   }
 
   public <T> T runReturning(Class<T> type) {

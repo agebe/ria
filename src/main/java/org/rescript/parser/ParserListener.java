@@ -61,6 +61,7 @@ import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
+import org.rescript.antlr.ScriptParser.ThrowStmtContext;
 import org.rescript.antlr.ScriptParser.TypeContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveOrVarContext;
@@ -102,6 +103,7 @@ import org.rescript.statement.ImportStatement;
 import org.rescript.statement.ImportStaticStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
+import org.rescript.statement.ThrowStatement;
 import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
 import org.rescript.statement.WhileStatement;
@@ -1198,6 +1200,20 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitHeaderElement(HeaderElementContext ctx) {
     log.debug("exitHeaderElement '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterThrowStmt(ThrowStmtContext ctx) {
+    log.debug("enterThrowStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitThrowStmt(ThrowStmtContext ctx) {
+    log.debug("exitThrowStmt '{}'", ctx.getText());
+    popSemi();
+    Expression expr = popExpression();
+    popTerminal("throw");
+    stack.push(new ThrowStatement(expr));
   }
 
 }

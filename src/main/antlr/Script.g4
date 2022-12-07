@@ -61,6 +61,7 @@ stmt
 // https://docs.oracle.com/javase/8/docs/technotes/guides/language/foreach.html
   | forEachStmt
   | functionDefinition
+  | throwStmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
@@ -80,6 +81,7 @@ breakStmt: 'break' SEMI;
 continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
 functionDefinition: 'function' fname fDefParams block;
+throwStmt: 'throw' expr SEMI;
 
 expr
 // do operators first, order by precedence

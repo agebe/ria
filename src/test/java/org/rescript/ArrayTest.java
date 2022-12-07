@@ -105,12 +105,12 @@ public class ArrayTest {
 
   @Test
   public void arrayAccessOutOfBounds() {
-    assertThrows(ScriptException.class, () -> new Script().run("arrayof [\"foo\",\"bar\"][2]"));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> new Script().run("arrayof [\"foo\",\"bar\"][2]"));
   }
 
   @Test
   public void arrayAccessOutOfBounds2() {
-    assertThrows(ScriptException.class, () -> new Script().run("arrayof [\"foo\",\"bar\"][-1]"));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> new Script().run("arrayof [\"foo\",\"bar\"][-1]"));
   }
 
   @Test

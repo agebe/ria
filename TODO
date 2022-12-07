@@ -3,7 +3,8 @@
 * bit operators?
 * other assign operator e.g. +=, -= etc.
 * switch statement?
-* throw exceptions (and improve exception handling e.g. don't wrap every exception in ScriptException)
+* throw exceptions
+  -> modify stack trace to contain script functions and line numbers
 * try-catch (with resources?)
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
   -> actually allow any statements in the objects scope like e.g. expr : expr { stmt* }

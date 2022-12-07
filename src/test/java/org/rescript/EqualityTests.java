@@ -107,7 +107,7 @@ public class EqualityTests {
 
   @Test
   public void invalidConversion4() {
-    assertThrows(ScriptException.class, () -> new Script().evalPredicate("1==new Object()"));
+    assertThrows(ClassCastException.class, () -> new Script().evalPredicate("1==new Object()"));
   }
 
 }
