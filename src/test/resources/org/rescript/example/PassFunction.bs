@@ -11,6 +11,7 @@ function startsWithLetter(x) {
 ["123", "abc", 42, "x", ""]
   .stream()
   .filter(startsWithLetter)
+  .map(String::toUpperCase)
   .forEach(println);
 
 println(typeof startsWithLetter);

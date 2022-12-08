@@ -21,7 +21,12 @@ public class ExceptionUtils {
     }
   }
 
-  public static Throwable fixStackTrace(Throwable t, ScriptContext ctx) {
+  public static <T extends Throwable> T replaceStackTrace(T t, ScriptContext ctx) {
+    t.setStackTrace(ctx.getStackTrace());
+    return t;
+  }
+
+  public static <T extends Throwable> T fixStackTrace(T t, ScriptContext ctx) {
     int indexOfCaller = indexOfCaller(t);
     if(indexOfCaller == -1) {
       // in this case the exception seems to have been created on the script side
