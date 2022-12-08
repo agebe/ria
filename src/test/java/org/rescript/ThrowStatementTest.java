@@ -1,5 +1,6 @@
 package org.rescript;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -29,18 +30,64 @@ public class ThrowStatementTest {
     assertThrows(AssertionError.class, () -> new Script().run("throw new AssertionError('test');"));
   }
 
+  public static void checkStackTrace(Throwable t) {
+    assertEquals(3, t.getStackTrace().length);
+    assertEquals("bar", t.getStackTrace()[0].getMethodName());
+    assertEquals("foo", t.getStackTrace()[1].getMethodName());
+    assertEquals("__main", t.getStackTrace()[2].getMethodName());
+  }
+
   @Test
-  public void test() {
+  public void scriptStackTrace() {
     new Script().run("""
         function foo() {
           function bar() {
-            var e = new RuntimeException('test');
-            e.printStackTrace();
+            var t = new RuntimeException('test');
+            t.printStackTrace();
+            org.rescript.ThrowStatementTest.checkStackTrace(t);
           }
           bar();
         }
         foo();
         """);
+  }
+
+  @Test
+  public void scriptLambda() {
+    assertThrows(RuntimeException.class, () -> new Script().run("""
+        function foo() {
+          function bar() {
+            var runnable = () -> org.rescript.ThrowStatementTest.testMethod();
+            runnable();
+          }
+          bar();
+        }
+        foo();
+        """));
+  }
+
+  private static void somewhereDeeperDownTheStack() {
+    throw new RuntimeException("test");
+  }
+
+  public static void testMethod() throws Exception {
+    somewhereDeeperDownTheStack();
+  }
+
+  @Test
+  public void scriptJava() {
+    assertThrows(RuntimeException.class, () -> new Script().run("""
+        org.rescript.ThrowStatementTest.testMethod();
+        """));
+  }
+
+  @Test
+  public void scriptJavaMethodRef() {
+    assertThrows(RuntimeException.class, () -> new Script().run("""
+        var v = org.rescript.ThrowStatementTest::testMethod;
+        println(typeof v);
+        v();
+        """));
   }
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.run.JavaConstructorCaller;
 import org.rescript.run.ScriptContext;
+import org.rescript.util.ExceptionUtils;
 import org.rescript.value.Value;
 
 public class NewOp implements Expression {
@@ -23,7 +24,7 @@ public class NewOp implements Expression {
   public Value eval(ScriptContext ctx) {
     Value v = new JavaConstructorCaller(ctx).call(type, plist);
     if(v.val() instanceof Throwable t) {
-      t.setStackTrace(ctx.getStackTrace());
+      ExceptionUtils.fixStackTrace(t, ctx);
     }
     return v;
   }

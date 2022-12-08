@@ -10,6 +10,7 @@ import org.rescript.expression.FunctionCall;
 import org.rescript.parser.FunctionParameter;
 import org.rescript.symbol.java.JavaMethodSymbol;
 import org.rescript.symbol.java.RUtils;
+import org.rescript.util.ExceptionUtils;
 import org.rescript.value.MethodValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
@@ -27,25 +28,21 @@ public class JavaFunctionCaller {
   }
 
   public Value call(FunctionCall function, Value target) {
-    try {
-      if(target != null) {
-        log.debug("calling function '{}' on target '{}'", function.getName().getName(), target);
-        JavaMethodSymbol symbol = new JavaMethodSymbol(
-            target.type(),
-            function.getName().getName(),
-            target.val());
+    if(target != null) {
+      log.debug("calling function '{}' on target '{}'", function.getName().getName(), target);
+      JavaMethodSymbol symbol = new JavaMethodSymbol(
+          target.type(),
+          function.getName().getName(),
+          target.val());
+      return callJavaMethod(symbol, function);
+    } else {
+      log.debug("calling java function '{}'", function.getName().getName());
+      JavaMethodSymbol symbol = ctx.getSymbols().getJavaSymbols().resolveFunction(function.getName().getName());
+      if(symbol != null) {
         return callJavaMethod(symbol, function);
       } else {
-        log.debug("calling java function '{}'", function.getName().getName());
-        JavaMethodSymbol symbol = ctx.getSymbols().getJavaSymbols().resolveFunction(function.getName().getName());
-        if(symbol != null) {
-          return callJavaMethod(symbol, function);
-        } else {
-          throw new ScriptException("function '%s' not found".formatted(function.getName().getName()));
-        }
+        throw new ScriptException("function '%s' not found".formatted(function.getName().getName()));
       }
-    } catch(Exception e) {
-      throw new ScriptException("function '%s' failed on target '%s'".formatted(function, target), e);
     }
   }
 
@@ -90,7 +87,15 @@ public class JavaFunctionCaller {
           return Value.of(returnType, result);
         }
       } catch(InvocationTargetException e) {
-        throw new ScriptException("function '%s' exception".formatted(fname), e);
+        Throwable t = e.getCause();
+        if(t != null) {
+          ExceptionUtils.wrapCheckedAndThrow(ExceptionUtils.fixStackTrace(t, ctx));
+          // we should never get here but if we do just throw an exception
+          throw new ScriptException("exception in function '%s'".formatted(fname), e);
+        } else {
+          throw new ScriptException(
+              "exception in function '%s' with message '%s'".formatted(fname, e.getMessage()), e);
+        }
       } catch(IllegalAccessException e) {
         throw new ScriptException("function '%s' illegal access".formatted(fname), e);
       }
