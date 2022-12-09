@@ -6,9 +6,12 @@ public class ConstructorValue implements Value {
 
   private Class<?> targetType;
 
-  public ConstructorValue(Class<?> targetType) {
+  private int dim;
+
+  public ConstructorValue(Class<?> targetType, int dim) {
     super();
     this.targetType = targetType;
+    this.dim = dim;
   }
 
   @Override
@@ -39,6 +42,10 @@ public class ConstructorValue implements Value {
 
   public Class<?> getTargetType() {
     return targetType;
+  }
+
+  public int getDim() {
+    return dim;
   }
 
   @Override

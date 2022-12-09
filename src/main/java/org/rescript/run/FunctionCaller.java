@@ -1,7 +1,9 @@
 package org.rescript.run;
 
+import org.rescript.ScriptException;
 import org.rescript.expression.FunctionCall;
 import org.rescript.symbol.VarSymbol;
+import org.rescript.value.ConstructorValue;
 import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,14 @@ public class FunctionCaller {
     log.debug("call function '{}' on target '{}'", function, target);
     VarSymbol varSym = ctx.getSymbols().getScriptSymbols().resolveVar(function.getName().getName());
     if((varSym != null) && varSym.getVal().isConstructor()) {
-      return javaConstructorCaller.call(varSym.get().toConstructorValue().getTargetType(), function.getParameters());
+      ConstructorValue c = varSym.get().toConstructorValue();
+      if(c.getDim() == 0) {
+        return javaConstructorCaller.call(c.getTargetType(), function.getParameters());
+      } else {
+        throw new ScriptException(
+            "internal error, array construction not handled here. type '%s',  dim '%s', function '%s'"
+            .formatted(c.getTargetType(), c.getDim(), function));
+      }
     } else if((varSym != null) && varSym.getVal().isMethod()) {
       return javaFunctionCaller.call(varSym.getVal().toMethodValue(), function);
     } else {

@@ -138,7 +138,7 @@ methodRef
   ;
 
 constructorRef
-  : type '::' 'new'
+  : type ( '[' ']' )* '::' 'new'
   ;
 
 ccall

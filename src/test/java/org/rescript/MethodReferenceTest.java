@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MethodReferenceTest {
@@ -90,10 +89,7 @@ public class MethodReferenceTest {
   }
 
   @Test
-  @Disabled
   public void upper() {
-    // FIXME array constructor ref is not working String[]::new
-    // TODO get rid of char literal and make single and double quotes same for string literal
     String[] s = (String[])new Script().run("""
         Arrays.stream(arrayof[ "1", "a", "b" ]).map(String::toUpperCase).toArray(String[]::new);
         """);

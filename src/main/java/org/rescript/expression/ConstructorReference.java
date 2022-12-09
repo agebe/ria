@@ -6,23 +6,22 @@ import org.rescript.value.Value;
 
 public class ConstructorReference implements TargetExpression {
 
-  private String type;
+  private org.rescript.parser.Type type;
 
-  public ConstructorReference(String type) {
+  public ConstructorReference(org.rescript.parser.Type type) {
     super();
     this.type = type;
   }
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
-    return new ConstructorValue(cls);
+    return new ConstructorValue(type.resolveBaseType(ctx), type.getDim());
   }
 
   @Override
   public Value eval(ScriptContext ctx, Value target) {
-    Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(target.type().getName()+"."+type);
-    return new ConstructorValue(cls);
+    Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(target.type().getName()+"."+type.getName());
+    return new ConstructorValue(cls, type.getDim());
   }
 
 }

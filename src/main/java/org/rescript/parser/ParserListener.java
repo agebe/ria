@@ -1030,8 +1030,18 @@ public class ParserListener implements ScriptListener {
     log.debug("exitConstructorRef '{}'", ctx.getText());
     popTerminal("new");
     popTerminal("::");
+    int dim = 0;
+    for(;;) {
+      if(nextTerminalIs("]")) {
+        popTerminal("]");
+        popTerminal("[");
+        dim++;
+      } else {
+        break;
+      }
+    }
     String type = ((Ident)stack.pop()).getIdent();
-    stack.push(new ConstructorReference(type));
+    stack.push(new ConstructorReference(new org.rescript.parser.Type(type, dim)));
   }
 
   @Override
