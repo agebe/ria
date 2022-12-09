@@ -1,5 +1,6 @@
 package org.rescript;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashSet;
@@ -7,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MethodReferenceTest {
@@ -73,6 +75,29 @@ public class MethodReferenceTest {
           .findFirst()
           .orElse(null);
         """));
+  }
+
+  @Test
+  public void arbitraryObjectOfAParticularType() {
+    String[] s = (String[])new Script().run("""
+        String[] stringArray = arrayof[ "Barbara", "James", "Mary", "John",
+            "Patricia", "Robert", "Michael", "Linda" ];
+        Arrays.sort(stringArray, String::compareToIgnoreCase);
+        Arrays.stream(stringArray).forEach(println);
+        stringArray;
+        """);
+    assertArrayEquals(new String[] {"Barbara", "James", "John", "Linda", "Mary", "Michael", "Patricia", "Robert"}, s);
+  }
+
+  @Test
+  @Disabled
+  public void upper() {
+    // FIXME array constructor ref is not working String[]::new
+    // TODO get rid of char literal and make single and double quotes same for string literal
+    String[] s = (String[])new Script().run("""
+        Arrays.stream(arrayof[ "1", "a", "b" ]).map(String::toUpperCase).toArray(String[]::new);
+        """);
+    assertArrayEquals(new String[] {"1", "A", "B"}, s);
   }
 
 }

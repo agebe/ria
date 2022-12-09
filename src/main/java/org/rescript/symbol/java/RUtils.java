@@ -119,17 +119,46 @@ public class RUtils {
   }
 
   private static boolean isFunctionalInterface(Class<?> cls) {
+    if(cls.isAnnotationPresent(FunctionalInterface.class)) {
+      return true;
+    }
     if(!cls.isInterface()) {
       return false;
     }
+    // the interface can still be an functional interface, let's check...
     Method methods[] = cls.getMethods();
     return Arrays.stream(methods)
         .filter(m -> !(m.isDefault() || Modifier.isStatic(m.getModifiers())))
+        .filter(m -> isNotImplementedOnObject(m))
         .count() == 1;
+  }
+
+  private static boolean isNotImplementedOnObject(Method m) {
+    // see https://docs.oracle.com/javase/8/docs/api/java/lang/FunctionalInterface.html
+    //  If an interface declares an abstract method overriding one of the public methods of java.lang.Object,
+    // that also does not count toward the interface's abstract method ...
+    try {
+      Object.class.getMethod(m.getName(), m.getParameterTypes());
+      return false;
+    } catch(NoSuchMethodException e) {
+      return true;
+    }
   }
 
   private static boolean matchLambdaOrRef(Class<?> expected, Value supplied) {
     // TODO check that number of functional interface parameters match supplied function parameter size
+    if(log.isTraceEnabled()) {
+      log.trace("matchLambdaOrRef, supplied.isFunction '{}',"
+          + " supplied.isMethod() '{}',"
+          + " supplied.isConstructor() '{}',"
+          + " expected '{}',"
+          + " isFunctionalInterface(expected) '{}'",
+          supplied.isFunction(),
+          supplied.isMethod(),
+          supplied.isConstructor(),
+          expected,
+          isFunctionalInterface(expected));
+    }
     return (supplied.isFunction() || supplied.isMethod() || supplied.isConstructor())
         && isFunctionalInterface(expected);
   }
@@ -220,8 +249,13 @@ public class RUtils {
         continue;
       }
       if(!isParameterTypeMatch(mp, params[i], ctx)) {
-        log.debug("match parameters fuzzy failed '{}', method parameter type '{}', supplied types '{}'",
-            executable.getName(), Arrays.toString(executable.getParameterTypes()), Arrays.toString(params));
+        log.debug("match parameters fuzzy failed on '{}' param (0-based) '{}',"
+            + "method '{}', method parameter type '{}', supplied types '{}'",
+            i,
+            params[i],
+            executable.getName(),
+            Arrays.toString(executable.getParameterTypes()),
+            Arrays.toString(params));
         return false;
       }
     }

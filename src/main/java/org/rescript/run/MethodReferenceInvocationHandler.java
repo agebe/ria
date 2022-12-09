@@ -1,12 +1,14 @@
 package org.rescript.run;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.rescript.CheckedExceptionWrapper;
 import org.rescript.ScriptException;
 import org.rescript.expression.CastOp;
 import org.rescript.parser.Type;
@@ -46,8 +48,41 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
             .formatted(m.getName(), toTypeString(args), expected));
       }
     } else {
-      throw new ScriptException("none of the '%s' '%s' methods available matches input argument types '%s'".formatted(
-          methods.size(), method.getName(), toTypeString(args)));
+//      throw new ScriptException("none of the '%s' '%s' methods available matches input argument types '%s'".formatted(
+//          methods.size(), method.getName(), toTypeString(args)));
+      // https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+      // Reference to an Instance Method of an Arbitrary Object of a Particular Type
+      return invokeOnParam0(method, args);
+    }
+  }
+
+  private Object invokeOnParam0(Method method, Object[] args) {
+    if((args != null) && (args.length > 0)) {
+      Object target = args[0];
+      if(!methodValue.getTargetType().isAssignableFrom(target.getClass())) {
+        throw new ScriptException("method '%s' on type '%s' not compatible to target type '%s'"
+            .formatted(methodValue.getMethodName(), methodValue.getTargetType(), target.getClass()));
+      }
+      Object[] newArgs = new Object[args.length-1];
+      System.arraycopy(args, 1, newArgs, 0, newArgs.length);
+      List<Method> methods = RUtils.findAccessibleMethods(
+          target.getClass(), target, methodValue.getMethodName());
+      Method m = chooseMethod(methods, newArgs);
+      try {
+        return m.invoke(target, castAll(m, newArgs));
+      } catch(IllegalArgumentException e) {
+        String expected = Arrays.stream(m.getParameterTypes())
+            .map(cls -> cls.getName())
+            .collect(Collectors.joining(", "));
+        throw new ScriptException("invoke method '%s' failed with illegal arguments, passed '%s', expected '%s'"
+            .formatted(m.getName(), toTypeString(args), expected));
+      } catch(InvocationTargetException e) {
+        throw new CheckedExceptionWrapper(e.getCause());
+      } catch(IllegalAccessException e) {
+        throw new ScriptException("illegal access on method inocation of '%s'".formatted(m.getName()));
+      }
+    } else {
+      throw new ScriptException("method not found '%s', params '%s'".formatted(method.getName(), toTypeString(args)));
     }
   }
 
