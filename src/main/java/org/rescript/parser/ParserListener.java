@@ -21,6 +21,7 @@ import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.BreakStmtContext;
+import org.rescript.antlr.ScriptParser.CatchBlockContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.CharLiteralContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
@@ -33,6 +34,7 @@ import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.antlr.ScriptParser.ExprStmtContext;
 import org.rescript.antlr.ScriptParser.FDefParamsContext;
 import org.rescript.antlr.ScriptParser.FcallContext;
+import org.rescript.antlr.ScriptParser.FinallyBlockContext;
 import org.rescript.antlr.ScriptParser.FloatLiteralContext;
 import org.rescript.antlr.ScriptParser.FnameContext;
 import org.rescript.antlr.ScriptParser.ForEachStmtContext;
@@ -63,6 +65,8 @@ import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
 import org.rescript.antlr.ScriptParser.ThrowStmtContext;
+import org.rescript.antlr.ScriptParser.TryResourceContext;
+import org.rescript.antlr.ScriptParser.TryStmtContext;
 import org.rescript.antlr.ScriptParser.TypeContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveOrVarContext;
@@ -89,6 +93,7 @@ import org.rescript.expression.StringLiteral;
 import org.rescript.expression.Type;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
+import org.rescript.statement.CatchBlock;
 import org.rescript.statement.ContainerStatement;
 import org.rescript.statement.ContinueStatement;
 import org.rescript.statement.DoWhileStatement;
@@ -104,6 +109,7 @@ import org.rescript.statement.ImportStaticStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.ThrowStatement;
+import org.rescript.statement.TryStatement;
 import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
 import org.rescript.statement.WhileStatement;
@@ -1235,6 +1241,68 @@ public class ParserListener implements ScriptListener {
     Expression expr = popExpression();
     popTerminal("throw");
     stack.push(new ThrowStatement(ctx.getStart().getLine(), expr));
+  }
+
+  @Override
+  public void enterTryStmt(TryStmtContext ctx) {
+    log.debug("enterTryStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitTryStmt(TryStmtContext ctx) {
+    log.debug("exitTryStmt '{}'", ctx.getText());
+    LinkedList<CatchBlock> cblocks = new LinkedList<>();
+    for(;;) {
+      if(nextItemIs(CatchBlock.class)) {
+        cblocks.addFirst(pop(CatchBlock.class));
+      } else {
+        break;
+      }
+    }
+    TryStatement tryStmt = new TryStatement(ctx.getStart().getLine());
+    tryStmt.setCatchBlocks(cblocks);
+    tryStmt.setBlock(pop(BlockStatement.class));
+    popTerminal("try");
+    stack.push(tryStmt);
+  }
+
+  @Override
+  public void enterTryResource(TryResourceContext ctx) {
+    log.debug("enterTryResource '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitTryResource(TryResourceContext ctx) {
+    log.debug("exitTryResource '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterCatchBlock(CatchBlockContext ctx) {
+    log.debug("enterCatchBlock '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitCatchBlock(CatchBlockContext ctx) {
+    log.debug("exitCatchBlock '{}'", ctx.getText());
+    BlockStatement block = pop(BlockStatement.class);
+    popTerminal(")");
+    Identifier ident = popIdentifier();
+    Type type = pop(Type.class);
+    org.rescript.parser.Type t = new org.rescript.parser.Type(type.getIdent(), 0);
+    popTerminal("(");
+    popTerminal("catch");
+    CatchBlock cblock = new CatchBlock(List.of(t), ident.getIdent(), block);
+    stack.push(cblock);
+  }
+
+  @Override
+  public void enterFinallyBlock(FinallyBlockContext ctx) {
+    log.debug("enterFinallyBlock '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitFinallyBlock(FinallyBlockContext ctx) {
+    log.debug("exitFinallyBlock '{}'", ctx.getText());
   }
 
 }

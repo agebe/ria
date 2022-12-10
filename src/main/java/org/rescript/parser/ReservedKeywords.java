@@ -25,7 +25,6 @@ public class ReservedKeywords {
       "private",
       "protected",
       "public",
-//      "static",
       "strictfp",
       "super",
       "switch",
@@ -33,10 +32,7 @@ public class ReservedKeywords {
       "this",
       "throws",
       "transient",
-      "volatile",
-      "try",
-      "catch",
-      "finally"
+      "volatile"
       ).collect(Collectors.toSet());
 
   public static boolean isReservedKeyword(String s) {

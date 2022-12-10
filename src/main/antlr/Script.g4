@@ -62,6 +62,7 @@ stmt
   | forEachStmt
   | functionDefinition
   | throwStmt
+  | tryStmt
   ;
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
@@ -82,6 +83,24 @@ continueStmt: 'continue' SEMI;
 doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
 functionDefinition: 'function' fname fDefParams block;
 throwStmt: 'throw' expr SEMI;
+
+// TODO multiple resources
+tryStmt
+  : TRY ( '(' tryResource ( SEMI tryResource )* ')' )? block catchBlock* finallyBlock?
+  ;
+
+tryResource
+  : ( type | 'var' ) ident '=' expr
+  ;
+
+// TODO multi catch
+catchBlock
+  : CATCH '(' type ident ')' block
+  ;
+
+finallyBlock
+  : FINALLY block
+  ;
 
 expr
 // do operators first, order by precedence
@@ -207,7 +226,7 @@ BOOLEAN : 'boolean';
 BREAK : 'break';
 BYTE : 'byte';
 //CASE : 'case';
-//CATCH : 'catch';
+CATCH : 'catch';
 CHAR : 'char';
 //CLASS : 'class';
 //CONST : 'const';
@@ -220,7 +239,7 @@ ELSE : 'else';
 //EXPORTS : 'exports';
 //EXTENDS : 'extends';
 //FINAL : 'final';
-//FINALLY : 'finally';
+FINALLY : 'finally';
 FLOAT : 'float';
 FOR : 'for';
 IF : 'if';
@@ -255,7 +274,7 @@ THROW : 'throw';
 //TO : 'to';
 //TRANSIENT : 'transient';
 //TRANSITIVE : 'transitive';
-//TRY : 'try';
+TRY : 'try';
 //USES : 'uses';
 VOID : 'void';
 //VOLATILE : 'volatile';
