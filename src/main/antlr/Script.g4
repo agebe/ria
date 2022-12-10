@@ -93,9 +93,8 @@ tryResource
   : ( type | 'var' ) ident '=' expr
   ;
 
-// TODO multi catch
 catchBlock
-  : CATCH '(' type ident ')' block
+  : CATCH '(' type ( '|' type )* ident ')' block
   ;
 
 finallyBlock

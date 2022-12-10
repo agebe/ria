@@ -43,4 +43,42 @@ public class TryTest {
         """));
   }
 
+  @Test
+  public void notHandledMultiCatch() {
+    assertThrows(CloneNotSupportedException.class, () -> new Script().runUnwrapException("""
+        try {
+          1;
+          throw new CloneNotSupportedException('test');
+        } catch(ArithmeticException|ArrayIndexOutOfBoundsException|IllegalStateException e) {
+          2;
+        }
+        """));
+  }
+
+  @Test
+  public void multiCatch() {
+    assertEquals(2, new Script().evalInt("""
+        try {
+          1;
+          throw new CloneNotSupportedException('test');
+        } catch(RuntimeException|CloneNotSupportedException e) {
+          2;
+        }
+        """));
+  }
+
+  @Test
+  public void multimultiCatch() {
+    assertEquals(3, new Script().evalInt("""
+        try {
+          1;
+          throw new CloneNotSupportedException('test');
+        } catch(ArithmeticException|ArrayIndexOutOfBoundsException|IllegalStateException e) {
+          2;
+        } catch(ArrayStoreException|CloneNotSupportedException|InterruptedException e) {
+          3;
+        }
+        """));
+  }
+
 }

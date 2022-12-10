@@ -1287,11 +1287,20 @@ public class ParserListener implements ScriptListener {
     BlockStatement block = pop(BlockStatement.class);
     popTerminal(")");
     Identifier ident = popIdentifier();
-    Type type = pop(Type.class);
-    org.rescript.parser.Type t = new org.rescript.parser.Type(type.getIdent(), 0);
+    LinkedList<org.rescript.parser.Type> types = new LinkedList<>();
+    for(;;) {
+      if(nextItemIs(Type.class)) {
+        Type type = pop(Type.class);
+        org.rescript.parser.Type t = new org.rescript.parser.Type(type.getIdent(), 0);
+        types.addFirst(t);
+        popTerminalIfExists("|");
+      } else {
+        break;
+      }
+    }
     popTerminal("(");
     popTerminal("catch");
-    CatchBlock cblock = new CatchBlock(List.of(t), ident.getIdent(), block);
+    CatchBlock cblock = new CatchBlock(types, ident.getIdent(), block);
     stack.push(cblock);
   }
 
