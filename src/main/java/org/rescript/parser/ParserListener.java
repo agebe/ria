@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
+import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
@@ -133,7 +134,12 @@ public class ParserListener implements ScriptListener {
   @Override
   public void visitTerminal(TerminalNode node) {
     log.debug("visit terminal '{}'", node.getSymbol().getText());
-    stack.push(new Terminal(node.getSymbol()));
+    if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
+      throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
+          .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
+    } else {
+      stack.push(new Terminal(node.getSymbol()));
+    }
   }
 
   @Override
