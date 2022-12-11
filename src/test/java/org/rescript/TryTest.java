@@ -81,4 +81,58 @@ public class TryTest {
         """));
   }
 
+  @Test
+  public void rethrow() {
+    assertThrows(IllegalStateException.class, () -> new Script().evalInt("""
+        try {
+          1;
+          throw new IllegalStateException('test');
+        } catch(Exception e) {
+          2;
+          throw e;
+        }
+        """));
+  }
+
+  @Test
+  public void throwWithCause() {
+    assertThrows(TestException.class, () -> new Script().runUnwrapException("""
+        try {
+          1;
+          throw new IllegalStateException('test');
+        } catch(Exception e) {
+          2;
+          throw new org.rescript.TestException('test with cause', e);
+        }
+        """));
+  }
+
+  @Test
+  public void throwInFunction() {
+    assertThrows(IllegalStateException.class, () -> new Script().evalInt("""
+        function foo() {
+          throw new IllegalStateException('test');
+        }
+        foo();
+        """));
+  }
+
+  @Test
+  public void catchThrowInFunction() {
+    assertEquals(42, new Script().evalInt("""
+        function bar() {
+          foo();
+        }
+        function foo() {
+          throw new IllegalStateException('test');
+        }
+        try {
+          bar();
+        } catch(IllegalStateException e) {
+          e.printStackTrace();
+          42;
+        }
+        """));
+  }
+
 }

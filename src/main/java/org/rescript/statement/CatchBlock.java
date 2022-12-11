@@ -5,6 +5,7 @@ import java.util.List;
 import org.rescript.parser.ParseItem;
 import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
+import org.rescript.value.ObjValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,13 @@ public class CatchBlock implements ParseItem {
   }
 
   public void execute(ScriptContext ctx, Throwable t) {
-    this.block.execute(ctx);
+    try {
+      ctx.getSymbols().getScriptSymbols().enterScope();
+      ctx.getSymbols().getScriptSymbols().defineVar(ident, new ObjValue(t.getClass(), t));
+      this.block.execute(ctx);
+    } finally {
+      ctx.getSymbols().getScriptSymbols().exitScope();
+    }
   }
 
 }
