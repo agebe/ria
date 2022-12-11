@@ -13,7 +13,7 @@ public class UnresolvedIdentifier implements Value {
 
   @Override
   public Class<?> type() {
-    throw new ScriptException("unresolved type " + identifier);
+    throw new ScriptException("unresolved identifier '%s'".formatted(identifier));
   }
 
   @Override

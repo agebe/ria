@@ -109,6 +109,7 @@ import org.rescript.statement.ImportStaticStatement;
 import org.rescript.statement.ReturnStatement;
 import org.rescript.statement.Statement;
 import org.rescript.statement.ThrowStatement;
+import org.rescript.statement.TryResource;
 import org.rescript.statement.TryStatement;
 import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
@@ -1262,6 +1263,22 @@ public class ParserListener implements ScriptListener {
     TryStatement tryStmt = new TryStatement(ctx.getStart().getLine());
     tryStmt.setCatchBlocks(cblocks);
     tryStmt.setBlock(pop(BlockStatement.class));
+    LinkedList<TryResource> resources = new LinkedList<>();
+    if(nextTerminalIs(")")) {
+      popTerminal(")");
+      for(;;) {
+        if(nextItemIs(TryResource.class)) {
+          resources.add(pop(TryResource.class));
+        } else if(nextTerminalIs(";")) {
+          // remove the semicolon that separates the AutoCloseable resources
+          popTerminal(";");
+        } else {
+          break;
+        }
+      }
+      popTerminal("(");
+    }
+    tryStmt.setResources(resources);
     popTerminal("try");
     stack.push(tryStmt);
   }
@@ -1274,6 +1291,11 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitTryResource(TryResourceContext ctx) {
     log.debug("exitTryResource '{}'", ctx.getText());
+    Expression expr = popExpression();
+    popTerminal("=");
+    Identifier ident = popIdentifier();
+    TypeOrPrimitive type = pop(TypeOrPrimitive.class);
+    stack.push(new TryResource(type.getType(), ident, expr));
   }
 
   @Override

@@ -84,13 +84,13 @@ doWhileStmt: DO stmt WHILE LPAREN expr RPAREN SEMI;
 functionDefinition: 'function' fname fDefParams block;
 throwStmt: 'throw' expr SEMI;
 
-// TODO multiple resources
 tryStmt
   : TRY ( '(' tryResource ( SEMI tryResource )* ')' )? block catchBlock* finallyBlock?
   ;
 
+// reusing typeOrPrimitiveOrVar but the expression can only return an AutoCloseable or null
 tryResource
-  : ( type | 'var' ) ident '=' expr
+  : typeOrPrimitiveOrVar ident '=' expr
   ;
 
 catchBlock

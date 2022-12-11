@@ -135,4 +135,88 @@ public class TryTest {
         """));
   }
 
+  @Test
+  public void tryWithResource() {
+    assertEquals(42, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        try(var in = new org.rescript.TestAutoCloseable()) {
+          assertFalse(in.isClosed());
+          42;
+        }
+        """));
+  }
+
+  @Test
+  public void multiTryWithResource() {
+    assertEquals(42, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        try(
+        var in = new org.rescript.TestAutoCloseable();
+        org.rescript.TestAutoCloseable in2 = new org.rescript.TestAutoCloseable()) {
+          assertFalse(in.isClosed());
+          assertFalse(in2.isClosed());
+          42;
+        }
+        """));
+  }
+
+  @Test
+  public void multiTryWithResource3() {
+    assertEquals(42, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        try(
+        var in = new org.rescript.TestAutoCloseable();
+        org.rescript.TestAutoCloseable in2 = new org.rescript.TestAutoCloseable();
+        var in3 = null) {
+          assertFalse(in.isClosed());
+          assertFalse(in2.isClosed());
+          42;
+        }
+        """));
+  }
+
+  @Test
+  public void tryWithResourceExceptionInClose() throws Throwable {
+    assertThrows(TestException.class, () -> new Script().runUnwrapException("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        try(var in = new org.rescript.TestAutoCloseableWithException()) {
+          assertFalse(in.isClosed());
+          42;
+        }
+        """));
+  }
+
+  @Test
+  public void tryWithResourceExceptionInCloseSuppressed() throws Throwable {
+    try {
+      new Script().runUnwrapException("""
+          try(var in = new org.rescript.TestAutoCloseableWithException()) {
+            throw new org.rescript.TestException('test');
+          }
+          """);
+    } catch(TestException e) {
+      assertEquals("test", e.getMessage());
+      assertEquals(1, e.getSuppressed().length);
+      assertEquals("exception on close (test)", e.getSuppressed()[0].getMessage());
+    }
+  }
+
+  @Test
+  public void tryWithResourceExceptionInCloseSuppressed2() throws Throwable {
+    try {
+      new Script().runUnwrapException("""
+          try(var in = new org.rescript.TestAutoCloseableWithException();
+          var in2 = new org.rescript.TestAutoCloseableWithException()) {
+            throw new org.rescript.TestException('test');
+          }
+          """);
+    } catch(TestException e) {
+      assertEquals("test", e.getMessage());
+      assertEquals(2, e.getSuppressed().length);
+      assertEquals("exception on close (test)", e.getSuppressed()[0].getMessage());
+      assertEquals("exception on close (test)", e.getSuppressed()[1].getMessage());
+    }
+  }
+
+
 }
