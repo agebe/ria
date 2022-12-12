@@ -5,8 +5,8 @@
 * switch statement?
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
-* try-catch (with resources?)
 * get rid of char literal and make single and double quotes same for string literal
+* script imports should come before auto imports (other than java.lang.*)
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
   -> actually allow any statements in the objects scope like e.g. expr : expr { stmt* }
      The difference to the block statement is that we are in the objects scope, changing fields
