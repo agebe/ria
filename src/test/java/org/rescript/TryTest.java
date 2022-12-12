@@ -218,5 +218,121 @@ public class TryTest {
     }
   }
 
+  @Test
+  public void tryFinally() {
+    assertEquals(1, new Script().evalInt("""
+        try {
+          return 1;
+        } finally {
+          return 2;
+        }
+        """));
+  }
+
+  @Test
+  public void tryFinallyInFunction() {
+    // return statements in finally blocks abruptly end the finally block but the return value is ignored
+    assertEquals(1, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        import static org.junit.jupiter.api.Assertions.assertTrue;
+        var finallyExecuted = false;
+        function foo() {
+          try {
+            return 1;
+          } finally {
+            finallyExecuted = true;
+            return 2;
+            finallyExecuted = false;
+          }
+          3;
+        }
+        assertFalse(finallyExecuted);
+        try {
+          foo();
+        } finally {
+          assertTrue(finallyExecuted);
+        }
+        """));
+  }
+
+  @Test
+  public void tryFinallyInFunction2() {
+    assertEquals(3, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        import static org.junit.jupiter.api.Assertions.assertTrue;
+        var finallyExecuted = false;
+        function foo() {
+          try {
+            1;
+          } finally {
+            finallyExecuted = true;
+            return 2;
+            finallyExecuted = false;
+          }
+          3;
+        }
+        assertFalse(finallyExecuted);
+        try {
+          foo();
+        }
+        finally {
+          assertTrue(finallyExecuted);
+        }
+        """));
+  }
+
+  @Test
+  public void tryFinallyInFunction3() {
+    assertEquals(1, new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        import static org.junit.jupiter.api.Assertions.assertTrue;
+        var finallyExecuted = false;
+        function foo() {
+          try {
+            throw Exception('test');
+          } catch(Exception e) {
+            return 1;
+          } finally {
+            finallyExecuted = true;
+            return 2;
+            finallyExecuted = false;
+          }
+          3;
+        }
+        assertFalse(finallyExecuted);
+        try {
+          foo();
+        } finally {
+          assertTrue(finallyExecuted);
+        }
+        """));
+  }
+
+  @Test
+  public void exceptionInFinally() {
+    assertThrows(RuntimeException.class, () -> new Script().evalInt("""
+        import static org.junit.jupiter.api.Assertions.assertFalse;
+        import static org.junit.jupiter.api.Assertions.assertTrue;
+        var finallyExecuted = false;
+        function foo() {
+          try {
+            return 1;
+          } catch(Exception e) {
+            return 2;
+          } finally {
+            finallyExecuted = true;
+            throw new RuntimeException('exception in finally block');
+            finallyExecuted = false;
+          }
+          3;
+        }
+        assertFalse(finallyExecuted);
+        try {
+          foo();
+        } finally {
+          assertTrue(finallyExecuted);
+        }
+        """));
+  }
 
 }

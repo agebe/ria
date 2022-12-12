@@ -99,6 +99,7 @@ import org.rescript.statement.ContinueStatement;
 import org.rescript.statement.DoWhileStatement;
 import org.rescript.statement.EmptyStatement;
 import org.rescript.statement.ExpressionStatement;
+import org.rescript.statement.FinallyBlock;
 import org.rescript.statement.ForEachStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatementBuilder;
@@ -1252,6 +1253,10 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitTryStmt(TryStmtContext ctx) {
     log.debug("exitTryStmt '{}'", ctx.getText());
+    FinallyBlock fblock = null;
+    if(nextItemIs(FinallyBlock.class)) {
+      fblock = pop(FinallyBlock.class);
+    }
     LinkedList<CatchBlock> cblocks = new LinkedList<>();
     for(;;) {
       if(nextItemIs(CatchBlock.class)) {
@@ -1261,6 +1266,7 @@ public class ParserListener implements ScriptListener {
       }
     }
     TryStatement tryStmt = new TryStatement(ctx.getStart().getLine());
+    tryStmt.setFinallyBlock(fblock);
     tryStmt.setCatchBlocks(cblocks);
     tryStmt.setBlock(pop(BlockStatement.class));
     LinkedList<TryResource> resources = new LinkedList<>();
@@ -1334,6 +1340,10 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitFinallyBlock(FinallyBlockContext ctx) {
     log.debug("exitFinallyBlock '{}'", ctx.getText());
+    BlockStatement block = pop(BlockStatement.class);
+    popTerminal("finally");
+    FinallyBlock fblock = new FinallyBlock(block);
+    stack.push(fblock);
   }
 
 }

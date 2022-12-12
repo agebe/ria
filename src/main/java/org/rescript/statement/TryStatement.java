@@ -7,6 +7,7 @@ import java.util.List;
 import org.rescript.CheckedExceptionWrapper;
 import org.rescript.run.ScriptContext;
 import org.rescript.util.ExceptionUtils;
+import org.rescript.value.Value;
 
 public class TryStatement extends AbstractStatement {
 
@@ -15,6 +16,8 @@ public class TryStatement extends AbstractStatement {
   private BlockStatement block;
 
   private List<CatchBlock> catchBlocks;
+
+  private FinallyBlock finallyBlock;
 
   public TryStatement(int lineNumber) {
     super(lineNumber);
@@ -44,6 +47,14 @@ public class TryStatement extends AbstractStatement {
     this.catchBlocks = catchBlocks;
   }
 
+  public FinallyBlock getFinallyBlock() {
+    return finallyBlock;
+  }
+
+  public void setFinallyBlock(FinallyBlock finallyBlock) {
+    this.finallyBlock = finallyBlock;
+  }
+
   private Throwable unwrap(Throwable t) {
     if(t instanceof CheckedExceptionWrapper wrapper) {
       return wrapper.getCause();
@@ -54,6 +65,8 @@ public class TryStatement extends AbstractStatement {
 
   @Override
   public void execute(ScriptContext ctx) {
+    // if the try or catch block throws an exception remember it here so the finally block can
+    // add suppressed exceptions
     Throwable leavingException = null;
     try {
       try {
@@ -72,8 +85,6 @@ public class TryStatement extends AbstractStatement {
       if(catchBlocks != null) {
         for(CatchBlock cblock : catchBlocks) {
           if(cblock.handles(ctx, unwrapped)) {
-            // TODO remember exception coming out of the catch block (if any) as we might need to add suppressed exceptions
-            // from the finally block
             handled = true;
             try {
               leavingException = null;
@@ -90,6 +101,26 @@ public class TryStatement extends AbstractStatement {
         throw t;
       }
     } finally {
+      Value val = ctx.getLastResult();
+      boolean returnFlag = ctx.isReturnFlag();
+      // clear the return flag otherwise the finally block does not execute
+      ctx.setReturnFlag(false);
+      if(finallyBlock != null) {
+        try {
+          finallyBlock.execute(ctx);
+        } catch(Throwable t) {
+          if(leavingException != null) {
+            leavingException.addSuppressed(t);
+          } else {
+            leavingException = t;
+          }
+        }
+      }
+      // restore return flag and last value from above try or catch blocks.
+      // this diverges from java, you can't return a value from a finally block
+      // finally blocks are meant for cleaning up ...
+      ctx.setReturnFlag(returnFlag);
+      ctx.setLastResult(val);
       Iterator<TryResource> iter = resources.descendingIterator();
       while(iter.hasNext()) {
         TryResource resource = iter.next();
@@ -105,11 +136,6 @@ public class TryStatement extends AbstractStatement {
           }
         }
       }
-//      try {
-//     // TODO execute the finally block if present 
-//      } catch(Throwable t) {
-//        
-//      }
     }
     if(leavingException != null) {
       ExceptionUtils.wrapCheckedAndThrow(leavingException);;
