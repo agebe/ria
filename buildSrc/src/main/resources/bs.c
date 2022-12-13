@@ -9,11 +9,8 @@
 #include <stdbool.h>
 
 #include "bs.h"
+#include "findLibJvm.h"
 #include "files.h"
-
-const char* BS_LIBJVM = "BS_LIBJVM";
-const char* BS_JAVA_HOME = "BS_JAVA_HOME";
-const char* JAVA_HOME = "JAVA_HOME";
 
 char bshome[1000];
 char bshomeversion[1100];
@@ -74,24 +71,18 @@ int main(int argc, char **argv) {
   JNIEnv *env;
   void *handle;
   char *error;
-  //https://stackoverflow.com/a/1142169
-  char libjvm[1024];
-  if(getenv(BS_LIBJVM)) {
-    snprintf(libjvm, sizeof(libjvm), "%s", getenv(BS_LIBJVM));
-  } else if(getenv(BS_JAVA_HOME)) {
-    snprintf(libjvm, sizeof(libjvm), "%s/lib/server/libjvm.so", getenv(BS_JAVA_HOME));
-  } else if(getenv(JAVA_HOME)) {
-    snprintf(libjvm, sizeof(libjvm), "%s/lib/server/libjvm.so", getenv(JAVA_HOME));
-  } else {
-    printf("java home auto detect not implemented yet, please set environment variable %s (pointing to libjvm.so) or %s or %s\n", BS_LIBJVM, BS_JAVA_HOME, JAVA_HOME);
-    exit(1);
+  char* libjvm = findLibJvm();
+  if(libjvm == NULL) {
+    printf("libjvm.so not found, consider setting JAVA_HOME or BS_JAVA_HOME or BS_LIBJVM (pointing to e.g. $JAVA_HOME/lib/server/libjvm.so\n");
+    return 1;
   }
   struct stat st = {0};
   if(stat(libjvm, &st) == -1) {
     printf("'%s' file not found\n", libjvm);
     exit(1);
   }
-  //handle = dlopen ("/usr/lib/jvm/java-17-openjdk-amd64/lib/server/libjvm.so", RTLD_LAZY);
+  // loading shared object via dlopen
+  //https://stackoverflow.com/a/1142169
   handle = dlopen (libjvm, RTLD_LAZY);
   if(!handle) {
     fprintf (stderr, "%s\n", dlerror());

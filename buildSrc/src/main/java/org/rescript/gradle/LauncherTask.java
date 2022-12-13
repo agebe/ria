@@ -21,6 +21,7 @@ public class LauncherTask extends DefaultTask {
     Project project = getProject();
     File buildDir = project.getBuildDir();
     File libDir = new File(buildDir, "install/script/lib");
+    //File libDir = new File(buildDir, "libs");
     if(!libDir.isDirectory()) {
       throw new RuntimeException("lib dir does not exist, " + libDir.getAbsolutePath());
     }
@@ -33,6 +34,8 @@ public class LauncherTask extends DefaultTask {
     writeFilesDotH(outDir, jars);
     writeFile(outDir, "bs.c");
     writeFile(outDir, "bs.h");
+    writeFile(outDir, "findLibJvm.h");
+    writeFile(outDir, "findLibJvm.c");
   }
 
   private void writeFile(File outDir, String filename) throws IOException {
