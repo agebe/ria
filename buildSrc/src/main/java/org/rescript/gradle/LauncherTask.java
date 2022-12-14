@@ -36,6 +36,8 @@ public class LauncherTask extends DefaultTask {
     writeFile(outDir, "bs.h");
     writeFile(outDir, "findLibJvm.h");
     writeFile(outDir, "findLibJvm.c");
+    writeFile(outDir, "launchJvm.h");
+    writeFile(outDir, "launchJvm.c");;
   }
 
   private void writeFile(File outDir, String filename) throws IOException {

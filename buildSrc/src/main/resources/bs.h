@@ -7,4 +7,12 @@ struct EmbeddedFile {
   long contentLength;
 };
 
+struct {
+  char* version;
+  char* bsHome;
+  char* bsHomeVersion;
+  char* bsHomeLibs;
+  char* bsHomeBoot;
+} bsInfo;
+
 #endif

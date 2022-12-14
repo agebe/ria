@@ -5,13 +5,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.rescript.Script;
-import org.rescript.ScriptException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ScriptLauncher {
-
-  private static final Logger log = LoggerFactory.getLogger(ScriptLauncher.class);
 
   public static void main(String[] args) {
     if(args.length == 0) {
@@ -31,9 +26,8 @@ public class ScriptLauncher {
         System.exit(1);
       }
     } catch(Throwable t) {
-      String msg = "script failed with exception";
-      log.error(msg, t);
-      throw new ScriptException(msg, t);
+      t.printStackTrace();
+      System.exit(1);
     }
   }
 
