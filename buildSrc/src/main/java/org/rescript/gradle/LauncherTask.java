@@ -20,8 +20,8 @@ public class LauncherTask extends DefaultTask {
   public void run() throws IOException {
     Project project = getProject();
     File buildDir = project.getBuildDir();
-    File libDir = new File(buildDir, "install/rescript-launcher/lib");
-    //File libDir = new File(buildDir, "libs");
+    //File libDir = new File(buildDir, "install/rescript-launcher/lib");
+    File libDir = new File(buildDir, "libs");
     if(!libDir.isDirectory()) {
       throw new RuntimeException("lib dir does not exist, " + libDir.getAbsolutePath());
     }

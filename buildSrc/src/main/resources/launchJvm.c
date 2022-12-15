@@ -67,8 +67,23 @@ void createClasspath() {
   }
 }
 
+struct {
+  int argc;
+  char** argv;
+} args;
+
+void initArgs(int argc, char **argv) {
+  args.argc = argc;
+  args.argv = malloc(sizeof(argv) * args.argc);
+  args.argv[0] = bsInfo.bsHome;
+  for(int i=1;i<argc;i++) {
+    args.argv[i] = argv[i];
+  }
+}
+
 void launchJvm(char* libjvm, int argc, char **argv) {
   createClasspath();
+  initArgs(argc, argv);
   //printf("%s\n", classpath);
   //printf("classpath length %zu\n", strlen(classpath));
   JavaVMOption jvmopt[1];
@@ -125,9 +140,9 @@ void launchJvm(char* libjvm, int argc, char **argv) {
     //https://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/types.html#wp276
     jmethodID methodId = (*env)->GetStaticMethodID(env, jcls, "main", "([Ljava/lang/String;)V");
     if(methodId != NULL) {
-      jobjectArray array = (jobjectArray)(*env)->NewObjectArray(env, argc-1,(*env)->FindClass(env, "java/lang/String"),(*env)->NewStringUTF(env, ""));
-      for(int i=1;i<argc;i++) {
-        (*env)->SetObjectArrayElement(env, array, i-1, (*env)->NewStringUTF(env, argv[i]));
+      jobjectArray array = (jobjectArray)(*env)->NewObjectArray(env, args.argc,(*env)->FindClass(env, "java/lang/String"),(*env)->NewStringUTF(env, ""));
+      for(int i=0;i<args.argc;i++) {
+        (*env)->SetObjectArrayElement(env, array, i, (*env)->NewStringUTF(env, args.argv[i]));
       }
       (*env)->CallStaticVoidMethod(env, jcls, methodId, array);
       if((*env)->ExceptionCheck(env)) {
