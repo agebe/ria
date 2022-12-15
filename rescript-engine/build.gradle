@@ -1,0 +1,49 @@
+plugins {
+  id 'antlr'
+}
+
+sourceSets {
+  main {
+    java {
+      srcDirs += ["build/generated-src/antlr/main"]
+    }
+  }
+}
+
+generateGrammarSource {
+  maxHeapSize = "64m"
+  //https://github.com/antlr/antlr4/blob/master/doc/tool-options.md
+  arguments += ["-visitor", "-long-messages"]
+  // workaround, could not get the antlr compiler to work when moving the input-files (.g4) into sub-folder
+  outputDirectory = file("build/generated-src/antlr/main/org/rescript/antlr")
+}
+
+// generate the java sources from the antlr grammar before the eclipse tasks runs
+// otherwise the eclipse task does not pickup the 'build/generated-src/antlr/main' source folder
+tasks.eclipse.dependsOn(generateGrammarSource)
+
+// this is required since gradle 7.x for the maven publish tasks to work (tested on gradle 7.2)
+//tasks.sourcesJar.dependsOn(generateGrammarSource)
+//tasks.sourcesJar.duplicatesStrategy('exclude')
+
+dependencies {
+  antlr 'org.antlr:antlr4:4.11.1'
+  implementation 'org.slf4j:slf4j-api:2.0.5'
+  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation 'org.apache.commons:commons-text:1.10.0'
+  implementation 'commons-io:commons-io:2.11.0'
+  implementation 'org.javimmutable:javimmutable-collections:3.2.1'
+  implementation 'org.apache.maven:maven-model:3.8.6'
+  runtimeOnly 'ch.qos.logback:logback-classic:1.4.5'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+}
+
+test {
+  useJUnitPlatform()
+}
+
+tasks.register('grammar') {
+  group 'Build'
+  description 'shorter name for generateGrammarSource'
+  dependsOn 'generateGrammarSource'
+}

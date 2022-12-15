@@ -1,9 +1,8 @@
 package org.rescript.launcher;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.rescript.Script;
 
 public class ScriptLauncher {
@@ -16,7 +15,7 @@ public class ScriptLauncher {
     try {
       File f = new File(args[0]);
       if(f.exists()) {
-        String script = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+        String script = new String(Files.readAllBytes(f.toPath()));
         Script s = new Script(script);
         s.setShowErrorsOnConsole(true);
         s.setArguments(args);

@@ -1,89 +1,17 @@
-import org.rescript.gradle.LauncherTask;
-
 plugins {
-  id 'java'
-  id 'java-library'
-  id 'eclipse'
-  id 'antlr'
   id "com.github.ben-manes.versions" version "0.44.0"
-  id 'application'
 }
 
-version = '0.1.0-SNAPSHOT';
+subprojects {
 
-mainClassName = 'org.rescript.launcher.ScriptLauncher'
+  apply plugin: 'java'
+  apply plugin: 'java-library'
+  apply plugin: 'eclipse'
 
-repositories {
-  mavenCentral()
-}
+  version = '0.1.0-SNAPSHOT'
+  group = 'io.github.agebe'
 
-sourceSets {
-  main {
-    java {
-      srcDirs += ["build/generated-src/antlr/main"]
-    }
+  repositories {
+    mavenCentral()
   }
-}
-
-generateGrammarSource {
-  maxHeapSize = "64m"
-  //https://github.com/antlr/antlr4/blob/master/doc/tool-options.md
-  arguments += ["-visitor", "-long-messages"]
-  // workaround, could not get the antlr compiler to work when moving the input-files (.g4) into sub-folder
-  outputDirectory = file("build/generated-src/antlr/main/org/rescript/antlr")
-}
-
-// generate the java sources from the antlr grammar before the eclipse tasks runs
-// otherwise the eclipse task does not pickup the 'build/generated-src/antlr/main' source folder
-tasks.eclipse.dependsOn(generateGrammarSource)
-
-// this is required since gradle 7.x for the maven publish tasks to work (tested on gradle 7.2)
-//tasks.sourcesJar.dependsOn(generateGrammarSource)
-//tasks.sourcesJar.duplicatesStrategy('exclude')
-
-dependencies {
-  antlr 'org.antlr:antlr4:4.11.1'
-  implementation 'org.slf4j:slf4j-api:2.0.5'
-  implementation 'org.apache.commons:commons-lang3:3.12.0'
-  implementation 'org.apache.commons:commons-text:1.10.0'
-  implementation 'commons-io:commons-io:2.11.0'
-  implementation 'org.javimmutable:javimmutable-collections:3.2.1'
-  implementation 'org.apache.maven:maven-model:3.8.6'
-  runtimeOnly 'ch.qos.logback:logback-classic:1.4.5'
-  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
-}
-
-test {
-  useJUnitPlatform()
-}
-
-tasks.register('grammar') {
-  group 'Build'
-  description 'shorter name for generateGrammarSource'
-  dependsOn 'generateGrammarSource'
-}
-
-task launcherCompile(type:Exec) {
-  workingDir 'build/launcher'
-  commandLine 'gcc',
-    '-fPIC',
-    '-I'+System.properties['java.home']+'/include',
-    '-I'+System.properties['java.home']+'/include/linux',
-    '-o', 'bs', 'bs.c', 'findLibJvm.c', 'launchJvm.c', '-ldl', '-Wformat-truncation=0'
-  group 'Launcher'
-  description 'compile script launcher'
-}
-
-task launcherFiles(type: LauncherTask) {
-  group 'Launcher'
-  description 'write script launcher source files'
-  dependsOn 'installDist'
-  //dependsOn 'jar'
-}
-
-// https://stackoverflow.com/a/45607934
-task launcher(type: GradleBuild) {
-  tasks = ['launcherFiles', 'launcherCompile']
-  group 'Launcher'
-  description 'build script launcher (linux only)'
 }

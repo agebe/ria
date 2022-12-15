@@ -1,0 +1,36 @@
+import org.rescript.gradle.LauncherTask;
+
+plugins {
+  id 'application'
+}
+
+mainClassName = 'org.rescript.launcher.ScriptLauncher'
+
+dependencies {
+  implementation project(':rescript-engine')
+}
+
+task launcherCompile(type:Exec) {
+  workingDir 'build/launcher'
+  commandLine 'gcc',
+    '-fPIC',
+    '-I'+System.properties['java.home']+'/include',
+    '-I'+System.properties['java.home']+'/include/linux',
+    '-o', 'bs', 'bs.c', 'findLibJvm.c', 'launchJvm.c', '-ldl', '-Wformat-truncation=0'
+  group 'Launcher'
+  description 'compile script launcher'
+}
+
+task launcherFiles(type: LauncherTask) {
+  group 'Launcher'
+  description 'write script launcher source files'
+  dependsOn 'installDist'
+  //dependsOn 'jar'
+}
+
+// https://stackoverflow.com/a/45607934
+task launcher(type: GradleBuild) {
+  tasks = ['launcherFiles', 'launcherCompile']
+  group 'Launcher'
+  description 'build script launcher (linux only)'
+}
