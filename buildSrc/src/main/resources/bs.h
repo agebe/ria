@@ -5,6 +5,7 @@ struct EmbeddedFile {
   char* name;
   char* content;
   long contentLength;
+  int boot;
 };
 
 struct {

@@ -16,17 +16,28 @@ import org.gradle.api.tasks.TaskAction;
 // https://www.jrebel.com/blog/using-buildsrc-custom-logic-gradle-builds
 public class LauncherTask extends DefaultTask {
 
+  private boolean includeBootAndSnapshotDependenciesOnly;
+
+  // this is to build online version of the launcher (which will download additional dependencies from maven central)
+  // or offline versions which includes all dependencies
+  public void includeBootAndSnapshotDependenciesOnly(boolean includeBootAndSnapshotDependenciesOnly) {
+    this.includeBootAndSnapshotDependenciesOnly = includeBootAndSnapshotDependenciesOnly;
+  }
+
   @TaskAction
   public void run() throws IOException {
+    //System.out.println(getDescription());
+    //System.out.println(includeBootAndSnapshotDependenciesOnly);
     Project project = getProject();
     File buildDir = project.getBuildDir();
-    //File libDir = new File(buildDir, "install/rescript-launcher/lib");
-    File libDir = new File(buildDir, "libs");
+    File libDir = new File(buildDir, "install/rescript-launcher/lib");
+    //File libDir = new File(buildDir, "libs");
     if(!libDir.isDirectory()) {
       throw new RuntimeException("lib dir does not exist, " + libDir.getAbsolutePath());
     }
     List<File> jars = Arrays.stream(libDir.listFiles())
         .sorted(Comparator.comparing(f -> f.getName().toLowerCase()))
+        .filter(f -> includeBootAndSnapshotDependenciesOnly?f.getName().startsWith("rescript-launcher-") || f.getName().contains("-SNAPSHOT."):true)
         .collect(Collectors.toList());
     System.out.println(jars);
     File outDir = new File(buildDir,"launcher");
@@ -61,6 +72,8 @@ public class LauncherTask extends DefaultTask {
         long length = writeByteArray(writer, f);
         writer.println(" };");
         writer.println("long fcl%s = %s;".formatted(i, length));
+        // Zero is interpreted as false and anything non-zero is interpreted as true
+        writer.println("int fb%s = %s;".formatted(i, f.getName().startsWith("rescript-launcher-")?1:0));
         writer.println();
       }
       writer.println("struct EmbeddedFile files[%s];".formatted(jars.size()));
@@ -71,6 +84,7 @@ public class LauncherTask extends DefaultTask {
         writer.println("  files[%s].name = fn%s;".formatted(i,i));
         writer.println("  files[%s].content = fc%s;".formatted(i,i));
         writer.println("  files[%s].contentLength = fcl%s;".formatted(i,i));
+        writer.println("  files[%s].boot = fb%s;".formatted(i,i));
       }
       writer.println("}");
       writer.println();
