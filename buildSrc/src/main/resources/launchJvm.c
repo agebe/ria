@@ -17,12 +17,13 @@ char* classpath;
 
 void createClasspath() {
   char buf[PATH_MAX];
+  char* bootDir = bsInfo.bsHomeBoot;
   int files = 0;
   int namesSize = 0;
   // https://stackoverflow.com/a/12506/20615256
   DIR *dp;
   struct dirent *ep;
-  dp = opendir (bsInfo.bsHomeLibs);
+  dp = opendir(bootDir);
   if(dp != NULL) {
     while((ep = readdir (dp)) != NULL) {
       // man readdir
@@ -33,26 +34,26 @@ void createClasspath() {
     }
     (void) closedir(dp);
   } else {
-    printf("failed to open dir %s\n", bsInfo.bsHomeLibs);
+    printf("failed to open dir %s\n", bootDir);
     exit(1);
   }
   char* clOption = "-Djava.class.path=";
-  size_t size = sizeof(char) * ( strlen(clOption) + ( strlen(bsInfo.bsHomeLibs) + 1) * files + namesSize + files );
+  size_t size = sizeof(char) * ( strlen(clOption) + ( strlen(bootDir) + 1) * files + namesSize + files );
   //printf("files %i\n", files);
   //printf("names %i\n", namesSize);
-  //printf("libs %zu\n", strlen(bsInfo.bsHomeLibs));
+  //printf("libs %zu\n", strlen(bootDir));
   //printf("%zu\n", size);
   classpath = malloc(size);
   classpath[0] = 0;
   strcat(classpath, clOption);
-  dp = opendir (bsInfo.bsHomeLibs);
+  dp = opendir (bootDir);
   int i = 0;
   if(dp != NULL) {
     while((ep = readdir (dp)) != NULL) {
       // man readdir
       if(ep->d_type == DT_REG) {
         //printf("%s\n", ep->d_name);
-        snprintf(buf, sizeof(buf), "%s/%s", bsInfo.bsHomeLibs, ep->d_name);
+        snprintf(buf, sizeof(buf), "%s/%s", bootDir, ep->d_name);
         strcat(classpath, buf);
         if((i+1)<files) {
           strcat(classpath, ":");
@@ -62,7 +63,7 @@ void createClasspath() {
     }
     (void) closedir(dp);
   } else {
-    printf("failed to open dir %s\n", bsInfo.bsHomeLibs);
+    printf("failed to open dir %s\n", bootDir);
     exit(1);
   }
 }

@@ -39,7 +39,11 @@ void writeFiles() {
   bool isSnapShotVersion = strstr(version, "SNAPSHOT") != NULL;
   for(int i=0;i<filesCount;i++) {
     char filename[PATH_MAX];
-    snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeLibs, files[i].name);
+    if(files[i].boot) {
+      snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeBoot, files[i].name);
+    } else {
+      snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeLibs, files[i].name);
+    }
     struct stat st = {0};
     if(isSnapShotVersion || (stat(filename, &st) == -1)) {
       FILE *write_ptr;
