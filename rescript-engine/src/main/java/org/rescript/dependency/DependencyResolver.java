@@ -35,17 +35,18 @@ public class DependencyResolver {
     }
   }
 
-  public ClassLoader resolveAll(List<Expression> dependencies) {
+  public ClassLoader resolveAll(List<Expression> dependencies, ClassLoader parentClassLoader) {
     List<File> l = resolveDependencies(dependencies);
     if(l.isEmpty()) {
-      return null;
+      return parentClassLoader;
     } else {
       System.out.println("dependencies on classloader:");
       l.stream().map(f -> f.getName()).sorted().forEach(System.out::println);
+      // TODO replace URLClassLoader with CLoader
       return new URLClassLoader(
           "scriptClassLoader",
           l.stream().map(this::toUrl).toArray(URL[]::new),
-          this.getClass().getClassLoader());
+          parentClassLoader);
     }
   }
 

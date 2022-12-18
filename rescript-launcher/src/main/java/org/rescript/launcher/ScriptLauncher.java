@@ -81,14 +81,12 @@ public class ScriptLauncher {
         setShowErrorsOnConsole.invoke(s, true);
         Method setArguments = scriptClass.getMethod("setArguments", String[].class);
         setArguments.invoke(s, new Object[]{scriptArgs(args)});
+        // setting the script class loader to the app class loader prevents the script seeing (and clashing)
+        // with the script engines own dependencies (like antlr4 or commons lang3 etc.)
+        Method setScriptClassLoader = scriptClass.getMethod("setScriptClassLoader", ClassLoader.class);
+        setScriptClassLoader.invoke(s, ScriptLauncher.class.getClassLoader());
         Method run = scriptClass.getMethod("run", String.class);
         run.invoke(s, script);
-//        Script s = new Script(script);
-//        s.setShowErrorsOnConsole(true);
-//        s.setArguments(scriptArgs(args));
-//        s.run();
-        // TODO set the script classloader to the launcher classloader
-        // that should avoid classpath clashes of script engine and script dependencies
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
         System.exit(1);

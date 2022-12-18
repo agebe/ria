@@ -21,6 +21,9 @@ public class Script {
 
   private String[] arguments;
 
+  // the class loader to load types used by the script
+  private ClassLoader scriptClassLoader = this.getClass().getClassLoader();
+
   public Script() {
     this(null, null);
   }
@@ -178,10 +181,8 @@ public class Script {
       ParserListener listener = new Parser(showErrorsOnConsole).parse(script);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
-      ClassLoader loader = new DependencyResolver().resolveAll(listener.getDependencies());
-      if(loader != null) {
-        this.symbols.getJavaSymbols().setClassLoader(loader);
-      }
+      ClassLoader loader = new DependencyResolver().resolveAll(listener.getDependencies(), scriptClassLoader);
+      this.symbols.getJavaSymbols().setClassLoader(loader);
     }
     return this;
   }
@@ -200,6 +201,14 @@ public class Script {
 
   public void setArguments(String[] arguments) {
     this.arguments = arguments;
+  }
+
+  public ClassLoader getScriptClassLoader() {
+    return scriptClassLoader;
+  }
+
+  public void setScriptClassLoader(ClassLoader scriptClassLoader) {
+    this.scriptClassLoader = scriptClassLoader;
   }
 
 }
