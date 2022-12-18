@@ -1,12 +1,15 @@
 package org.rescript.launcher;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 public class ScriptLauncher {
@@ -26,6 +29,27 @@ public class ScriptLauncher {
     }
   }
 
+  private static String version() {
+    try {
+      Enumeration<URL> manifestUrls = ScriptLauncher.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+      while(manifestUrls.hasMoreElements()) {
+        URL url = manifestUrls.nextElement();
+        Manifest manifest = new Manifest(url.openStream());
+        if("rescript-launcher".equals(manifest.getMainAttributes().getValue("Implementation-Title"))) {
+          String version = manifest.getMainAttributes().getValue("Implementation-Version");
+          if(version != null) {
+            return version;
+          } else {
+            throw new RuntimeException("no version on rescript launcher manifest");
+          }
+        }
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("failed to determine rescript launcher version", e);
+    }
+    throw new RuntimeException("failed to determine rescript lancher version, manifest not found");
+  }
+
   public static void main(String[] args) {
 //    System.out.println(Arrays.toString(args));
     if(args.length < 2) {
@@ -33,7 +57,7 @@ public class ScriptLauncher {
       System.exit(1);
     }
     String rescriptHome = args[0];
-    File libsDir = new File(rescriptHome+"/0.1.0-SNAPSHOT/libs");
+    File libsDir = new File(rescriptHome+"/"+version()+"/libs");
     if(!libsDir.exists()) {
       throw new RuntimeException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
     }
