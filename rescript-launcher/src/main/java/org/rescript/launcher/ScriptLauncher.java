@@ -41,7 +41,8 @@ public class ScriptLauncher {
     .filter(file -> !file.isDirectory())
     .toList();
     String scriptFile = args[1];
-    try(URLClassLoader loader = new URLClassLoader(
+//    try(URLClassLoader loader = new URLClassLoader(
+    try(CLoader loader = new CLoader(
         "launcherClassLoader",
         libs.stream()
         .map(ScriptLauncher::toUrl)
