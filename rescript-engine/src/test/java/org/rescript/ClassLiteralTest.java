@@ -23,4 +23,10 @@ public class ClassLiteralTest {
     assertEquals(List.class, new Script().run("List.class"));
   }
 
+  @Test
+  public void floatDotClass() {
+    assertEquals(float.class, new Script().run("float.class"));
+  }
+
+
 }

@@ -105,7 +105,7 @@ expr
 // do operators first, order by precedence
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
-// class literal 
+// class literal
   | typeOrPrimitive '.class'
   | expr DOT expr
 // array/list access
