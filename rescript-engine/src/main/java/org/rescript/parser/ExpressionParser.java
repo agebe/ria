@@ -15,6 +15,7 @@ import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
 import org.rescript.expression.CastOp;
+import org.rescript.expression.ClassLiteral;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.EqualityOp;
@@ -372,8 +373,16 @@ public class ExpressionParser {
         isExpression(3);
   }
 
+  private boolean isClassLiteral() {
+    return items.size() == 2 &&
+        is(0, TypeOrPrimitive.class) &&
+        isTerminal(1, ".class");
+  }
+
   public void parse() {
-    if(isInstanceOf()) {
+    if(isClassLiteral()) {
+      stack.push(new ClassLiteral(((TypeOrPrimitive)items.get(0)).getType()));
+    } else if(isInstanceOf()) {
       stack.push(new InstanceOfOp(
           exp(0),
           get(2, TypeOrPrimitive.class),
