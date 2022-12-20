@@ -1,4 +1,4 @@
-package org.rescript.launcher;
+package org.rescript.cloader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -106,7 +106,8 @@ public class CLoader extends ClassLoader implements AutoCloseable {
 
   @Override
   public void close() {
-    // TODO
+    // added close method so CLoader is compatible with URLClassLoader and
+    // can be used in try-with-resources
   }
 
   @Override

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import org.rescript.cloader.CLoader;
+
 public class ScriptLauncher {
 
   private static String[] scriptArgs(String[] args) {

@@ -1,10 +1,10 @@
-package org.rescript.launcher;
+package org.rescript.cloader;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public record Resource(
+record Resource(
     String name,
     File jar) {
 

@@ -1,3 +1,4 @@
 rootProject.name = 'rescript'
 include 'rescript-engine'
 include 'rescript-launcher'
+include 'rescript-utils'

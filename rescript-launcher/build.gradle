@@ -8,6 +8,7 @@ mainClassName = 'org.rescript.launcher.ScriptLauncher'
 
 dependencies {
   implementation project(':rescript-engine')
+  implementation project(':rescript-utils')
 }
 
 task launcherCompile(type:Exec) {

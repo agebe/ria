@@ -57,6 +57,11 @@ public class LauncherTask extends DefaultTask {
         new File(outDir, filename));
   }
 
+  private boolean isBootLib(File f) {
+    return f.getName().startsWith("rescript-launcher-") ||
+        f.getName().startsWith("rescript-utils-");
+  }
+
   private void writeFilesDotH(File outDir, List<File> jars) {
     try(PrintWriter writer = new PrintWriter(new FileWriter(new File(outDir, "files.h")))) {
       writer.println("#ifndef _FILES_H");
@@ -73,7 +78,7 @@ public class LauncherTask extends DefaultTask {
         writer.println(" };");
         writer.println("long fcl%s = %s;".formatted(i, length));
         // Zero is interpreted as false and anything non-zero is interpreted as true
-        writer.println("int fb%s = %s;".formatted(i, f.getName().startsWith("rescript-launcher-")?1:0));
+        writer.println("int fb%s = %s;".formatted(i, isBootLib(f)?1:0));
         writer.println();
       }
       writer.println("struct EmbeddedFile files[%s];".formatted(jars.size()));
