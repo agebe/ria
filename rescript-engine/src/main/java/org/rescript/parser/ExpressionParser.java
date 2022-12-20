@@ -374,9 +374,10 @@ public class ExpressionParser {
   }
 
   private boolean isClassLiteral() {
-    return items.size() == 2 &&
+    return items.size() == 3 &&
         is(0, TypeOrPrimitive.class) &&
-        isTerminal(1, ".class");
+        isTerminal(1, ".") &&
+        isTerminal(2, "class");
   }
 
   public void parse() {

@@ -11,7 +11,6 @@ public class ReservedKeywords {
       "abstract",
       "assert",
       "case",
-      "class",
       "const",
       "default",
       "enum",

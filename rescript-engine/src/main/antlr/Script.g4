@@ -106,7 +106,7 @@ expr
 // https://introcs.cs.princeton.edu/java/11precedence/
   : LPAREN expr RPAREN
 // class literal
-  | typeOrPrimitive '.class'
+  | typeOrPrimitive DOT CLASS
   | expr DOT expr
 // array/list access
   | expr '[' expr ']'
@@ -229,7 +229,7 @@ BYTE : 'byte';
 //CASE : 'case';
 CATCH : 'catch';
 CHAR : 'char';
-//CLASS : 'class';
+CLASS : 'class';
 //CONST : 'const';
 CONTINUE : 'continue';
 //DEFAULT : 'default';
