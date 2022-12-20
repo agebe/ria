@@ -34,6 +34,16 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(ctx.getSymbols().getJavaSymbols().getClassLoader());
+      return tryInvoke(proxy, method, args);
+    } finally {
+      Thread.currentThread().setContextClassLoader(ctxLoader);
+    }
+  }
+
+  private Object tryInvoke(Object proxy, Method method, Object[] args) throws Throwable {
     List<Method> methods = RUtils.findAccessibleMethods(
         methodValue.getTargetType(), methodValue.getTarget(), methodValue.getMethodName());
     Method m = chooseMethod(methods, args);

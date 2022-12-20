@@ -39,9 +39,17 @@ public class Script {
   }
 
   private Value runVal() {
-    parse(script);
-    setupArguments();
-    return new ScriptRunner(symbols).run();
+    ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      parse(script);
+      setupArguments();
+      // some libraries like e.g. kafka prefer to use the context class loader
+      // so set it up here but restore to the previous context class loader when the script is done executing
+      Thread.currentThread().setContextClassLoader(this.symbols.getJavaSymbols().getClassLoader());
+      return new ScriptRunner(symbols).run();
+    } finally {
+      Thread.currentThread().setContextClassLoader(ctxLoader);
+    }
   }
 
   private void setupArguments() {

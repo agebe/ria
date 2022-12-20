@@ -27,6 +27,7 @@ tasks.eclipse.dependsOn(generateGrammarSource)
 //tasks.sourcesJar.duplicatesStrategy('exclude')
 
 dependencies {
+  implementation project(':rescript-utils')
   antlr 'org.antlr:antlr4:4.11.1'
   implementation 'org.slf4j:slf4j-api:2.0.5'
   implementation 'org.apache.commons:commons-lang3:3.12.0'

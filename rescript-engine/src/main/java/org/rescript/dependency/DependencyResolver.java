@@ -3,7 +3,6 @@ package org.rescript.dependency;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,6 +13,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.cloader.CLoader;
 import org.rescript.expression.Expression;
 import org.rescript.expression.NewOp;
 import org.rescript.parser.FunctionParameter;
@@ -42,8 +42,7 @@ public class DependencyResolver {
     } else {
       System.out.println("dependencies on classloader:");
       l.stream().map(f -> f.getName()).sorted().forEach(System.out::println);
-      // TODO replace URLClassLoader with CLoader
-      return new URLClassLoader(
+      return new CLoader(
           "scriptClassLoader",
           l.stream().map(this::toUrl).toArray(URL[]::new),
           parentClassLoader);
