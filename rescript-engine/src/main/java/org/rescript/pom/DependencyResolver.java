@@ -34,10 +34,15 @@ public class DependencyResolver {
         (model.getDependencyManagement().getDependencies() == null)) {
       return Map.of();
     } else {
-      return model.getDependencyManagement()
+      var grouped = model.getDependencyManagement()
           .getDependencies()
           .stream()
-          .collect(Collectors.toMap(this::getId, d -> d));
+          .collect(Collectors.groupingBy(this::getId));
+      return grouped.entrySet()
+          .stream()
+          .collect(Collectors.toMap(
+              me -> me.getKey(),
+              me -> me.getValue().get(0)));
     }
   }
 
@@ -73,6 +78,7 @@ public class DependencyResolver {
   private Map.Entry<String, Dependency> resolveProperties(PropertyResolver p, Map.Entry<String, Dependency> me) {
     Dependency d = me.getValue();
     d.setVersion(p.resolve(d.getVersion()));
+    d.setGroupId(p.resolve(d.getGroupId()));
     return me;
   }
 
@@ -119,6 +125,7 @@ public class DependencyResolver {
       d.setVersion(dm.getVersion());
     }
     d.setVersion(properties.resolve(d.getVersion()));
+    d.setGroupId(properties.resolve(d.getGroupId()));
     if(dm != null) {
       if(StringUtils.isBlank(d.getScope())) {
         d.setScope(dm.getScope());
