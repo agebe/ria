@@ -28,6 +28,11 @@ public class PropertyResolver {
     if(StringUtils.isNotBlank(model.getVersion())) {
       pMap.put("project.version", model.getVersion());
     }
+    if(StringUtils.isNotBlank(model.getGroupId())) {
+      pMap.put("project.groupId", model.getGroupId());
+    } else if(StringUtils.isNotBlank(model.getParent().getGroupId())) {
+      pMap.put("project.groupId", model.getParent().getGroupId());
+    }
   }
 
   public String resolve(String s) {
