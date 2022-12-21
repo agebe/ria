@@ -6,6 +6,8 @@ struct EmbeddedFile {
   char* content;
   long contentLength;
   int boot;
+  char* url;
+  int download;
 };
 
 struct {

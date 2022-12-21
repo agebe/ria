@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <curl/curl.h>
 
 #include "bs.h"
 #include "findLibJvm.h"
@@ -28,13 +29,28 @@ void makedir(char *name) {
     }
   }
 }
-  
+
+void download(char *url, char* outfilename) {
+  CURL *curl;
+  FILE *fp;
+  CURLcode res;
+  curl = curl_easy_init();
+  if (curl) {
+    fp = fopen(outfilename,"wb");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    fclose(fp);
+  }
+}
+
 void writeFiles() {
   makedir(bsInfo.bsHome);
   makedir(bsInfo.bsHomeVersion);
   makedir(bsInfo.bsHomeLibs);
   makedir(bsInfo.bsHomeBoot);
-  //printf("%s\n", bshomelibs);
   initFiles();
   bool isSnapShotVersion = strstr(version, "SNAPSHOT") != NULL;
   for(int i=0;i<filesCount;i++) {
@@ -45,11 +61,22 @@ void writeFiles() {
       snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeLibs, files[i].name);
     }
     struct stat st = {0};
-    if(isSnapShotVersion || (stat(filename, &st) == -1)) {
+    bool notExists = stat(filename, &st) == -1;
+    if(isSnapShotVersion && !files[i].download) {
       FILE *write_ptr;
       write_ptr = fopen(filename,"wb");
       fwrite(files[i].content,1,files[i].contentLength,write_ptr);
       fclose(write_ptr);
+    } else if(notExists) {
+      if(files[i].download) {
+        printf("%s\n",files[i].url);
+        download(files[i].url, filename);
+      } else {
+        FILE *write_ptr;
+        write_ptr = fopen(filename,"wb");
+        fwrite(files[i].content,1,files[i].contentLength,write_ptr);
+        fclose(write_ptr);
+      }
     }
   }
 }

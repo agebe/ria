@@ -17,7 +17,7 @@ task launcherCompile(type:Exec) {
     '-fPIC',
     '-I'+System.properties['java.home']+'/include',
     '-I'+System.properties['java.home']+'/include/linux',
-    '-o', 'bs', 'bs.c', 'findLibJvm.c', 'launchJvm.c', '-ldl', '-Wformat-truncation=0',
+    '-o', 'bs', 'bs.c', 'findLibJvm.c', 'launchJvm.c', '-ldl', '-lcurl', '-Wformat-truncation=0',
 // TODO added workaround '-z muldefs' so the build does not break with newer version of ld but why is it required?
     '-z', 'muldefs'
   group 'Launcher'

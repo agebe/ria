@@ -24,9 +24,14 @@ public class ClassLiteralTest {
   }
 
   @Test
+  public void listName() {
+    System.out.println(List.class.getName());
+    assertEquals("java.util.List", new Script().run("List.class.getName()"));
+  }
+
+  @Test
   public void floatDotClass() {
     assertEquals(float.class, new Script().run("float.class"));
   }
-
 
 }
