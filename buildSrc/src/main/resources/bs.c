@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>
-#include <curl/curl.h>
+// #include <curl/curl.h>
 
 #include "bs.h"
 #include "findLibJvm.h"
@@ -30,20 +30,37 @@ void makedir(char *name) {
   }
 }
 
-void download(char *url, char* outfilename) {
-  CURL *curl;
-  FILE *fp;
-  CURLcode res;
-  curl = curl_easy_init();
-  if (curl) {
-    fp = fopen(outfilename,"wb");
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    fclose(fp);
+// void download(char *url, char* outfilename) {
+//   CURL *curl;
+//   FILE *fp;
+//   CURLcode res;
+//   curl = curl_easy_init();
+//   if (curl) {
+//     fp = fopen(outfilename,"wb");
+//     curl_easy_setopt(curl, CURLOPT_URL, url);
+//     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+//     curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+//     res = curl_easy_perform(curl);
+//     curl_easy_cleanup(curl);
+//     fclose(fp);
+//   }
+// }
+
+void writeLibsFile() {
+  char filename[PATH_MAX];
+  snprintf(filename, sizeof(filename), "%s/libs.txt", bsInfo.bsHomeVersion);
+  FILE *f = fopen(filename, "w");
+  if (f == NULL) {
+    printf("Error opening file!\n");
+    exit(1);
   }
+  for(int i=0;i<filesCount;i++) {
+    if(!files[i].boot && (files[i].url != NULL)) {
+      //printf("%s\n", files[i].url);
+      fprintf(f, "%s\n", files[i].url);
+    }
+  }
+  fclose(f);
 }
 
 void writeFiles() {
@@ -52,6 +69,7 @@ void writeFiles() {
   makedir(bsInfo.bsHomeLibs);
   makedir(bsInfo.bsHomeBoot);
   initFiles();
+  writeLibsFile();
   bool isSnapShotVersion = strstr(version, "SNAPSHOT") != NULL;
   for(int i=0;i<filesCount;i++) {
     char filename[PATH_MAX];
@@ -69,8 +87,8 @@ void writeFiles() {
       fclose(write_ptr);
     } else if(notExists) {
       if(files[i].download) {
-        printf("%s\n",files[i].url);
-        download(files[i].url, filename);
+//        printf("%s\n",files[i].url);
+//        download(files[i].url, filename);
       } else {
         FILE *write_ptr;
         write_ptr = fopen(filename,"wb");

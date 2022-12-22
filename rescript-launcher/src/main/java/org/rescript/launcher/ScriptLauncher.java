@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,17 +56,46 @@ public class ScriptLauncher {
     throw new RuntimeException("failed to determine rescript lancher version, manifest not found");
   }
 
-  public static void main(String[] args) {
+  private static void downloadIfMissing(String url, File libsDir) {
+    try {
+      HttpClient client = HttpClient
+          .newBuilder()
+          .build();
+      String filename = url.substring(url.lastIndexOf('/')+1);
+      File f = new File(libsDir, filename);
+      if(!f.exists()) {
+        System.err.println("get " + url);
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(new URI(url))
+            .version(HttpClient.Version.HTTP_2)
+            .GET()
+            .build();
+        client.send(request, BodyHandlers.ofFile(f.toPath()));
+      }
+    } catch(Exception e) {
+      throw new RuntimeException("failed to download file from " + url, e);
+    }
+  }
+
+  private static void downloadMissing(File bsHomeVersion, File libsDir) throws IOException {
+    Files.readAllLines(new File(bsHomeVersion, "libs.txt").toPath())
+    .forEach(url -> downloadIfMissing(url, libsDir));
+  }
+
+  public static void main(String[] args) throws Exception {
 //    System.out.println(Arrays.toString(args));
     if(args.length < 2) {
       System.err.println("script file parameter missing");
       System.exit(1);
     }
     String rescriptHome = args[0];
-    File libsDir = new File(rescriptHome+"/"+version()+"/libs");
+    File bsHomeVersion = new File(rescriptHome+"/"+version());
+    File libsDir = new File(bsHomeVersion, "libs");
+    // the native launcher should have created the libs dir
     if(!libsDir.exists()) {
       throw new RuntimeException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
     }
+    downloadMissing(bsHomeVersion, libsDir);
     List<File> libs = Stream.of(libsDir.listFiles())
     .filter(file -> !file.isDirectory())
     .toList();

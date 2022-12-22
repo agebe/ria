@@ -30,9 +30,9 @@ public class LauncherTask extends DefaultTask {
   // TODO get all dependencies from gradle directly
   // https://stackoverflow.com/questions/37697622/gradle-get-url-of-dependency-artifact
   private final String dependencies = """
-https://repo1.maven.org/maven2/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar
-https://repo1.maven.org/maven2/ch/qos/logback/logback-classic/1.4.5/logback-classic-1.4.5.jar
-https://repo1.maven.org/maven2/ch/qos/logback/logback-core/1.4.5/logback-core-1.4.5.jar
+https://repo.maven.apache.org/maven2/commons-io/commons-io/2.11.0/commons-io-2.11.0.jar
+https://repo.maven.apache.org/maven2/ch/qos/logback/logback-classic/1.4.5/logback-classic-1.4.5.jar
+https://repo.maven.apache.org/maven2/ch/qos/logback/logback-core/1.4.5/logback-core-1.4.5.jar
 Downloading https://repo.maven.apache.org/maven2/org/antlr/antlr4/4.11.1/antlr4-4.11.1.pom to /home/andre/.gradle/.tmp/gradle_download2640302989933963647bin
 Downloading https://repo.maven.apache.org/maven2/org/antlr/antlr4-master/4.11.1/antlr4-master-4.11.1.pom to /home/andre/.gradle/.tmp/gradle_download6633064513484959291bin
 Cached resource https://repo.maven.apache.org/maven2/org/sonatype/oss/oss-parent/9/oss-parent-9.pom is up-to-date (lastModified: Tue Jan 28 05:15:21 AEST 2014).
