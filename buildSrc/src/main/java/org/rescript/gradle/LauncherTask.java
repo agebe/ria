@@ -84,6 +84,8 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
 
   private boolean includeBootAndSnapshotDependenciesOnly;
 
+  private File workingDir;
+
   public LauncherTask() {
     String[] split = dependencies.split("\n");
     Pattern pattern = Pattern.compile("^.*(https://.*jar).*$");
@@ -103,6 +105,10 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
     this.includeBootAndSnapshotDependenciesOnly = includeBootAndSnapshotDependenciesOnly;
   }
 
+  public void workingDir(String workingDir) {
+    this.workingDir = new File(getProject().getProjectDir(), workingDir);
+  }
+
   @TaskAction
   public void run() throws IOException {
     //System.out.println(getDescription());
@@ -119,7 +125,9 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
 //        .filter(f -> includeBootAndSnapshotDependenciesOnly?f.getName().startsWith("rescript-launcher-") || f.getName().contains("-SNAPSHOT."):true)
         .collect(Collectors.toList());
     System.out.println(jars);
-    File outDir = new File(buildDir,"launcher");
+//    File outDir = new File(buildDir,"launcher");
+    File outDir = workingDir;
+//    System.out.println(outDir.getAbsolutePath());
     outDir.mkdirs();
     writeFilesDotH(outDir, jars);
     writeFile(outDir, "bs.c");

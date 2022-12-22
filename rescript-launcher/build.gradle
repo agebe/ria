@@ -28,6 +28,7 @@ task launcherCompile(type:Exec) {
 }
 
 task launcherFiles(type: LauncherTask) {
+  workingDir 'build/launcher'
   group 'Launcher'
   description 'write script launcher source files'
   includeBootAndSnapshotDependenciesOnly true
@@ -40,4 +41,40 @@ task launcher(type: GradleBuild) {
   tasks = ['launcherFiles', 'launcherCompile']
   group 'Launcher'
   description 'build script launcher (linux only)'
+}
+
+// -------------------------------------------------------------------------
+// below to create the native script launcher with all dependencies included
+// -------------------------------------------------------------------------
+
+task launcherCompileAll(type:Exec) {
+  workingDir 'build/launcherAll'
+  commandLine 'gcc',
+    '-fPIC',
+    '-I'+System.properties['java.home']+'/include',
+    '-I'+System.properties['java.home']+'/include/linux',
+    '-o', 'bs', 'bs.c', 'findLibJvm.c', 'launchJvm.c',
+    '-ldl',
+//    '-lcurl',
+    '-Wformat-truncation=0',
+// TODO added workaround '-z muldefs' so the build does not break with newer version of ld but why is it required?
+    '-z', 'muldefs'
+  group 'Launcher'
+  description 'compile script launcher'
+}
+
+task launcherFilesAll(type: LauncherTask) {
+  workingDir 'build/launcherAll'
+  group 'Launcher'
+  description 'write script launcher source files'
+  includeBootAndSnapshotDependenciesOnly false
+  dependsOn 'installDist'
+  //dependsOn 'jar'
+}
+
+// https://stackoverflow.com/a/45607934
+task launcherAll(type: GradleBuild) {
+  tasks = ['launcherFilesAll', 'launcherCompileAll']
+  group 'Launcher'
+  description 'build script launcher (linux only) with all dependencies included'
 }
