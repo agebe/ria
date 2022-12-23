@@ -18,7 +18,7 @@ public class ClassLiteral implements Expression {
   public Value eval(ScriptContext ctx) {
     Class<?> cls = type.resolve(ctx);
     if(cls != null) {
-      return new ObjValue(cls.getClass(), cls); 
+      return new ObjValue(cls.getClass(), cls);
     } else {
       throw new SymbolNotFoundException("type '%s'".formatted(type.getName()));
     }
