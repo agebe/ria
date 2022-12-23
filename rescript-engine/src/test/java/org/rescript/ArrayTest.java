@@ -60,7 +60,8 @@ public class ArrayTest {
 
   @Test
   public void charArray() {
-    assertArrayEquals(new char[] { 'a', 'b' }, (char[])new Script().run("arrayof ['a','b']"));
+    // removed char literal
+    assertArrayEquals(new char[] { 'a', 'b' }, (char[])new Script().run("'ab'.toCharArray()"));
   }
 
   @Test

@@ -201,7 +201,6 @@ literal
   | intLiteral
   | floatLiteral
   | nullLiteral
-  | charLiteral
   | strLiteral
   ;
 strLiteral: TextBlock | StringLiteral ;
@@ -209,7 +208,6 @@ boolLiteral: BooleanLiteral ;
 intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
 nullLiteral: NullLiteral;
-charLiteral: CharacterLiteral;
 ident : Identifier;
 // from https://stackoverflow.com/a/24559773
 //StringLiteral : UnterminatedStringLiteral '"';
@@ -503,15 +501,15 @@ BooleanLiteral
 
 // §3.10.4 Character Literals
 
-CharacterLiteral
-	:	'\'' SingleCharacter '\''
-	|	'\'' EscapeSequence '\''
-	;
+//CharacterLiteral
+//	:	'\'' SingleCharacter '\''
+//	|	'\'' EscapeSequence '\''
+//	;
 
-fragment
-SingleCharacter
-	:	~['\\\r\n]
-	;
+//fragment
+//SingleCharacter
+//	:	~['\\\r\n]
+//	;
 
 // §3.10.5 String Literals
 StringLiteral

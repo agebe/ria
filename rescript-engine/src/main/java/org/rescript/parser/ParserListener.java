@@ -23,7 +23,6 @@ import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.BreakStmtContext;
 import org.rescript.antlr.ScriptParser.CatchBlockContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
-import org.rescript.antlr.ScriptParser.CharLiteralContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DependencyBlockContext;
@@ -75,7 +74,6 @@ import org.rescript.antlr.ScriptParser.WhileStmtContext;
 import org.rescript.expression.Assignment;
 import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
-import org.rescript.expression.CharLiteral;
 import org.rescript.expression.ConstructorReference;
 import org.rescript.expression.Expression;
 import org.rescript.expression.FloatLiteral;
@@ -864,22 +862,22 @@ public class ParserListener implements ScriptListener {
     ws.setExpression(e);
   }
 
-  @Override
-  public void enterCharLiteral(CharLiteralContext ctx) {
-    log.debug("enterCharLiteral '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitCharLiteral(CharLiteralContext ctx) {
-    log.debug("exitCharLiteral '{}'", ctx.getText());
-    Terminal t = popTerminal();
-    String s = t.getToken().getText();
-    if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
-      stack.push(new CharLiteral(StringUtils.strip(s,"'")));
-    } else {
-      fail("char literal not enclosed with single quotes " + s);
-    }
-  }
+//  @Override
+//  public void enterCharLiteral(CharLiteralContext ctx) {
+//    log.debug("enterCharLiteral '{}'", ctx.getText());
+//  }
+//
+//  @Override
+//  public void exitCharLiteral(CharLiteralContext ctx) {
+//    log.debug("exitCharLiteral '{}'", ctx.getText());
+//    Terminal t = popTerminal();
+//    String s = t.getToken().getText();
+//    if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
+//      stack.push(new CharLiteral(StringUtils.strip(s,"'")));
+//    } else {
+//      fail("char literal not enclosed with single quotes " + s);
+//    }
+//  }
 
   @Override
   public void enterForEachStmt(ForEachStmtContext ctx) {

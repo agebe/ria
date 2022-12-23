@@ -7,31 +7,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+// removed char literals from the language as single quote enclosed strings should behave the same as
+// double quote enclosed strings. char can be created via casting from String
 public class CharLiteralTest {
 
   @Test
   public void simple() {
-    assertEquals('a', new Script().run("'a'"));
+    assertEquals('a', new Script().run("(char)'a'"));
   }
 
   @Test
   public void inc() {
-    assertEquals('b', new Script().run("var c = 'a';c++;c;"));
+    assertEquals('b', new Script().run("char c = 'a';c++;c;"));
   }
 
   @Test
   public void dec() {
-    assertEquals('b', new Script().run("var c = 'c';c--;c;"));
+    assertEquals('b', new Script().run("char c = 'c';c--;c;"));
   }
 
   @Test
   public void preInc() {
-    assertEquals('b', new Script().run("var c = 'a';++c;"));
+    assertEquals('b', new Script().run("char c = 'a';++c;"));
   }
 
   @Test
   public void preDec() {
-    assertEquals('b', new Script().run("var c = 'c';--c;"));
+    assertEquals('b', new Script().run("char c = 'c';--c;"));
   }
 
   @Test
@@ -46,47 +48,47 @@ public class CharLiteralTest {
 
   @Test
   public void add() {
-    assertEquals(66, new Script().evalInt("'A' + 1"));
+    assertEquals(66, new Script().evalInt("(char)'A' + 1"));
   }
 
   @Test
   public void sub() {
-    assertEquals(65, new Script().evalInt("'B' - 1"));
+    assertEquals(65, new Script().evalInt("(char)'B' - 1"));
   }
 
   @Test
   public void mul() {
-    assertEquals(65*2, new Script().evalInt("'A' * 2"));
+    assertEquals(65*2, new Script().evalInt("(char)'A' * 2"));
   }
 
   @Test
   public void div() {
-    assertEquals(65/2, new Script().evalInt("'A' / 2"));
+    assertEquals(65/2, new Script().evalInt("(char)'A' / 2"));
   }
 
   @Test
   public void mod() {
-    assertEquals(65%2, new Script().evalInt("'A' % 2"));
+    assertEquals(65%2, new Script().evalInt("(char)'A' % 2"));
   }
 
   @Test
   public void ge() {
-    assertTrue(new Script().evalPredicate("'B' >= 'A'"));
+    assertTrue(new Script().evalPredicate("(char)'B' >= (char)'A'"));
   }
 
   @Test
   public void lt() {
-    assertTrue(new Script().evalPredicate("'A' < 'B'"));
+    assertTrue(new Script().evalPredicate("(char)'A' < (char)'B'"));
   }
 
   @Test
   public void ltFalse() {
-    assertFalse(new Script().evalPredicate("'A' < 'A'"));
+    assertFalse(new Script().evalPredicate("(char)'A' < (char)'A'"));
   }
 
   @Test
   public void escapeSequence() {
-    assertEquals(10, new Script().evalInt("'\\n'"));
+    assertEquals(10, new Script().evalInt("(char)'\\n'"));
   }
 
   @Test
@@ -106,12 +108,12 @@ public class CharLiteralTest {
 
   @Test
   public void unaryPlus() {
-    assertEquals(122, new Script().run("+'z'"));
+    assertEquals(122, new Script().run("+(char)'z'"));
   }
 
   @Test
   public void unaryMinus() {
-    assertEquals(-122, new Script().run("-'z'"));
+    assertEquals(-122, new Script().run("-(char)'z'"));
   }
 
   @Test
