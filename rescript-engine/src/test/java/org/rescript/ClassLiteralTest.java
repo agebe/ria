@@ -33,4 +33,19 @@ public class ClassLiteralTest {
     assertEquals(float.class, new Script().run("float.class"));
   }
 
+  @Test
+  public void floatDotClassName() {
+    assertEquals("float", new Script().run("float.class.getName()"));
+  }
+
+  @Test
+  public void intArrayDotClassName() {
+    assertEquals("[I", new Script().run("int[].class.getName()"));
+  }
+
+  @Test
+  public void intArray2DotClassName() {
+    assertEquals("[[I", new Script().run("int[][].class.getName()"));
+  }
+
 }
