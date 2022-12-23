@@ -136,4 +136,9 @@ public class CharLiteralTest {
     assertThrows(ScriptException.class, () -> new Script().run("(char)'ab'"));
   }
 
+  @Test
+  public void string() {
+    assertEquals("a", new Script().run("String.valueOf((char)'a')"));
+  }
+
 }
