@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ClassLiteralTest {
@@ -25,9 +24,7 @@ public class ClassLiteralTest {
   }
 
   @Test
-  @Disabled
   public void listName() {
-    System.out.println(List.class.getName());
     assertEquals("java.util.List", new Script().run("List.class.getName()"));
   }
 
