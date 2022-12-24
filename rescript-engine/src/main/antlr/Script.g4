@@ -131,6 +131,10 @@ expr
 // https://docs.oracle.com/en/java/javase/14/language/pattern-matching-instanceof-operator.html
   | expr 'instanceof' typeOrPrimitive ident?
   | expr ( EQUAL | NOTEQUAL) expr
+  | expr BITAND expr
+  | expr BITOR expr
+// bit XOR
+  | expr CARET expr
   | expr AND expr
   | expr OR expr
   | expr '?' expr ':' expr

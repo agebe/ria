@@ -14,6 +14,10 @@ import org.rescript.antlr.ScriptParser.ExprContext;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
+import org.rescript.expression.BitAndOp;
+import org.rescript.expression.BitNotOp;
+import org.rescript.expression.BitOrOp;
+import org.rescript.expression.BitXorOp;
 import org.rescript.expression.CastOp;
 import org.rescript.expression.ClassLiteral;
 import org.rescript.expression.DivOp;
@@ -161,6 +165,18 @@ public class ExpressionParser {
 
   private boolean isRelational() {
     return isMiddleOp(">", "<", ">=", "<=");
+  }
+
+  private boolean isBitAndOp() {
+    return isMiddleOp("&");
+  }
+
+  private boolean isBitOrOp() {
+    return isMiddleOp("|");
+  }
+
+  private boolean isBitXorOp() {
+    return isMiddleOp("^");
   }
 
   private boolean isUnaryPlus() {
@@ -410,7 +426,7 @@ public class ExpressionParser {
         } else if(isUnaryLogicalNot()) {
           stack.push(new UnaryLogicalNotOp(exp(1)));
         } else if(isUnaryBinaryNot()) {
-          fail("not implemented yet");
+          stack.push(new BitNotOp(exp(1)));
         } else if(isUnaryPreInc()) {
           stack.push(new UnaryPreIncOp(exp(1)));
         } else if(isUnaryPreDec()) {
@@ -446,6 +462,12 @@ public class ExpressionParser {
         stack.push(new EqualityOp(exp(0), exp(2), terminal(1)));
       } else if(isRelational()) {
         stack.push(parseRelational());
+      } else if(isBitAndOp()) {
+        stack.push(new BitAndOp(exp(0), exp(2)));
+      } else if(isBitOrOp()) {
+        stack.push(new BitOrOp(exp(0), exp(2)));
+      } else if(isBitXorOp()) {
+        stack.push(new BitXorOp(exp(0), exp(2)));
       } else {
         fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
       }
