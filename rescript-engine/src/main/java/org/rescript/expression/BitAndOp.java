@@ -37,9 +37,10 @@ public class BitAndOp extends TripleOp {
         return new ShortValue(v1.toShort() & v2.toShort());
       } else if(v1.isByte() || v2.isByte()) {
         return new ByteValue(v1.toByte() & v2.toByte());
-      } else 
+      } else {
         throw new ScriptException("unexpected case on '%s', types '%s' and '%s'"
             .formatted(getOp(), v1.type(), v2.type()));
+      }
     } else {
       throw new ScriptException("operation '%s' requires numbers but got '%s' and '%s'"
           .formatted(getOp(), v1.type(), v2.type()));

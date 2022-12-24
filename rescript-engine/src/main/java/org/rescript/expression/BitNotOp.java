@@ -36,9 +36,10 @@ public class BitNotOp implements Expression {
         return new ShortValue(~v.toShort());
       } else if(v.isByte()) {
         return new ByteValue(~v.toByte());
-      } else 
+      } else {
         throw new ScriptException("unexpected case on bitwise complement, type '%s' not supported"
             .formatted(v.type()));
+      }
     } else {
       throw new ScriptException("bitwise complement requires numbers but got '%s'"
           .formatted(v.type()));
