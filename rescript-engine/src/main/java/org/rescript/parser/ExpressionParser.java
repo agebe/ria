@@ -15,8 +15,11 @@ import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
 import org.rescript.expression.BitAndOp;
+import org.rescript.expression.BitLeftShiftOp;
 import org.rescript.expression.BitNotOp;
 import org.rescript.expression.BitOrOp;
+import org.rescript.expression.BitRightShiftOp;
+import org.rescript.expression.BitUnsignedRightShiftOp;
 import org.rescript.expression.BitXorOp;
 import org.rescript.expression.CastOp;
 import org.rescript.expression.ClassLiteral;
@@ -177,6 +180,18 @@ public class ExpressionParser {
 
   private boolean isBitXorOp() {
     return isMiddleOp("^");
+  }
+
+  private boolean isLeftShift() {
+    return isMiddleOp("<<");
+  }
+
+  private boolean isRightShift() {
+    return isMiddleOp(">>");
+  }
+
+  private boolean isUnsignedRightShift() {
+    return isMiddleOp(">>>");
   }
 
   private boolean isUnaryPlus() {
@@ -468,6 +483,12 @@ public class ExpressionParser {
         stack.push(new BitOrOp(exp(0), exp(2)));
       } else if(isBitXorOp()) {
         stack.push(new BitXorOp(exp(0), exp(2)));
+      } else if(isLeftShift()) {
+        stack.push(new BitLeftShiftOp(exp(0), exp(2)));
+      } else if(isRightShift()) {
+        stack.push(new BitRightShiftOp(exp(0), exp(2)));
+      } else if(isUnsignedRightShift()) {
+        stack.push(new BitUnsignedRightShiftOp(exp(0), exp(2)));
       } else {
         fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
       }

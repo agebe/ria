@@ -26,4 +26,29 @@ public class BitOpTest {
     assertEquals(-7, new Script().evalInt("~6"));
   }
 
+  @Test
+  public void leftShift() {
+    assertEquals(10, new Script().evalInt("5 << 1"));
+  }
+
+  @Test
+  public void rightShift() {
+    assertEquals(5, new Script().evalInt("10 >> 1"));
+  }
+
+  @Test
+  public void unsginedRightShift() {
+    assertEquals(2, new Script().evalInt("10 >>> 2"));
+  }
+
+  @Test
+  public void rightShift2() {
+    assertEquals(-5, new Script().evalInt("-10 >> 1"));
+  }
+
+  @Test
+  public void unsginedRightShift2() {
+    assertEquals(3, new Script().evalInt("-10 >>> 30"));
+  }
+
 }

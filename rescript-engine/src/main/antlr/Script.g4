@@ -126,6 +126,9 @@ expr
   | '[' expr ':' expr ( ',' expr ':' expr )* ']'
   | expr ( MUL | DIV | MOD ) expr
   | expr ( ADD | SUB ) expr
+  | expr LSHIFT expr
+  | expr RSHIFT expr
+  | expr URSHIFT expr
   | expr ( GT | LT | GE | LE ) expr
   | 'typeof' expr
 // https://docs.oracle.com/en/java/javase/14/language/pattern-matching-instanceof-operator.html
@@ -637,9 +640,9 @@ BITAND : '&';
 BITOR : '|';
 CARET : '^';
 MOD : '%';
-//LSHIFT : '<<';
-//RSHIFT : '>>';
-//URSHIFT : '>>>';
+LSHIFT : '<<';
+RSHIFT : '>>';
+URSHIFT : '>>>';
 
 ADD_ASSIGN : '+=';
 SUB_ASSIGN : '-=';
