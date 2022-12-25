@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptParser.ExprContext;
+import org.rescript.expression.AddAssignOp;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
@@ -103,7 +104,11 @@ public class ExpressionParser {
   }
 
   private boolean isExpression(int index) {
-    return items.get(index) instanceof Expression;
+    return is(index, Expression.class);
+  }
+
+  private boolean isIdentifier(int index) {
+    return is(index, Identifier.class);
   }
 
   private Expression getExpression(int index) {
@@ -194,6 +199,16 @@ public class ExpressionParser {
     return isMiddleOp(">>>");
   }
 
+  private boolean isAssign(String assignOp) {
+    return isIdentifier(0) &&
+        isTerminal(1, assignOp) &&
+        isExpression(2);
+  }
+
+  private boolean isAddAssign() {
+    return isAssign("+=");
+  }
+
   private boolean isUnaryPlus() {
     return isTerminal(0, "+");
   }
@@ -232,6 +247,10 @@ public class ExpressionParser {
         isExpression(2) &&
         isTerminal(3, ":") &&
         isExpression(4);
+  }
+
+  private Identifier ident(int i) {
+    return get(i, Identifier.class);
   }
 
   private Expression exp(int i) {
@@ -489,6 +508,8 @@ public class ExpressionParser {
         stack.push(new BitRightShiftOp(exp(0), exp(2)));
       } else if(isUnsignedRightShift()) {
         stack.push(new BitUnsignedRightShiftOp(exp(0), exp(2)));
+      } else if(isAddAssign()) {
+        stack.push(new AddAssignOp(ident(0), exp(2)));
       } else {
         fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
       }

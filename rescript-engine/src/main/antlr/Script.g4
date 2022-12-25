@@ -142,6 +142,7 @@ expr
   | expr OR expr
   | expr '?' expr ':' expr
   | assign
+  | ident ADD_ASSIGN expr
 // other expressions below
   | lambda
   | methodRef

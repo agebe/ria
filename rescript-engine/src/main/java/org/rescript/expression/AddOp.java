@@ -25,6 +25,10 @@ public class AddOp extends TripleOp {
   public Value eval(ScriptContext ctx) {
     Value v1 = getExp1().eval(ctx);
     Value v2 = getExp2().eval(ctx);
+    return add(v1, v2, getOp());
+  }
+
+  static Value add(Value v1, Value v2, String op) {
     if(v1.isChar() && !v2.isString()) {
       v1 = new IntValue(v1.toInt());
     }
@@ -47,12 +51,12 @@ public class AddOp extends TripleOp {
         return new ByteValue(v1.toByte() + v2.toByte());
       } else
         throw new ScriptException("unexpected case on '%s', types '%s' and '%s'"
-            .formatted(getOp(), v1.type(), v2.type()));
+            .formatted(op, v1.type(), v2.type()));
     } else if(v1.isString() || v2.isString()) {
       return new ObjValue(String.class, v1.getText() + v2.getText());
     } else {
       throw new ScriptException("operation '%s' requires numbers/strings but got '%s' and '%s'"
-          .formatted(getOp(), v1.type(), v2.type()));
+          .formatted(op, v1.type(), v2.type()));
     }
   }
 
