@@ -23,4 +23,24 @@ public class AssignmentTest {
     assertThrows(ScriptException.class, () -> new Script().run("a += 21;"));
   }
 
+  @Test
+  public void subAssign() {
+    assertEquals(-2, new Script().run("var a = 4;a-=6;"));
+  }
+
+  @Test
+  public void mulAssign() {
+    assertEquals(24, new Script().run("var a = 4;a*=6;"));
+  }
+
+  @Test
+  public void divAssign() {
+    assertEquals(5, new Script().run("var a = 10;a/=2;"));
+  }
+
+  @Test
+  public void modAssign() {
+    assertEquals(3, new Script().run("var a = 11;a%=4;"));
+  }
+
 }

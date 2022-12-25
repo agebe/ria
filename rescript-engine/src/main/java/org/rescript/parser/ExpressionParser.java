@@ -24,6 +24,7 @@ import org.rescript.expression.BitUnsignedRightShiftOp;
 import org.rescript.expression.BitXorOp;
 import org.rescript.expression.CastOp;
 import org.rescript.expression.ClassLiteral;
+import org.rescript.expression.DivAssignOp;
 import org.rescript.expression.DivOp;
 import org.rescript.expression.DotOperator;
 import org.rescript.expression.EqualityOp;
@@ -38,8 +39,11 @@ import org.rescript.expression.LogicalAndOp;
 import org.rescript.expression.LogicalOrOp;
 import org.rescript.expression.LtOp;
 import org.rescript.expression.MapLiteral;
+import org.rescript.expression.ModAssignOp;
 import org.rescript.expression.ModOp;
+import org.rescript.expression.MulAssignOp;
 import org.rescript.expression.MulOp;
+import org.rescript.expression.SubAssignOp;
 import org.rescript.expression.SubOp;
 import org.rescript.expression.TargetExpression;
 import org.rescript.expression.TernaryOp;
@@ -207,6 +211,22 @@ public class ExpressionParser {
 
   private boolean isAddAssign() {
     return isAssign("+=");
+  }
+
+  private boolean isSubAssign() {
+    return isAssign("-=");
+  }
+
+  private boolean isMulAssign() {
+    return isAssign("*=");
+  }
+
+  private boolean isDivAssign() {
+    return isAssign("/=");
+  }
+
+  private boolean isModAssign() {
+    return isAssign("%=");
   }
 
   private boolean isUnaryPlus() {
@@ -510,6 +530,14 @@ public class ExpressionParser {
         stack.push(new BitUnsignedRightShiftOp(exp(0), exp(2)));
       } else if(isAddAssign()) {
         stack.push(new AddAssignOp(ident(0), exp(2)));
+      } else if(isSubAssign()) {
+        stack.push(new SubAssignOp(ident(0), exp(2)));
+      } else if(isMulAssign()) {
+        stack.push(new MulAssignOp(ident(0), exp(2)));
+      } else if(isDivAssign()) {
+        stack.push(new DivAssignOp(ident(0), exp(2)));
+      } else if(isModAssign()) {
+        stack.push(new ModAssignOp(ident(0), exp(2)));
       } else {
         fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
       }

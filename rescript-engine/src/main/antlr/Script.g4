@@ -143,6 +143,10 @@ expr
   | expr '?' expr ':' expr
   | assign
   | ident ADD_ASSIGN expr
+  | ident SUB_ASSIGN expr
+  | ident MUL_ASSIGN expr
+  | ident DIV_ASSIGN expr
+  | ident MOD_ASSIGN expr
 // other expressions below
   | lambda
   | methodRef
