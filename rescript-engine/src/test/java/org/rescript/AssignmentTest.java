@@ -43,4 +43,34 @@ public class AssignmentTest {
     assertEquals(3, new Script().run("var a = 11;a%=4;"));
   }
 
+  @Test
+  public void andAssign() {
+    assertEquals(3, new Script().run("var a = 35;a &= 15;"));
+  }
+
+  @Test
+  public void orAssign() {
+    assertEquals(3, new Script().run("var a = 1;a |= 3;"));
+  }
+
+  @Test
+  public void xorAssign() {
+    assertEquals(3, new Script().run("var a = 1;a ^= 2;"));
+  }
+
+  @Test
+  public void lshiftAssign() {
+    assertEquals(6, new Script().run("var a = 3;a <<= 1;"));
+  }
+
+  @Test
+  public void rshiftAssign() {
+    assertEquals(2, new Script().run("var a = 8;a >>= 2;a;"));
+  }
+
+  @Test
+  public void urshiftAssign() {
+    assertEquals(2, new Script().run("var a = 8;a >>>= 2;a;"));
+  }
+
 }

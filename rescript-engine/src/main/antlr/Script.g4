@@ -147,6 +147,12 @@ expr
   | ident MUL_ASSIGN expr
   | ident DIV_ASSIGN expr
   | ident MOD_ASSIGN expr
+  | ident AND_ASSIGN expr
+  | ident OR_ASSIGN expr
+  | ident XOR_ASSIGN expr
+  | ident LSHIFT_ASSIGN expr
+  | ident RSHIFT_ASSIGN expr
+  | ident URSHIFT_ASSIGN expr
 // other expressions below
   | lambda
   | methodRef

@@ -1,6 +1,5 @@
 * enable/disable script features
 * script firewall (which java methods are allowed/denied)
-* other assign operator e.g. +=, -= etc.
 * switch statement?
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers

@@ -15,12 +15,18 @@ import org.rescript.expression.AddAssignOp;
 import org.rescript.expression.AddOp;
 import org.rescript.expression.ArrayAccessOp;
 import org.rescript.expression.ArrayLiteral;
+import org.rescript.expression.BitAndAssignOp;
 import org.rescript.expression.BitAndOp;
+import org.rescript.expression.BitLeftShiftAssignOp;
 import org.rescript.expression.BitLeftShiftOp;
 import org.rescript.expression.BitNotOp;
+import org.rescript.expression.BitOrAssignOp;
 import org.rescript.expression.BitOrOp;
+import org.rescript.expression.BitRightShiftAssignOp;
 import org.rescript.expression.BitRightShiftOp;
+import org.rescript.expression.BitUnsignedRightShiftAssignOp;
 import org.rescript.expression.BitUnsignedRightShiftOp;
+import org.rescript.expression.BitXorAssignOp;
 import org.rescript.expression.BitXorOp;
 import org.rescript.expression.CastOp;
 import org.rescript.expression.ClassLiteral;
@@ -227,6 +233,30 @@ public class ExpressionParser {
 
   private boolean isModAssign() {
     return isAssign("%=");
+  }
+
+  private boolean isAndAssign() {
+    return isAssign("&=");
+  }
+
+  private boolean isOrAssign() {
+    return isAssign("|=");
+  }
+
+  private boolean isXorAssign() {
+    return isAssign("^=");
+  }
+
+  private boolean isLShiftAssign() {
+    return isAssign("<<=");
+  }
+
+  private boolean isRShiftAssign() {
+    return isAssign(">>=");
+  }
+
+  private boolean isURShiftAssign() {
+    return isAssign(">>>=");
   }
 
   private boolean isUnaryPlus() {
@@ -538,6 +568,18 @@ public class ExpressionParser {
         stack.push(new DivAssignOp(ident(0), exp(2)));
       } else if(isModAssign()) {
         stack.push(new ModAssignOp(ident(0), exp(2)));
+      } else if(isAndAssign()) {
+        stack.push(new BitAndAssignOp(ident(0), exp(2)));
+      } else if(isOrAssign()) {
+        stack.push(new BitOrAssignOp(ident(0), exp(2)));
+      } else if(isXorAssign()) {
+        stack.push(new BitXorAssignOp(ident(0), exp(2)));
+      } else if(isLShiftAssign()) {
+        stack.push(new BitLeftShiftAssignOp(ident(0), exp(2)));
+      } else if(isRShiftAssign()) {
+        stack.push(new BitRightShiftAssignOp(ident(0), exp(2)));
+      } else if(isURShiftAssign()) {
+        stack.push(new BitUnsignedRightShiftAssignOp(ident(0), exp(2)));
       } else {
         fail("failed to parse expression (unknown, 3), '%s'".formatted(items));
       }
