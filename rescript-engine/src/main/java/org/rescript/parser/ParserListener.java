@@ -15,14 +15,17 @@ import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
+import org.rescript.antlr.ScriptParser.ArrowCaseContext;
 import org.rescript.antlr.ScriptParser.AssignContext;
 import org.rescript.antlr.ScriptParser.AssignmentContext;
 import org.rescript.antlr.ScriptParser.AssignmentOpContext;
 import org.rescript.antlr.ScriptParser.BlockContext;
 import org.rescript.antlr.ScriptParser.BoolLiteralContext;
 import org.rescript.antlr.ScriptParser.BreakStmtContext;
+import org.rescript.antlr.ScriptParser.CasesContext;
 import org.rescript.antlr.ScriptParser.CatchBlockContext;
 import org.rescript.antlr.ScriptParser.CcallContext;
+import org.rescript.antlr.ScriptParser.ColonCaseContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
 import org.rescript.antlr.ScriptParser.DependencyBlockContext;
@@ -63,6 +66,8 @@ import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
 import org.rescript.antlr.ScriptParser.StrLiteralContext;
+import org.rescript.antlr.ScriptParser.SwitchExprContext;
+import org.rescript.antlr.ScriptParser.SwitchStmtContext;
 import org.rescript.antlr.ScriptParser.ThrowStmtContext;
 import org.rescript.antlr.ScriptParser.TryResourceContext;
 import org.rescript.antlr.ScriptParser.TryStmtContext;
@@ -88,6 +93,8 @@ import org.rescript.expression.NewArrayOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
+import org.rescript.expression.SwitchColonCase;
+import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
@@ -199,20 +206,20 @@ public class ParserListener implements ScriptListener {
     }
   }
 
-  private ContainerStatement findMostRecentContainerStatement() {
-    return stack.stream()
-        .filter(item -> item instanceof ContainerStatement)
-        .map(item -> (ContainerStatement)item)
+  private <T> T findMostRecent(Class<T> cls) {
+    ParseItem pi = stack.stream()
+        .filter(item -> cls.isAssignableFrom(item.getClass()))
         .findFirst()
         .orElse(null);
+    return cls.cast(pi);
+  }
+
+  private ContainerStatement findMostRecentContainerStatement() {
+    return findMostRecent(ContainerStatement.class);
   }
 
   private Function findMostRecentFunction() {
-    return stack.stream()
-        .filter(item -> item instanceof Function)
-        .map(item -> (Function)item)
-        .findFirst()
-        .orElse(null);
+    return findMostRecent(Function.class);
   }
 
   @Override
@@ -1342,6 +1349,84 @@ public class ParserListener implements ScriptListener {
     popTerminal("finally");
     FinallyBlock fblock = new FinallyBlock(block);
     stack.push(fblock);
+  }
+
+  @Override
+  public void enterSwitchExpr(SwitchExprContext ctx) {
+    log.debug("enterSwitchExpr '{}'", ctx.getText());
+    stack.push(new SwitchExpression());
+  }
+
+  @Override
+  public void exitSwitchExpr(SwitchExprContext ctx) {
+    log.debug("exitSwitchExpr '{}'", ctx.getText());
+    popTerminal("}");
+    popTerminal("{");
+    popTerminal(")");
+    Expression expr = popExpression();
+    popTerminal("(");
+    popTerminal("switch");
+    SwitchExpression s = (SwitchExpression)stack.peek();
+    s.setSwitchExpression(expr);
+  }
+
+  @Override
+  public void enterCases(CasesContext ctx) {
+    log.debug("enterCases '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitCases(CasesContext ctx) {
+    log.debug("exitCases '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterColonCase(ColonCaseContext ctx) {
+    log.debug("enterColonCase '{}'", ctx.getText());
+    stack.push(new BlockStatement((ctx.getStart().getLine())));
+  }
+
+  @Override
+  public void exitColonCase(ColonCaseContext ctx) {
+    log.debug("exitColonCase '{}'", ctx.getText());
+    popTerminal(":");
+    if(nextTerminalIs("default")) {
+      popTerminal("default");
+      BlockStatement block = pop(BlockStatement.class);
+      SwitchExpression s = findMostRecent(SwitchExpression.class);
+      SwitchColonCase c = new SwitchColonCase(null, block);
+      s.addColonCase(c);
+    } else {
+      Expression exp = popExpression();
+      popTerminal("case");
+      BlockStatement block = pop(BlockStatement.class);
+      SwitchExpression s = findMostRecent(SwitchExpression.class);
+      SwitchColonCase c = new SwitchColonCase(exp, block);
+      s.addColonCase(c);
+    }
+  }
+
+  @Override
+  public void enterArrowCase(ArrowCaseContext ctx) {
+    log.debug("enterArrowCase '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitArrowCase(ArrowCaseContext ctx) {
+    log.debug("exitArrowCase '{}'", ctx.getText());
+  }
+
+  @Override
+  public void enterSwitchStmt(SwitchStmtContext ctx) {
+    log.debug("enterSwitchStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitSwitchStmt(SwitchStmtContext ctx) {
+    log.debug("exitSwitchStmt '{}'", ctx.getText());
+    SwitchExpression s = pop(SwitchExpression.class);
+    ExpressionStatement stmt = new ExpressionStatement(ctx.getStart().getLine(), s);
+    stack.push(stmt);
   }
 
 }

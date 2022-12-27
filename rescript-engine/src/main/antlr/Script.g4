@@ -63,7 +63,9 @@ stmt
   | functionDefinition
   | throwStmt
   | tryStmt
+  | switchStmt
   ;
+
 emptyStmt: SEMI;
 exprStmt: expr SEMI;
 vardefStmt: typeOrPrimitiveOrVar ( ident | assign ) ( ',' ( ident | assign ) )* SEMI;
@@ -99,6 +101,10 @@ catchBlock
 
 finallyBlock
   : FINALLY block
+  ;
+
+switchStmt
+  : switchExpr
   ;
 
 expr
@@ -160,6 +166,7 @@ expr
   | fcall
   | literal
   | ident
+  | switchExpr
   ;
 
 lambda
@@ -227,6 +234,26 @@ intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
 nullLiteral: NullLiteral;
 ident : Identifier;
+
+switchExpr
+  : SWITCH '(' expr ')' '{' cases '}'
+  ;
+
+cases
+  : colonCase*
+  | arrowCase*
+  ;
+
+colonCase
+  : CASE  expr ':' stmt*
+  | DEFAULT ':' stmt*
+  ;
+
+arrowCase
+  : CASE expr ( ',' expr )* '->' ( expr | block )
+  | DEFAULT '->' ( expr | block )
+  ;
+
 // from https://stackoverflow.com/a/24559773
 //StringLiteral : UnterminatedStringLiteral '"';
 //UnterminatedStringLiteral : '"' (~["\\\r\n] | '\\' (. | EOF))*;
@@ -242,13 +269,13 @@ ident : Identifier;
 BOOLEAN : 'boolean';
 BREAK : 'break';
 BYTE : 'byte';
-//CASE : 'case';
+CASE : 'case';
 CATCH : 'catch';
 CHAR : 'char';
 CLASS : 'class';
 //CONST : 'const';
 CONTINUE : 'continue';
-//DEFAULT : 'default';
+DEFAULT : 'default';
 DO : 'do';
 DOUBLE : 'double';
 ELSE : 'else';
@@ -283,7 +310,7 @@ SHORT : 'short';
 STATIC : 'static';
 //STRICTFP : 'strictfp';
 //SUPER : 'super';
-//SWITCH : 'switch';
+SWITCH : 'switch';
 //SYNCHRONIZED : 'synchronized';
 //THIS : 'this';
 THROW : 'throw';

@@ -122,4 +122,54 @@ public class Test2 {
     }
   }
 
+  @Test
+  public void switchStmt() {
+    int day = 1;
+    String s = "";
+    for(int i=0;i<10;i++) {
+      switch(day) {
+      default:
+      case 0:
+      case 9: {
+        s = "Monday";
+        break;
+      }
+      case 1: s = "Tuesday";System.out.println("foo");break;
+      case 2: s = "Wednesday"; continue;
+      case 3:
+      case 4:
+      }
+    }
+    System.out.println(s);
+    switch(day) {
+    }
+  }
+
+  @Test
+  public void switchStmt2() {
+    int day = 2;
+    String s;
+    switch(day) {
+    case 0 -> s = "Monday";
+    case 1 -> {s = "Tuesday";System.out.println("foo");}
+    case 2 -> {s = "Wednesday"; break;}
+    default -> throw new RuntimeException("");
+    }
+    System.out.println(s);
+  }
+
+  @Test
+  public void switchExpression() {
+    int day = 1;
+    String s = switch(day) {
+    case 0,9 -> "Monday";
+    case 1 -> {
+      System.out.println("foo");
+      yield "Tuesday";
+    }
+    default -> throw new RuntimeException("");
+    };
+    System.out.println(s);
+  }
+
 }

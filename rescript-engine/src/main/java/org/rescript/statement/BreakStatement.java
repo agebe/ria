@@ -15,7 +15,7 @@ public class BreakStatement extends AbstractStatement {
     if(b != null) {
       b.setBreak();
     } else {
-      throw new ScriptException("break can only be used inside a loop and inside same function");
+      throw new ScriptException("break can only be used inside a loop or switch/case");
     }
   }
 

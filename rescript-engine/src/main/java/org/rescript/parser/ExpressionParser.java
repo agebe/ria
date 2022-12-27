@@ -133,10 +133,6 @@ public class ExpressionParser {
     return type.cast(items.get(index));
   }
 
-  private boolean isSingle() {
-    return items.size() == 1;
-  }
-
   private boolean isDouble() {
     return items.size() == 2;
   }
@@ -146,7 +142,7 @@ public class ExpressionParser {
   }
 
   private boolean isSingleExpression() {
-    return (items.size() == 1) && (items.get(0) instanceof Expression);
+    return (items.size() == 1) && isExpression(0);
   }
 
   private boolean isParens() {
@@ -481,7 +477,11 @@ public class ExpressionParser {
   }
 
   public void parse() {
-    if(isClassLiteral()) {
+    if(isSingleExpression()) {
+      // this expression was already taken care of.
+      // push it back and exit
+      stack.push(exp(0));
+    } else if(isClassLiteral()) {
       stack.push(new ClassLiteral(((TypeOrPrimitive)items.get(0)).getType()));
     } else if(isInstanceOf()) {
       stack.push(new InstanceOfOp(
@@ -494,13 +494,6 @@ public class ExpressionParser {
       stack.push(arrayLiteral());
     } else if(isMapLiteral()) {
       stack.push(mapLiteral());
-    } else if(isSingle()) {
-   // only 1 item on the stack, we just push that back as there is nothing else to do
-      if(isSingleExpression()) {
-        stack.push(getExpression(0));
-      } else {
-        fail("expected single expression but got '%s'".formatted(items));
-      }
     } else if(isDouble()) {
       if(isTerminal(0)) {
         if(isUnaryPlus()) {
