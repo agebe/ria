@@ -1,28 +1,31 @@
 package org.rescript.expression;
 
+import java.util.List;
+
 import org.rescript.run.ScriptContext;
 import org.rescript.statement.BlockStatement;
 import org.rescript.value.Value;
 
-public class SwitchColonCase {
+public class SwitchArrowCase {
 
-  private Expression caseExpression;
+  private List<Expression> caseExpressions;
 
   private BlockStatement block;
 
-  public SwitchColonCase(Expression caseExpression, BlockStatement block) {
+  public SwitchArrowCase(List<Expression> caseExpressions, BlockStatement block) {
     super();
-    this.caseExpression = caseExpression;
+    this.caseExpressions = caseExpressions;
     this.block = block;
   }
 
   public boolean isCase(ScriptContext ctx, Value v) {
-    if(caseExpression == null) {
+    if(caseExpressions == null) {
       // the default case
       return true;
     } else {
-      Value vCase = caseExpression.eval(ctx);
-      return v.equalsOp(vCase);
+      return caseExpressions.stream()
+          .map(e -> e.eval(ctx))
+          .anyMatch(vCase -> v.equalsOp(vCase));
     }
   }
 

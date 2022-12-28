@@ -75,7 +75,9 @@ import org.rescript.antlr.ScriptParser.TypeContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveContext;
 import org.rescript.antlr.ScriptParser.TypeOrPrimitiveOrVarContext;
 import org.rescript.antlr.ScriptParser.VardefStmtContext;
+import org.rescript.antlr.ScriptParser.VoidLiteralContext;
 import org.rescript.antlr.ScriptParser.WhileStmtContext;
+import org.rescript.antlr.ScriptParser.YieldStmtContext;
 import org.rescript.expression.Assignment;
 import org.rescript.expression.AssignmentOp;
 import org.rescript.expression.BoolLiteral;
@@ -93,9 +95,11 @@ import org.rescript.expression.NewArrayOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
 import org.rescript.expression.StringLiteral;
+import org.rescript.expression.SwitchArrowCase;
 import org.rescript.expression.SwitchColonCase;
 import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
+import org.rescript.expression.VoidLiteral;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.CatchBlock;
@@ -120,6 +124,7 @@ import org.rescript.statement.TryStatement;
 import org.rescript.statement.VarDef;
 import org.rescript.statement.VardefStatement;
 import org.rescript.statement.WhileStatement;
+import org.rescript.statement.YieldStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1409,11 +1414,44 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterArrowCase(ArrowCaseContext ctx) {
     log.debug("enterArrowCase '{}'", ctx.getText());
+    stack.push(new BlockStatement((ctx.getStart().getLine())));
+  }
+
+  private BlockStatement arrowCaseBody(int line) {
+    BlockStatement block = findMostRecent(BlockStatement.class);
+    if(nextTerminalIs(";")) {
+      popTerminal(";");
+      Expression exp = popExpression();
+      block.addStatement(new ExpressionStatement(line, exp));
+    }
+    return block;
   }
 
   @Override
   public void exitArrowCase(ArrowCaseContext ctx) {
     log.debug("exitArrowCase '{}'", ctx.getText());
+    BlockStatement block = arrowCaseBody(ctx.getStart().getLine());
+    popTerminal("->");
+    LinkedList<Expression> caseExpressions = new LinkedList<>();
+    if(nextTerminalIs("default")) {
+      caseExpressions = null;
+      popTerminal("default");
+    } else {
+      for(;;) {
+        if(nextTerminalIs("case")) {
+          popTerminal("case");
+          break;
+        } else {
+          caseExpressions.addFirst(popExpression());
+          if(nextTerminalIs(",")) {
+            popTerminal(",");
+          }
+        }
+      }
+    }
+    pop(BlockStatement.class);
+    SwitchExpression s = findMostRecent(SwitchExpression.class);
+    s.addArrowCase(new SwitchArrowCase(caseExpressions, block));
   }
 
   @Override
@@ -1427,6 +1465,32 @@ public class ParserListener implements ScriptListener {
     SwitchExpression s = pop(SwitchExpression.class);
     ExpressionStatement stmt = new ExpressionStatement(ctx.getStart().getLine(), s);
     stack.push(stmt);
+  }
+
+  @Override
+  public void enterYieldStmt(YieldStmtContext ctx) {
+    log.debug("enterYieldStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitYieldStmt(YieldStmtContext ctx) {
+    log.debug("exitYieldStmt '{}'", ctx.getText());
+    popSemi();
+    Expression expr = popExpression();
+    popTerminal("yield");
+    stack.push(new YieldStatement(ctx.getStart().getLine(), expr));
+  }
+
+  @Override
+  public void enterVoidLiteral(VoidLiteralContext ctx) {
+    log.debug("enterVoidLiteral '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitVoidLiteral(VoidLiteralContext ctx) {
+    log.debug("exitVoidLiteral '{}'", ctx.getText());
+    popTerminal("void");
+    stack.push(new VoidLiteral());
   }
 
 }

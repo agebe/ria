@@ -1,8 +1,5 @@
 * enable/disable script features
 * script firewall (which java methods are allowed/denied)
-* switch statement and switch expressions
-  https://docs.oracle.com/javase/tutorial/java/nutsandbolts/switch.html
-  https://docs.oracle.com/en/java/javase/16/language/switch-expressions.html
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
 * script imports should come before auto imports (other than java.lang.*)

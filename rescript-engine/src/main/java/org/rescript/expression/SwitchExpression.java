@@ -8,11 +8,15 @@ import org.rescript.statement.Breakable;
 import org.rescript.value.Value;
 import org.rescript.value.VoidValue;
 
+//https://docs.oracle.com/javase/tutorial/java/nutsandbolts/switch.html
+//https://docs.oracle.com/en/java/javase/16/language/switch-expressions.html
 public class SwitchExpression implements Expression, Breakable {
 
   private Expression switchExpression;
 
   private List<SwitchColonCase> colonCases = new ArrayList<>();
+
+  private List<SwitchArrowCase> arrowCases = new ArrayList<>();
 
   private boolean breakFlag;
 
@@ -28,13 +32,20 @@ public class SwitchExpression implements Expression, Breakable {
     colonCases.add(c);
   }
 
+  public void addArrowCase(SwitchArrowCase c) {
+    arrowCases.add(c);
+  }
+
   @Override
   public Value eval(ScriptContext ctx) {
+    ctx.setLastResult(VoidValue.VOID);
     Value v = switchExpression.eval(ctx);
     try {
       ctx.getCurrentFrame().pushBreakable(this);
       if(!colonCases.isEmpty()) {
         return evalColonCases(ctx, v);
+      } else if(!arrowCases.isEmpty()) {
+        return evalArrowCases(ctx, v);
       } else {
         return VoidValue.VOID;
       }
@@ -53,6 +64,16 @@ public class SwitchExpression implements Expression, Breakable {
         c.execute(ctx);
       }
       if(isBreak()) {
+        break;
+      }
+    }
+    return ctx.getLastResult();
+  }
+
+  private Value evalArrowCases(ScriptContext ctx, Value v) {
+    for(SwitchArrowCase c : arrowCases) {
+      if(c.isCase(ctx, v)) {
+        c.execute(ctx);
         break;
       }
     }

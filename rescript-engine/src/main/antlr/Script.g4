@@ -64,6 +64,7 @@ stmt
   | throwStmt
   | tryStmt
   | switchStmt
+  | yieldStmt
   ;
 
 emptyStmt: SEMI;
@@ -105,6 +106,10 @@ finallyBlock
 
 switchStmt
   : switchExpr
+  ;
+
+yieldStmt
+  : 'yield' expr SEMI
   ;
 
 expr
@@ -227,12 +232,15 @@ literal
   | floatLiteral
   | nullLiteral
   | strLiteral
+  | voidLiteral
   ;
 strLiteral: TextBlock | StringLiteral ;
 boolLiteral: BooleanLiteral ;
 intLiteral: IntegerLiteral ;
 floatLiteral: FloatingPointLiteral ;
 nullLiteral: NullLiteral;
+voidLiteral: VOID;
+
 ident : Identifier;
 
 switchExpr
@@ -250,8 +258,8 @@ colonCase
   ;
 
 arrowCase
-  : CASE expr ( ',' expr )* '->' ( expr | block )
-  | DEFAULT '->' ( expr | block )
+  : CASE expr ( ',' expr )* '->' stmt
+  | DEFAULT '->' stmt
   ;
 
 // from https://stackoverflow.com/a/24559773

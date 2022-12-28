@@ -57,7 +57,8 @@ public class VoidValue implements Value {
 
   @Override
   public boolean equalsOp(Value other) {
-    throw new ScriptException("no equalsOp on void");
+    // there is only 1 void value
+    return this == other;
   }
 
   @Override
