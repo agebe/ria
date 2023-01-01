@@ -13,5 +13,7 @@
 * create java types (classes, interfaces, enums, records) via java compiler
   -> https://stackoverflow.com/a/7989365/20615256
   * those types can not call into script functions (except through lambdas) but the script can use the types
+* add other maven repositories (currently hardcoded to maven central only)
+* launcher, add option to download dependencies only so e.g. docker containers can be built that have all jars already and don't have to download them every time they start
 * apache license on all files
 * add builtin function (e.g. exec) for scripting
