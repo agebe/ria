@@ -65,6 +65,7 @@ stmt
   | tryStmt
   | switchStmt
   | yieldStmt
+  | javaClassDef
   ;
 
 emptyStmt: SEMI;
@@ -110,6 +111,18 @@ switchStmt
 
 yieldStmt
   : 'yield' expr SEMI
+  ;
+
+javaClassDef
+  : PUBLIC? CLASS type genericDef? ( EXTENDS type genericDef? )? ( IMPLEMENTS type genericDef? ( ',' type genericDef? )* )? javaTypeDefBody
+  ;
+
+genericDef
+  : '<' ( ~'>' | genericDef )* '>'
+  ;
+
+javaTypeDefBody
+  : '{' ( ~'}' | javaTypeDefBody )* '}'
   ;
 
 expr
@@ -289,14 +302,14 @@ DOUBLE : 'double';
 ELSE : 'else';
 //ENUM : 'enum';
 //EXPORTS : 'exports';
-//EXTENDS : 'extends';
+EXTENDS : 'extends';
 //FINAL : 'final';
 FINALLY : 'finally';
 FLOAT : 'float';
 FOR : 'for';
 IF : 'if';
 //GOTO : 'goto';
-//IMPLEMENTS : 'implements';
+IMPLEMENTS : 'implements';
 IMPORT : 'import';
 INSTANCEOF : 'instanceof';
 INT : 'int';
@@ -311,7 +324,7 @@ NEW : 'new';
 //PRIVATE : 'private';
 //PROTECTED : 'protected';
 //PROVIDES : 'provides';
-//PUBLIC : 'public';
+PUBLIC : 'public';
 //REQUIRES : 'requires';
 RETURN : 'return';
 SHORT : 'short';

@@ -79,7 +79,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
   }
 
   @Override
-  public Class<?> findClass(String name) throws ClassNotFoundException {
+  protected Class<?> findClass(String name) throws ClassNotFoundException {
 //    System.out.println("findClass: "+name);
     try {
       URL url = findResource(classNameToResourceName(name));

@@ -8,10 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
@@ -47,6 +48,7 @@ import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.FunctionDefinitionContext;
+import org.rescript.antlr.ScriptParser.GenericDefContext;
 import org.rescript.antlr.ScriptParser.HeaderContext;
 import org.rescript.antlr.ScriptParser.HeaderElementContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
@@ -55,6 +57,8 @@ import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
+import org.rescript.antlr.ScriptParser.JavaClassDefContext;
+import org.rescript.antlr.ScriptParser.JavaTypeDefBodyContext;
 import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.MethodRefContext;
@@ -100,6 +104,8 @@ import org.rescript.expression.SwitchColonCase;
 import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
 import org.rescript.expression.VoidLiteral;
+import org.rescript.java.JavaClassSource;
+import org.rescript.java.JavaSource;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.CatchBlock;
@@ -137,6 +143,10 @@ public class ParserListener implements ScriptListener {
  // private List<Dependency> dependencies = new ArrayList<>();
   private List<Expression> dependencies = new ArrayList<>();
 
+  private int javaBody;
+
+  private List<JavaSource> javaTypes = new ArrayList<>();
+
   public ParserListener() {
     // add main function
     Function main = Function.main();
@@ -151,13 +161,18 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void visitTerminal(TerminalNode node) {
-    log.debug("visit terminal '{}'", node.getSymbol().getText());
-    if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
-      throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
-          .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
-    } else {
+    if(javaBody == 0) {
+      log.debug("visit terminal '{}'", node.getSymbol().getText());
       stack.push(new Terminal(node.getSymbol()));
+    } else {
+      log.trace("visit terminal (not recorded) '{}'", node.getSymbol().getText());
     }
+//    if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
+//      throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
+//          .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
+//    } else {
+//      stack.push(new Terminal(node.getSymbol()));
+//    }
   }
 
   @Override
@@ -1491,6 +1506,143 @@ public class ParserListener implements ScriptListener {
     log.debug("exitVoidLiteral '{}'", ctx.getText());
     popTerminal("void");
     stack.push(new VoidLiteral());
+  }
+
+  //  https://stackoverflow.com/a/58719524/20615256
+  private String getFullText(ParserRuleContext context) {
+    if(context.start == null ||
+        context.stop == null ||
+        context.start.getStartIndex() < 0 ||
+        context.stop.getStopIndex() < 0)
+      return context.getText();
+    return context.start.getInputStream().getText(
+        Interval.of(context.start.getStartIndex(), context.stop.getStopIndex()));
+  }
+
+  @Override
+  public void enterJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
+    log.debug("enterJavaTypeDefBody '{}'", ctx.getText());
+    javaBody++;
+  }
+
+  @Override
+  public void exitJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
+    log.debug("exitJavaTypeDefBody '{}'", ctx.getText());
+    javaBody--;
+  }
+
+  @Override
+  public void enterJavaClassDef(JavaClassDefContext ctx) {
+    log.debug("enterJavaClassDef '{}'", ctx.getText());
+  }
+
+  private List<ParseTree> getChildren(ParserRuleContext ctx) {
+    List<ParseTree> children = new ArrayList<>(ctx.getChildCount());
+    for(int i=0;i<ctx.getChildCount();i++) {
+      children.add(ctx.getChild(i));
+    }
+    return children;
+  }
+
+  private boolean hasTerminal(List<ParseTree> l, String terminal) {
+    return l.stream().anyMatch(child -> {
+      if(child instanceof TerminalNode term) {
+        return terminal.equals(term.getSymbol().getText());
+      } else {
+        return false;
+      }
+    });
+  }
+
+  @Override
+  public void exitJavaClassDef(JavaClassDefContext ctx) {
+    log.debug("exitJavaClassDef '{}'", ctx.getText());
+    JavaClassSource source = new JavaClassSource();
+    List<ParseTree> children = getChildren(ctx);
+    log.debug("XXX '{}'", children.size());
+    children.forEach(child -> log.debug("XXX child '{}'", child.getClass().getName()));
+    log.debug("XXX stack size '{}'", stack.size());
+    stack.forEach(pi -> log.debug("XXX stack item '{}'", pi));
+    boolean hasImplements = hasTerminal(children, "implements");
+    log.debug("XXX has implements '{}'", hasImplements);
+    if(hasImplements) {
+      LinkedList<String> implementsTypes = new LinkedList<>();
+      for(;;) {
+        if(nextTerminalIs("implements")) {
+          stack.pop();
+          break;
+        } else if(nextItemIs(GenericTypeDef.class)) {
+          GenericTypeDef generic = pop(GenericTypeDef.class);
+          Type type = pop(Type.class);
+          implementsTypes.addFirst(type.getIdent() + generic.generic());
+        } else if(nextItemIs(Type.class)) {
+          Type type = pop(Type.class);
+          implementsTypes.addFirst(type.getIdent());
+        } else if(nextTerminalIs(",")) {
+          popTerminal(",");
+        }
+      }
+      source.setImplementsTypes(implementsTypes);
+    }
+    boolean hasExtends = hasTerminal(children, "extends");
+    if(hasExtends) {
+      if(nextItemIs(GenericTypeDef.class)) {
+        GenericTypeDef generic = pop(GenericTypeDef.class);
+        Type type = pop(Type.class);
+        source.setExtendsType(type.getIdent() + generic.generic());
+      } else if(nextItemIs(Type.class)) {
+        Type type = pop(Type.class);
+        source.setExtendsType(type.getIdent());
+      } else {
+        throw new ScriptException("expected type or generic type");
+      }
+    }
+    String generic = "";
+    if(nextItemIs(GenericTypeDef.class)) {
+      GenericTypeDef g = pop(GenericTypeDef.class);
+      generic = g.generic();
+    }
+    Type type = pop(Type.class);
+    String className = type.typeWithoutPackage();
+    String packageName = type.packageName();
+    source.setPackageName(packageName);
+    source.setType(className);
+    source.setGeneric(generic);
+    log.debug("java class type '{}'", type);
+    popTerminal("class");
+    String accessModifier = "";
+    if(nextTerminalIs("public")) {
+      popTerminal("public");
+      accessModifier = "public";
+    }
+    source.setAccessModifer(accessModifier);
+    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
+    source.setBody(getFullText(body));
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
+    JavaSource javaSource = source.create();
+    log.debug("{}", javaSource.getCharContent(true));
+    // FIXME because the imports are only known later when the script has started executing the headers
+    // remember the JavaSourceBuilder here and create the JavaSource when the imports can be resolved
+    javaTypes.add(javaSource);
+  }
+
+  public List<JavaSource> getJavaTypes() {
+    return javaTypes;
+  }
+
+  @Override
+  public void enterGenericDef(GenericDefContext ctx) {
+    log.debug("enterGenericDef '{}'", ctx.getText());
+    javaBody++;
+  }
+
+  @Override
+  public void exitGenericDef(GenericDefContext ctx) {
+    log.debug("exitGenericDef '{}'", ctx.getText());
+    javaBody--;
+    if(javaBody == 0) {
+      stack.push(new GenericTypeDef(getFullText(ctx)));
+    }
   }
 
 }
