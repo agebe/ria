@@ -8,8 +8,12 @@ import org.rescript.java.JavaSource;
 import org.rescript.java.JavaSourceBuilder;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.java.JavaSymbols;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HeaderExitStatement extends AbstractStatement {
+
+  private static final Logger log = LoggerFactory.getLogger(HeaderExitStatement.class);
 
   private List<JavaSourceBuilder> javaTypes = new ArrayList<>();
 
@@ -48,8 +52,9 @@ public class HeaderExitStatement extends AbstractStatement {
     if(!javaTypes.isEmpty()) {
       List<JavaSource> l = javaTypes.stream()
           .map(builder -> toJavaSource(builder, ctx))
+          .peek(source -> log.debug("java source {}", source.getCharContent(true)))
           .toList();
-      ClassLoader loader = JavaC.compile(l);
+      ClassLoader loader = JavaC.compile(l, symbols.getClassLoader());
       ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
     }
   }

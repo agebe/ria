@@ -43,6 +43,17 @@ public class JavaTypeDefTest {
 dependencies {
   'com.google.code.gson:gson:2.10'
 }
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+public class ListOfInstantTypeToken extends TypeToken<List<Instant>> {
+}
+
 public class InstantTypeAdapter extends TypeAdapter<Instant> {
 
   @Override
@@ -65,9 +76,12 @@ var json = '''
   '2023-01-01T18:22Z',
 ]
 ''';
-var l = new com.google.gson.Gson().fromJson(json, List.class);
-println(l.get(0));
-}
+
+var builder = new GsonBuilder();
+builder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
+var gson = builder.create();
+var l = gson.fromJson(json, List.class);
+println(typeof l.get(0));
         """);
   }
 

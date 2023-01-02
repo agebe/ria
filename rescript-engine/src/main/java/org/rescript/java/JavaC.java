@@ -1,5 +1,8 @@
 package org.rescript.java;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,10 +15,16 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.cloader.CLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // https://stackoverflow.com/a/7989365/20615256s
 public class JavaC {
+
+  private static final Logger log = LoggerFactory.getLogger(JavaC.class);
 
   private static String diagnosticToString(Diagnostic<? extends JavaFileObject> d) {
     return 
@@ -30,16 +39,30 @@ public class JavaC {
             d.getMessage(null));
   }
 
-  public static ClassLoader compile(List<? extends JavaFileObject> compilationUnits) {
+  public static ClassLoader compile(List<? extends JavaFileObject> compilationUnits, ClassLoader loader) {
+    List<String> options = new ArrayList<>();
+    if(loader instanceof CLoader cloader) {
+      String classpath = System.getProperty("java.class.path");
+      String separator = System.getProperty("path.separator");
+      String depClasspath = cloader.getFiles()
+          .stream()
+          .map(File::getAbsolutePath)
+          .collect(Collectors.joining(separator));
+      classpath += separator + depClasspath;
+      options.add("-classpath");
+      options.add(classpath);
+      log.debug("javac classpath {}", Arrays.stream(StringUtils.split(classpath, separator))
+          .collect(Collectors.joining("\n")));
+    }
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
     StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(diagnostics, null, null);
     FileManager fileManager = new FileManager(stdFileManager);
-    CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
+    CompilationTask task = compiler.getTask(null, fileManager, diagnostics, options, null, compilationUnits);
     boolean success = task.call();
     diagnostics.getDiagnostics().forEach(d -> System.err.println(diagnosticToString(d)));
     if(success) {
-      return new CfClassLoader(fileManager.getFiles(), JavaC.class.getClassLoader());
+      return new CfClassLoader(fileManager.getFiles(), loader);
     } else {
       throw new ScriptException("failed to compile java sources.\n" + diagnostics.getDiagnostics()
       .stream()
@@ -76,7 +99,7 @@ public class JavaC {
               }
             }
                 """));
-    ClassLoader cloader = compile(sources);
+    ClassLoader cloader = compile(sources, JavaC.class.getClassLoader());
     cloader
     .loadClass("HelloWorld")
     .getDeclaredMethod("main", new Class[] { String[].class })

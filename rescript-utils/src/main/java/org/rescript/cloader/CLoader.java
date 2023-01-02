@@ -130,5 +130,9 @@ public class CLoader extends ClassLoader implements AutoCloseable {
         :List.of());
   }
 
+  public List<File> getFiles() {
+    return Collections.unmodifiableList(files);
+  }
+
 }
 

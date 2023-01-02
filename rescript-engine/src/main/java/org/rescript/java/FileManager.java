@@ -37,7 +37,7 @@ public class FileManager extends ForwardingJavaFileManager<JavaFileManager> {
   @Override
   public ClassLoader getClassLoader(Location location) {
     ClassLoader c = super.getClassLoader(location);
-    log.trace("getClassLoader '{}', result '{}'", location, c);
+    log.trace("getClassLoader location '{}', result '{}'", location, c);
     return c;
   }
 
