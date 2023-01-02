@@ -1,5 +1,6 @@
 package org.rescript.java;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,9 @@ public class JavaClassSource implements JavaSourceBuilder {
 
   private List<String> implementsTypes;
 
-  private List<String> imports;
+  private List<String> imports = new ArrayList<>();
+
+  private List<String> staticImports = new ArrayList<>();
 
   private String body;
 
@@ -88,9 +91,13 @@ public class JavaClassSource implements JavaSourceBuilder {
   }
 
   @Override
-  public void addImport(String importType) {
-    // TODO Auto-generated method stub
-    
+  public void addImport(String imp) {
+    imports.add(imp);
+  }
+
+  @Override
+  public void addStaticImport(String staticImport) {
+    staticImports.add(staticImport);
   }
 
   private String fqcn() {
@@ -101,12 +108,16 @@ public class JavaClassSource implements JavaSourceBuilder {
   public JavaSource create() {
     StringBuilder b = new StringBuilder();
     if(StringUtils.isNotBlank(packageName)) {
-      b.append("package " + packageName + ";\n");
+      b.append("package " + packageName + ";\n\n");
     }
-
-    // TODO add imports here
-    b.append("import java.util.function.*;\n");
-
+    if(!staticImports.isEmpty()) {
+      staticImports.forEach(imp -> b.append("import static " + imp +";\n"));
+      b.append("\n");
+    }
+    if(!imports.isEmpty()) {
+      imports.forEach(imp -> b.append("import " + imp +";\n"));
+      b.append("\n");
+    }
     if(StringUtils.isNotBlank(accessModifer)) {
       b.append(accessModifer);
       b.append(" ");

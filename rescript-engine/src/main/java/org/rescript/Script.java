@@ -1,10 +1,6 @@
 package org.rescript;
 
-import java.util.List;
-
 import org.rescript.dependency.DependencyResolver;
-import org.rescript.java.JavaC;
-import org.rescript.java.JavaSource;
 import org.rescript.parser.Parser;
 import org.rescript.parser.ParserListener;
 import org.rescript.run.ScriptRunner;
@@ -196,10 +192,6 @@ public class Script {
       ClassLoader dependencyClassLoader = new DependencyResolver()
           .resolveAll(listener.getDependencies(), scriptClassLoader);
       ClassLoader loader = dependencyClassLoader;
-      List<JavaSource> javaSources = listener.getJavaTypes();
-      if(!javaSources.isEmpty()) {
-        loader = JavaC.compile(javaSources);
-      }
       this.symbols.getJavaSymbols().setClassLoader(loader);
     }
     return this;

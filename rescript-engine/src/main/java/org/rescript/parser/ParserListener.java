@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
+import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
@@ -105,7 +106,6 @@ import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
 import org.rescript.expression.VoidLiteral;
 import org.rescript.java.JavaClassSource;
-import org.rescript.java.JavaSource;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.CatchBlock;
@@ -119,6 +119,7 @@ import org.rescript.statement.ForEachStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.Function;
+import org.rescript.statement.HeaderExitStatement;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ImportStatement;
 import org.rescript.statement.ImportStaticStatement;
@@ -145,7 +146,9 @@ public class ParserListener implements ScriptListener {
 
   private int javaBody;
 
-  private List<JavaSource> javaTypes = new ArrayList<>();
+  private boolean checkKeywords = true;
+
+  private HeaderExitStatement headerExit = new HeaderExitStatement(0);
 
   public ParserListener() {
     // add main function
@@ -163,16 +166,15 @@ public class ParserListener implements ScriptListener {
   public void visitTerminal(TerminalNode node) {
     if(javaBody == 0) {
       log.debug("visit terminal '{}'", node.getSymbol().getText());
-      stack.push(new Terminal(node.getSymbol()));
+      if(checkKeywords && ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
+        throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
+            .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
+      } else {
+        stack.push(new Terminal(node.getSymbol()));
+      }
     } else {
       log.trace("visit terminal (not recorded) '{}'", node.getSymbol().getText());
     }
-//    if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
-//      throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
-//          .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
-//    } else {
-//      stack.push(new Terminal(node.getSymbol()));
-//    }
   }
 
   @Override
@@ -779,6 +781,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitHeader(HeaderContext ctx) {
     log.debug("exitHeader '{}'", ctx.getText());
+    findMostRecentContainerStatement().addStatement(headerExit);
   }
 
   @Override
@@ -1534,6 +1537,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterJavaClassDef(JavaClassDefContext ctx) {
     log.debug("enterJavaClassDef '{}'", ctx.getText());
+    checkKeywords = false;
   }
 
   private List<ParseTree> getChildren(ParserRuleContext ctx) {
@@ -1557,14 +1561,10 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitJavaClassDef(JavaClassDefContext ctx) {
     log.debug("exitJavaClassDef '{}'", ctx.getText());
+    checkKeywords = true;
     JavaClassSource source = new JavaClassSource();
     List<ParseTree> children = getChildren(ctx);
-    log.debug("XXX '{}'", children.size());
-    children.forEach(child -> log.debug("XXX child '{}'", child.getClass().getName()));
-    log.debug("XXX stack size '{}'", stack.size());
-    stack.forEach(pi -> log.debug("XXX stack item '{}'", pi));
     boolean hasImplements = hasTerminal(children, "implements");
-    log.debug("XXX has implements '{}'", hasImplements);
     if(hasImplements) {
       LinkedList<String> implementsTypes = new LinkedList<>();
       for(;;) {
@@ -1596,6 +1596,7 @@ public class ParserListener implements ScriptListener {
       } else {
         throw new ScriptException("expected type or generic type");
       }
+      popTerminal("extends");
     }
     String generic = "";
     if(nextItemIs(GenericTypeDef.class)) {
@@ -1619,15 +1620,8 @@ public class ParserListener implements ScriptListener {
     JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
     source.setBody(getFullText(body));
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    JavaSource javaSource = source.create();
-    log.debug("{}", javaSource.getCharContent(true));
-    // FIXME because the imports are only known later when the script has started executing the headers
-    // remember the JavaSourceBuilder here and create the JavaSource when the imports can be resolved
-    javaTypes.add(javaSource);
-  }
-
-  public List<JavaSource> getJavaTypes() {
-    return javaTypes;
+    // java types are created after the header is processed after imports are known
+    headerExit.addJavaType(source);
   }
 
   @Override
