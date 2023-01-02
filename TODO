@@ -1,3 +1,4 @@
+* add val keyword (var/val same as in kotlin/scala)
 * enable/disable script features
 * script firewall (which java methods are allowed/denied)
 * throw exceptions
