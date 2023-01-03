@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.rescript.ScriptException;
 
-public class JavaClassSource implements JavaSourceBuilder {
+public class JavaTypeSource implements JavaSourceBuilder {
+
+  private JavaType type;
 
   private String packageName;
 
@@ -13,7 +16,7 @@ public class JavaClassSource implements JavaSourceBuilder {
 
   private boolean abstractClass;
 
-  private String type;
+  private String typeName;
 
   private String remain;
 
@@ -22,6 +25,14 @@ public class JavaClassSource implements JavaSourceBuilder {
   private List<String> staticImports = new ArrayList<>();
 
   private String body;
+
+  public JavaType getType() {
+    return type;
+  }
+
+  public void setType(JavaType type) {
+    this.type = type;
+  }
 
   public String getPackageName() {
     return packageName;
@@ -39,12 +50,12 @@ public class JavaClassSource implements JavaSourceBuilder {
     this.accessModifer = accessModifer;
   }
 
-  public String getType() {
-    return type;
+  public String getTypeName() {
+    return typeName;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setTypeName(String typeName) {
+    this.typeName = typeName;
   }
 
   public String getRemain() {
@@ -74,7 +85,7 @@ public class JavaClassSource implements JavaSourceBuilder {
   }
 
   private String fqcn() {
-    return StringUtils.isBlank(packageName)?type:packageName+"."+type;
+    return StringUtils.isBlank(packageName)?typeName:packageName+"."+typeName;
   }
 
   public boolean isAbstractClass() {
@@ -87,6 +98,9 @@ public class JavaClassSource implements JavaSourceBuilder {
 
   @Override
   public JavaSource create() {
+    if(type == null) {
+      throw new ScriptException("type has not been set");
+    }
     StringBuilder b = new StringBuilder();
     if(StringUtils.isNotBlank(packageName)) {
       b.append("package " + packageName + ";\n\n");
@@ -106,8 +120,9 @@ public class JavaClassSource implements JavaSourceBuilder {
     if(isAbstractClass()) {
       b.append("abstract ");
     }
-    b.append("class ");
-    b.append(type);
+    b.append(type.code());
+    b.append(" ");
+    b.append(typeName);
     b.append(" ");
     if(StringUtils.isNotBlank(remain)) {
       b.append(remain);

@@ -1,6 +1,7 @@
 package org.rescript;
 
-import org.junit.jupiter.api.Disabled;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
 public class JavaTypeDefTest {
@@ -163,9 +164,8 @@ println(l.get(0));
   }
 
   @Test
-  @Disabled // TODO add support for interface types
-  public void implementsTest3() {
-    new Script().run("""
+  public void interface1() {
+    assertEquals("foobar", new Script().run("""
         public interface I1 {
           String foo();
         }
@@ -184,7 +184,33 @@ println(l.get(0));
         }
         var b = new B();
         println(b.foo() + b.bar());
-        """);
+        return b.foo() + b.bar();
+        """));
+  }
+
+  @Test
+  public void interface2() {
+    assertEquals("foobar", new Script().run("""
+        public interface I1 {
+          String foo();
+        }
+        public interface I2 extends I1 {
+          String bar();
+        }
+        public class B implements I2 {
+          @Override
+          public String foo() {
+            return "foo";
+          }
+          @Override
+          public String bar() {
+            return "bar";
+          }
+        }
+        var b = new B();
+        println(b.foo() + b.bar());
+        return b.foo() + b.bar();
+        """));
   }
 
   @Test

@@ -57,7 +57,9 @@ import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.JavaClassDefContext;
+import org.rescript.antlr.ScriptParser.JavaInterfaceDefContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefBodyContext;
+import org.rescript.antlr.ScriptParser.JavaTypeDefContext;
 import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
 import org.rescript.antlr.ScriptParser.MethodRefContext;
@@ -104,7 +106,8 @@ import org.rescript.expression.SwitchColonCase;
 import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
 import org.rescript.expression.VoidLiteral;
-import org.rescript.java.JavaClassSource;
+import org.rescript.java.JavaType;
+import org.rescript.java.JavaTypeSource;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
 import org.rescript.statement.CatchBlock;
@@ -1525,28 +1528,27 @@ public class ParserListener implements ScriptListener {
   }
 
   @Override
-  public void enterJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
-    log.debug("enterJavaTypeDefBody '{}'", ctx.getText());
-    javaBody++;
+  public void enterJavaTypeDef(JavaTypeDefContext ctx) {
+    log.debug("enterJavaTypeDef '{}'", ctx.getText());
+    checkKeywords = false;
   }
 
   @Override
-  public void exitJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
-    log.debug("exitJavaTypeDefBody '{}'", ctx.getText());
-    javaBody--;
+  public void exitJavaTypeDef(JavaTypeDefContext ctx) {
+    log.debug("exitJavaTypeDef '{}'", ctx.getText());
+    checkKeywords = true;
   }
 
   @Override
   public void enterJavaClassDef(JavaClassDefContext ctx) {
     log.debug("enterJavaClassDef '{}'", ctx.getText());
-    checkKeywords = false;
   }
 
   @Override
   public void exitJavaClassDef(JavaClassDefContext ctx) {
     log.debug("exitJavaClassDef '{}'", ctx.getText());
-    checkKeywords = true;
-    JavaClassSource source = new JavaClassSource();
+    JavaTypeSource source = new JavaTypeSource();
+    source.setType(JavaType.CLASS);
     if(nextItemIs(RemainingTypeDef.class)) {
       source.setRemain(pop(RemainingTypeDef.class).remain());
     }
@@ -1554,7 +1556,7 @@ public class ParserListener implements ScriptListener {
     String className = type.typeWithoutPackage();
     String packageName = type.packageName();
     source.setPackageName(packageName);
-    source.setType(className);
+    source.setTypeName(className);
     log.debug("java class type '{}'", type);
     popTerminal("class");
     final String ABSTRACT = "abstract";
@@ -1562,6 +1564,37 @@ public class ParserListener implements ScriptListener {
       popTerminal(ABSTRACT);
       source.setAbstractClass(true);
     }
+    final String PUBLIC = "public";
+    if(nextTerminalIs(PUBLIC)) {
+      popTerminal(PUBLIC);
+      source.setAccessModifer(PUBLIC);
+    }
+    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
+    source.setBody(getFullText(body));
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
+    // java types are created after the header is processed after imports are known
+    headerExit.addJavaType(source);
+  }
+
+  @Override
+  public void enterJavaInterfaceDef(JavaInterfaceDefContext ctx) {
+    log.debug("enterJavaInterfaceDef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitJavaInterfaceDef(JavaInterfaceDefContext ctx) {
+    log.debug("exitJavaInterfaceDef '{}'", ctx.getText());
+    JavaTypeSource source = new JavaTypeSource();
+    source.setType(JavaType.INTERFACE);
+    if(nextItemIs(RemainingTypeDef.class)) {
+      source.setRemain(pop(RemainingTypeDef.class).remain());
+    }
+    Type type = pop(Type.class);
+    String className = type.typeWithoutPackage();
+    String packageName = type.packageName();
+    source.setPackageName(packageName);
+    source.setTypeName(className);
+    popTerminal("interface");
     final String PUBLIC = "public";
     if(nextTerminalIs(PUBLIC)) {
       popTerminal(PUBLIC);
@@ -1585,6 +1618,18 @@ public class ParserListener implements ScriptListener {
     log.debug("exitRemainingTypeDef '{}'", ctx.getText());
     javaBody--;
     stack.push(new RemainingTypeDef(getFullText(ctx)));
+  }
+
+  @Override
+  public void enterJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
+    log.debug("enterJavaTypeDefBody '{}'", ctx.getText());
+    javaBody++;
+  }
+
+  @Override
+  public void exitJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
+    log.debug("exitJavaTypeDefBody '{}'", ctx.getText());
+    javaBody--;
   }
 
 }

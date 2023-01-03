@@ -65,7 +65,7 @@ stmt
   | tryStmt
   | switchStmt
   | yieldStmt
-  | javaClassDef
+  | javaTypeDef
   ;
 
 emptyStmt: SEMI;
@@ -113,8 +113,17 @@ yieldStmt
   : 'yield' expr SEMI
   ;
 
+javaTypeDef
+  : javaClassDef
+  | javaInterfaceDef
+  ;
+
 javaClassDef
   : PUBLIC? ABSTRACT? CLASS type remainingTypeDef? javaTypeDefBody
+  ;
+
+javaInterfaceDef
+  : PUBLIC? INTERFACE type remainingTypeDef? javaTypeDefBody
   ;
 
 remainingTypeDef
@@ -313,7 +322,7 @@ IMPLEMENTS : 'implements';
 IMPORT : 'import';
 INSTANCEOF : 'instanceof';
 INT : 'int';
-//INTERFACE : 'interface';
+INTERFACE : 'interface';
 LONG : 'long';
 //MODULE : 'module';
 //NATIVE : 'native';
