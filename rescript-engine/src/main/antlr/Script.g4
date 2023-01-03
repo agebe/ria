@@ -113,17 +113,24 @@ yieldStmt
   : 'yield' expr SEMI
   ;
 
+// --------------------------------------------------------------------------------------------------------------------
+// java types start ---------------------------------------------------------------------------------------------------
+
 javaTypeDef
   : javaClassDef
   | javaInterfaceDef
   ;
 
 javaClassDef
-  : PUBLIC? ABSTRACT? CLASS type remainingTypeDef? javaTypeDefBody
+  : annotation* PUBLIC? ABSTRACT? CLASS type remainingTypeDef? javaTypeDefBody
   ;
 
 javaInterfaceDef
-  : PUBLIC? INTERFACE type remainingTypeDef? javaTypeDefBody
+  : annotation* PUBLIC? INTERFACE type remainingTypeDef? javaTypeDefBody
+  ;
+
+annotation
+  : '@' type ( '(' .* ')' )?
   ;
 
 remainingTypeDef
@@ -133,6 +140,9 @@ remainingTypeDef
 javaTypeDefBody
   : '{' ( ~'}' | javaTypeDefBody )* '}'
   ;
+
+// java types end -----------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 expr
 // do operators first, order by precedence

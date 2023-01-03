@@ -214,8 +214,20 @@ println(l.get(0));
   }
 
   @Test
+  public void interface3() {
+    new Script().run("""
+        @SuppressWarnings(value = {"unchecked", "foo"})
+        @FunctionalInterface
+        public interface I1 {
+          String create();
+        }
+        """);
+  }
+
+  @Test
   public void extendsAndImplementsTest() {
     new Script().run("""
+        @SuppressWarnings(value = {"unchecked", "foo"})
         public class A {
         }
         

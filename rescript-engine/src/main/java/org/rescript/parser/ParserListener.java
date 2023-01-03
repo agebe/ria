@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
+import org.rescript.antlr.ScriptParser.AnnotationContext;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
 import org.rescript.antlr.ScriptParser.ArrowCaseContext;
 import org.rescript.antlr.ScriptParser.AssignContext;
@@ -1539,6 +1540,18 @@ public class ParserListener implements ScriptListener {
     checkKeywords = true;
   }
 
+  private List<Annotation> popAnnotations() {
+    LinkedList<Annotation> l = new LinkedList<>();
+    for(;;) {
+      if(nextItemIs(Annotation.class)) {
+        l.addFirst(pop(Annotation.class));
+      } else {
+        break;
+      }
+    }
+    return l;
+  }
+
   @Override
   public void enterJavaClassDef(JavaClassDefContext ctx) {
     log.debug("enterJavaClassDef '{}'", ctx.getText());
@@ -1569,6 +1582,7 @@ public class ParserListener implements ScriptListener {
       popTerminal(PUBLIC);
       source.setAccessModifer(PUBLIC);
     }
+    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
     JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
     source.setBody(getFullText(body));
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
@@ -1600,6 +1614,7 @@ public class ParserListener implements ScriptListener {
       popTerminal(PUBLIC);
       source.setAccessModifer(PUBLIC);
     }
+    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
     JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
     source.setBody(getFullText(body));
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
@@ -1630,6 +1645,20 @@ public class ParserListener implements ScriptListener {
   public void exitJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
     log.debug("exitJavaTypeDefBody '{}'", ctx.getText());
     javaBody--;
+  }
+
+  @Override
+  public void enterAnnotation(AnnotationContext ctx) {
+    log.debug("enterAnnotation '{}'", ctx.getText());
+    javaBody++;
+  }
+
+  @Override
+  public void exitAnnotation(AnnotationContext ctx) {
+    log.debug("exitAnnotation '{}'", ctx.getText());
+    javaBody--;
+    pop(Type.class);
+    stack.push(new Annotation(getFullText(ctx)));
   }
 
 }

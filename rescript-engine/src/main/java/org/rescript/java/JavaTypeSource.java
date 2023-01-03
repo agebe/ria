@@ -24,6 +24,8 @@ public class JavaTypeSource implements JavaSourceBuilder {
 
   private List<String> staticImports = new ArrayList<>();
 
+  private List<String> annotations = new ArrayList<>();
+
   private String body;
 
   public JavaType getType() {
@@ -96,6 +98,10 @@ public class JavaTypeSource implements JavaSourceBuilder {
     this.abstractClass = abstractClass;
   }
 
+  public void addAnnotation(String annotation) {
+    this.annotations.add(annotation);
+  }
+
   @Override
   public JavaSource create() {
     if(type == null) {
@@ -113,6 +119,7 @@ public class JavaTypeSource implements JavaSourceBuilder {
       imports.forEach(imp -> b.append("import " + imp +";\n"));
       b.append("\n");
     }
+    annotations.forEach(a -> b.append(a + "\n"));
     if(StringUtils.isNotBlank(accessModifer)) {
       b.append(accessModifer);
       b.append(" ");
