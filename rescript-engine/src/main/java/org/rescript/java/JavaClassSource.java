@@ -2,7 +2,6 @@ package org.rescript.java;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,13 +11,11 @@ public class JavaClassSource implements JavaSourceBuilder {
 
   private String accessModifer;
 
+  private boolean abstractClass;
+
   private String type;
 
-  private String generic;
-
-  private String extendsType;
-
-  private List<String> implementsTypes;
+  private String remain;
 
   private List<String> imports = new ArrayList<>();
 
@@ -50,36 +47,12 @@ public class JavaClassSource implements JavaSourceBuilder {
     this.type = type;
   }
 
-  public String getGeneric() {
-    return generic;
+  public String getRemain() {
+    return remain;
   }
 
-  public void setGeneric(String generic) {
-    this.generic = generic;
-  }
-
-  public String getExtendsType() {
-    return extendsType;
-  }
-
-  public void setExtendsType(String extendsType) {
-    this.extendsType = extendsType;
-  }
-
-  public List<String> getImplementsTypes() {
-    return implementsTypes;
-  }
-
-  public void setImplementsTypes(List<String> implementsTypes) {
-    this.implementsTypes = implementsTypes;
-  }
-
-  public List<String> getImports() {
-    return imports;
-  }
-
-  public void setImports(List<String> imports) {
-    this.imports = imports;
+  public void setRemain(String remain) {
+    this.remain = remain;
   }
 
   public String getBody() {
@@ -104,6 +77,14 @@ public class JavaClassSource implements JavaSourceBuilder {
     return StringUtils.isBlank(packageName)?type:packageName+"."+type;
   }
 
+  public boolean isAbstractClass() {
+    return abstractClass;
+  }
+
+  public void setAbstractClass(boolean abstractClass) {
+    this.abstractClass = abstractClass;
+  }
+
   @Override
   public JavaSource create() {
     StringBuilder b = new StringBuilder();
@@ -122,21 +103,14 @@ public class JavaClassSource implements JavaSourceBuilder {
       b.append(accessModifer);
       b.append(" ");
     }
+    if(isAbstractClass()) {
+      b.append("abstract ");
+    }
     b.append("class ");
     b.append(type);
     b.append(" ");
-    if(StringUtils.isNotBlank(generic)) {
-      b.append(generic);
-      b.append(" ");
-    }
-    if(StringUtils.isNotBlank(extendsType)) {
-      b.append("extends ");
-      b.append(extendsType);
-      b.append(" ");
-    }
-    if(implementsTypes != null && !implementsTypes.isEmpty()) {
-      b.append("implements ");
-      b.append(implementsTypes.stream().collect(Collectors.joining(", ")));
+    if(StringUtils.isNotBlank(remain)) {
+      b.append(remain);
       b.append(" ");
     }
     b.append(body);

@@ -114,11 +114,11 @@ yieldStmt
   ;
 
 javaClassDef
-  : PUBLIC? CLASS type genericDef? ( EXTENDS type genericDef? )? ( IMPLEMENTS type genericDef? ( ',' type genericDef? )* )? javaTypeDefBody
+  : PUBLIC? ABSTRACT? CLASS type remainingTypeDef? javaTypeDefBody
   ;
 
-genericDef
-  : '<' ( ~'>' | genericDef )* '>'
+remainingTypeDef
+  : ( ~'{' )*
   ;
 
 javaTypeDefBody
@@ -285,7 +285,7 @@ arrowCase
 
 // §3.9 Keywords
 
-//ABSTRACT : 'abstract';
+ABSTRACT : 'abstract';
 //ASSERT : 'assert';
 BOOLEAN : 'boolean';
 BREAK : 'break';

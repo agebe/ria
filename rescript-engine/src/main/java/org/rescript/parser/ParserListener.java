@@ -10,7 +10,6 @@ import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ReservedKeywordException;
@@ -49,7 +48,6 @@ import org.rescript.antlr.ScriptParser.ForTermContext;
 import org.rescript.antlr.ScriptParser.FparamContext;
 import org.rescript.antlr.ScriptParser.FparamsContext;
 import org.rescript.antlr.ScriptParser.FunctionDefinitionContext;
-import org.rescript.antlr.ScriptParser.GenericDefContext;
 import org.rescript.antlr.ScriptParser.HeaderContext;
 import org.rescript.antlr.ScriptParser.HeaderElementContext;
 import org.rescript.antlr.ScriptParser.IdentContext;
@@ -67,6 +65,7 @@ import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
 import org.rescript.antlr.ScriptParser.NewArrayContext;
 import org.rescript.antlr.ScriptParser.NewArrayInitContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
+import org.rescript.antlr.ScriptParser.RemainingTypeDefContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
@@ -1513,6 +1512,9 @@ public class ParserListener implements ScriptListener {
 
   //  https://stackoverflow.com/a/58719524/20615256
   private String getFullText(ParserRuleContext context) {
+    if(StringUtils.isBlank(context.getText())) {
+      return "";
+    }
     if(context.start == null ||
         context.stop == null ||
         context.start.getStartIndex() < 0 ||
@@ -1540,83 +1542,31 @@ public class ParserListener implements ScriptListener {
     checkKeywords = false;
   }
 
-  private List<ParseTree> getChildren(ParserRuleContext ctx) {
-    List<ParseTree> children = new ArrayList<>(ctx.getChildCount());
-    for(int i=0;i<ctx.getChildCount();i++) {
-      children.add(ctx.getChild(i));
-    }
-    return children;
-  }
-
-  private boolean hasTerminal(List<ParseTree> l, String terminal) {
-    return l.stream().anyMatch(child -> {
-      if(child instanceof TerminalNode term) {
-        return terminal.equals(term.getSymbol().getText());
-      } else {
-        return false;
-      }
-    });
-  }
-
   @Override
   public void exitJavaClassDef(JavaClassDefContext ctx) {
     log.debug("exitJavaClassDef '{}'", ctx.getText());
     checkKeywords = true;
     JavaClassSource source = new JavaClassSource();
-    List<ParseTree> children = getChildren(ctx);
-    boolean hasImplements = hasTerminal(children, "implements");
-    if(hasImplements) {
-      LinkedList<String> implementsTypes = new LinkedList<>();
-      for(;;) {
-        if(nextTerminalIs("implements")) {
-          stack.pop();
-          break;
-        } else if(nextItemIs(GenericTypeDef.class)) {
-          GenericTypeDef generic = pop(GenericTypeDef.class);
-          Type type = pop(Type.class);
-          implementsTypes.addFirst(type.getIdent() + generic.generic());
-        } else if(nextItemIs(Type.class)) {
-          Type type = pop(Type.class);
-          implementsTypes.addFirst(type.getIdent());
-        } else if(nextTerminalIs(",")) {
-          popTerminal(",");
-        }
-      }
-      source.setImplementsTypes(implementsTypes);
-    }
-    boolean hasExtends = hasTerminal(children, "extends");
-    if(hasExtends) {
-      if(nextItemIs(GenericTypeDef.class)) {
-        GenericTypeDef generic = pop(GenericTypeDef.class);
-        Type type = pop(Type.class);
-        source.setExtendsType(type.getIdent() + generic.generic());
-      } else if(nextItemIs(Type.class)) {
-        Type type = pop(Type.class);
-        source.setExtendsType(type.getIdent());
-      } else {
-        throw new ScriptException("expected type or generic type");
-      }
-      popTerminal("extends");
-    }
-    String generic = "";
-    if(nextItemIs(GenericTypeDef.class)) {
-      GenericTypeDef g = pop(GenericTypeDef.class);
-      generic = g.generic();
+    if(nextItemIs(RemainingTypeDef.class)) {
+      source.setRemain(pop(RemainingTypeDef.class).remain());
     }
     Type type = pop(Type.class);
     String className = type.typeWithoutPackage();
     String packageName = type.packageName();
     source.setPackageName(packageName);
     source.setType(className);
-    source.setGeneric(generic);
     log.debug("java class type '{}'", type);
     popTerminal("class");
-    String accessModifier = "";
-    if(nextTerminalIs("public")) {
-      popTerminal("public");
-      accessModifier = "public";
+    final String ABSTRACT = "abstract";
+    if(nextTerminalIs(ABSTRACT)) {
+      popTerminal(ABSTRACT);
+      source.setAbstractClass(true);
     }
-    source.setAccessModifer(accessModifier);
+    final String PUBLIC = "public";
+    if(nextTerminalIs(PUBLIC)) {
+      popTerminal(PUBLIC);
+      source.setAccessModifer(PUBLIC);
+    }
     JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
     source.setBody(getFullText(body));
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
@@ -1625,18 +1575,16 @@ public class ParserListener implements ScriptListener {
   }
 
   @Override
-  public void enterGenericDef(GenericDefContext ctx) {
-    log.debug("enterGenericDef '{}'", ctx.getText());
+  public void enterRemainingTypeDef(RemainingTypeDefContext ctx) {
+    log.debug("enterRemainingTypeDef '{}'", ctx.getText());
     javaBody++;
   }
 
   @Override
-  public void exitGenericDef(GenericDefContext ctx) {
-    log.debug("exitGenericDef '{}'", ctx.getText());
+  public void exitRemainingTypeDef(RemainingTypeDefContext ctx) {
+    log.debug("exitRemainingTypeDef '{}'", ctx.getText());
     javaBody--;
-    if(javaBody == 0) {
-      stack.push(new GenericTypeDef(getFullText(ctx)));
-    }
+    stack.push(new RemainingTypeDef(getFullText(ctx)));
   }
 
 }

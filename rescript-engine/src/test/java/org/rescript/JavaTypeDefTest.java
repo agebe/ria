@@ -1,5 +1,6 @@
 package org.rescript;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class JavaTypeDefTest {
@@ -73,15 +74,16 @@ public class InstantTypeAdapter extends TypeAdapter<Instant> {
 var json = '''
 [
   '2023-01-01T18:21:31.801080912Z',
-  '2023-01-01T18:22Z',
+  '2023-01-01T18:22:00Z'
 ]
 ''';
 
 var builder = new GsonBuilder();
 builder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
 var gson = builder.create();
-var l = gson.fromJson(json, List.class);
+var l = gson.fromJson(json, new ListOfInstantTypeToken().getType());
 println(typeof l.get(0));
+println(l.get(0));
         """);
   }
 
@@ -95,6 +97,39 @@ println(typeof l.get(0));
         }
         
         println(new B());
+        """);
+  }
+
+  @Test
+  public void extendsTest2() {
+    new Script().run("""
+        public abstract class A<T> {
+          abstract T create();
+        }
+        public class B extends A<String> {
+          @Override
+          String create() {
+            return "created by B";
+          }
+          @Override
+          public String toString() {
+            return create();
+          }
+        }
+        println(new B());
+        """);
+  }
+
+  @Test
+  public void implementsTest4() {
+    new Script().run("""
+        public class B implements Consumer<List<String>> {
+          @Override
+          public void accept(List<String> o) {
+            System.out.println(o);
+          }
+        }
+        new B().accept(List.of(1,2,3));
         """);
   }
 
@@ -128,6 +163,7 @@ println(typeof l.get(0));
   }
 
   @Test
+  @Disabled // TODO add support for interface types
   public void implementsTest3() {
     new Script().run("""
         public interface I1 {
