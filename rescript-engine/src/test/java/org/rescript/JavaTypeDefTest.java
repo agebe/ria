@@ -261,4 +261,14 @@ println(l.get(0));
         """);
   }
 
+  @Test
+  public void recordTest() {
+    new Script().run("""
+        @SuppressWarnings(value = {"unchecked", "foo"})
+        public record RecordTest(String s1, int i2) {
+        }
+        println(new RecordTest("record-test", 42));
+        """);
+  }
+
 }

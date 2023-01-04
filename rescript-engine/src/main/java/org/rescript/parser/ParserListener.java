@@ -60,6 +60,7 @@ import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.JavaClassDefContext;
 import org.rescript.antlr.ScriptParser.JavaEnumDefContext;
 import org.rescript.antlr.ScriptParser.JavaInterfaceDefContext;
+import org.rescript.antlr.ScriptParser.JavaRecordDefContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefBodyContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefContext;
 import org.rescript.antlr.ScriptParser.LambdaContext;
@@ -1681,6 +1682,38 @@ public class ParserListener implements ScriptListener {
     source.setPackageName(packageName);
     source.setTypeName(className);
     popTerminal("enum");
+    final String PUBLIC = "public";
+    if(nextTerminalIs(PUBLIC)) {
+      popTerminal(PUBLIC);
+      source.setAccessModifer(PUBLIC);
+    }
+    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
+    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
+    source.setBody(getFullText(body));
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
+    // java types are created after the header is processed after imports are known
+    headerExit.addJavaType(source);
+  }
+
+  @Override
+  public void enterJavaRecordDef(JavaRecordDefContext ctx) {
+    log.debug("enterJavaRecordDef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitJavaRecordDef(JavaRecordDefContext ctx) {
+    log.debug("exitJavaRecordDef '{}'", ctx.getText());
+    JavaTypeSource source = new JavaTypeSource();
+    source.setType(JavaType.RECORD);
+    if(nextItemIs(RemainingTypeDef.class)) {
+      source.setRemain(pop(RemainingTypeDef.class).remain());
+    }
+    Type type = pop(Type.class);
+    String className = type.typeWithoutPackage();
+    String packageName = type.packageName();
+    source.setPackageName(packageName);
+    source.setTypeName(className);
+    popTerminal("record");
     final String PUBLIC = "public";
     if(nextTerminalIs(PUBLIC)) {
       popTerminal(PUBLIC);

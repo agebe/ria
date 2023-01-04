@@ -120,6 +120,7 @@ javaTypeDef
   : javaClassDef
   | javaInterfaceDef
   | javaEnumDef
+  | javaRecordDef
   ;
 
 javaClassDef
@@ -132,6 +133,10 @@ javaInterfaceDef
 
 javaEnumDef
   : annotation* PUBLIC? ENUM type remainingTypeDef? javaTypeDefBody
+  ;
+
+javaRecordDef
+  : annotation* PUBLIC? RECORD type remainingTypeDef? javaTypeDefBody
   ;
 
 annotation
@@ -349,6 +354,7 @@ NEW : 'new';
 //PROTECTED : 'protected';
 //PROVIDES : 'provides';
 PUBLIC : 'public';
+RECORD : 'record';
 //REQUIRES : 'requires';
 RETURN : 'return';
 SHORT : 'short';
