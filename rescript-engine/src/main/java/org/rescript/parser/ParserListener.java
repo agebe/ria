@@ -58,6 +58,7 @@ import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
 import org.rescript.antlr.ScriptParser.JavaClassDefContext;
+import org.rescript.antlr.ScriptParser.JavaEnumDefContext;
 import org.rescript.antlr.ScriptParser.JavaInterfaceDefContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefBodyContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefContext;
@@ -1659,6 +1660,38 @@ public class ParserListener implements ScriptListener {
     javaBody--;
     pop(Type.class);
     stack.push(new Annotation(getFullText(ctx)));
+  }
+
+  @Override
+  public void enterJavaEnumDef(JavaEnumDefContext ctx) {
+    log.debug("enterJavaEnumDef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitJavaEnumDef(JavaEnumDefContext ctx) {
+    log.debug("exitJavaEnumDef '{}'", ctx.getText());
+    JavaTypeSource source = new JavaTypeSource();
+    source.setType(JavaType.ENUM);
+    if(nextItemIs(RemainingTypeDef.class)) {
+      source.setRemain(pop(RemainingTypeDef.class).remain());
+    }
+    Type type = pop(Type.class);
+    String className = type.typeWithoutPackage();
+    String packageName = type.packageName();
+    source.setPackageName(packageName);
+    source.setTypeName(className);
+    popTerminal("enum");
+    final String PUBLIC = "public";
+    if(nextTerminalIs(PUBLIC)) {
+      popTerminal(PUBLIC);
+      source.setAccessModifer(PUBLIC);
+    }
+    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
+    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
+    source.setBody(getFullText(body));
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
+    // java types are created after the header is processed after imports are known
+    headerExit.addJavaType(source);
   }
 
 }

@@ -228,13 +228,36 @@ println(l.get(0));
   public void extendsAndImplementsTest() {
     new Script().run("""
         @SuppressWarnings(value = {"unchecked", "foo"})
-        public class A {
+        public abstract class A<T> {
+          public abstract T create();
         }
-        
-        public class B extends A {
+        public class B extends A<Map<List<String>, String>> implements Consumer<String> {
+          @Override
+          public Map<List<String>, String> create() {
+            return null;
+          }
+          @Override
+          public void accept(String s) {
+          }
         }
-        
         println(new B());
+        """);
+  }
+
+  @Test
+  public void enumTest() {
+    new Script().run("""
+        @SuppressWarnings(value = {"unchecked", "foo"})
+        public enum E1 {
+          A,
+          B,
+          C,
+          ;
+        }
+        public class B {
+          private E1 e = E1.C;
+        }
+        println(E1.A);
         """);
   }
 

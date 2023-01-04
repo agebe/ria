@@ -119,6 +119,7 @@ yieldStmt
 javaTypeDef
   : javaClassDef
   | javaInterfaceDef
+  | javaEnumDef
   ;
 
 javaClassDef
@@ -127,6 +128,10 @@ javaClassDef
 
 javaInterfaceDef
   : annotation* PUBLIC? INTERFACE type remainingTypeDef? javaTypeDefBody
+  ;
+
+javaEnumDef
+  : annotation* PUBLIC? ENUM type remainingTypeDef? javaTypeDefBody
   ;
 
 annotation
@@ -319,7 +324,7 @@ DEFAULT : 'default';
 DO : 'do';
 DOUBLE : 'double';
 ELSE : 'else';
-//ENUM : 'enum';
+ENUM : 'enum';
 //EXPORTS : 'exports';
 EXTENDS : 'extends';
 //FINAL : 'final';
