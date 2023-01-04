@@ -57,6 +57,7 @@ import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
+import org.rescript.antlr.ScriptParser.JavaAnnotationDefContext;
 import org.rescript.antlr.ScriptParser.JavaClassDefContext;
 import org.rescript.antlr.ScriptParser.JavaEnumDefContext;
 import org.rescript.antlr.ScriptParser.JavaInterfaceDefContext;
@@ -1714,6 +1715,39 @@ public class ParserListener implements ScriptListener {
     source.setPackageName(packageName);
     source.setTypeName(className);
     popTerminal("record");
+    final String PUBLIC = "public";
+    if(nextTerminalIs(PUBLIC)) {
+      popTerminal(PUBLIC);
+      source.setAccessModifer(PUBLIC);
+    }
+    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
+    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
+    source.setBody(getFullText(body));
+    stack.push(new EmptyStatement(ctx.getStart().getLine()));
+    // java types are created after the header is processed after imports are known
+    headerExit.addJavaType(source);
+  }
+
+  @Override
+  public void enterJavaAnnotationDef(JavaAnnotationDefContext ctx) {
+    log.debug("enterJavaAnnotationDef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitJavaAnnotationDef(JavaAnnotationDefContext ctx) {
+    log.debug("exitJavaAnnotationDef '{}'", ctx.getText());
+    JavaTypeSource source = new JavaTypeSource();
+    source.setType(JavaType.ANNOTATION);
+    if(nextItemIs(RemainingTypeDef.class)) {
+      source.setRemain(pop(RemainingTypeDef.class).remain());
+    }
+    Type type = pop(Type.class);
+    String className = type.typeWithoutPackage();
+    String packageName = type.packageName();
+    source.setPackageName(packageName);
+    source.setTypeName(className);
+    popTerminal("interface");
+    popTerminal("@");
     final String PUBLIC = "public";
     if(nextTerminalIs(PUBLIC)) {
       popTerminal(PUBLIC);

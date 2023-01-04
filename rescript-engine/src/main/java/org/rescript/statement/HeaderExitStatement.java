@@ -52,7 +52,7 @@ public class HeaderExitStatement extends AbstractStatement {
     if(!javaTypes.isEmpty()) {
       List<JavaSource> l = javaTypes.stream()
           .map(builder -> toJavaSource(builder, ctx))
-          .peek(source -> log.debug("java source:\n{}", source.getCharContent(true)))
+          .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
           .toList();
       ClassLoader loader = JavaC.compile(l, symbols.getClassLoader());
       ctx.getSymbols().getJavaSymbols().setClassLoader(loader);

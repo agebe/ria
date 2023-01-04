@@ -117,7 +117,8 @@ yieldStmt
 // java types start ---------------------------------------------------------------------------------------------------
 
 javaTypeDef
-  : javaClassDef
+  : javaAnnotationDef
+  | javaClassDef
   | javaInterfaceDef
   | javaEnumDef
   | javaRecordDef
@@ -137,6 +138,10 @@ javaEnumDef
 
 javaRecordDef
   : annotation* PUBLIC? RECORD type remainingTypeDef? javaTypeDefBody
+  ;
+
+javaAnnotationDef
+  : annotation* PUBLIC? '@' INTERFACE type remainingTypeDef? javaTypeDefBody
   ;
 
 annotation

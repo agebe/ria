@@ -271,4 +271,47 @@ println(l.get(0));
         """);
   }
 
+  @Test
+  public void annotationTest() {
+    new Script().run("""
+        import static java.lang.annotation.RetentionPolicy.RUNTIME;
+        import java.lang.annotation.Retention;
+        @Retention(RUNTIME)
+        public @interface TestAnnotation {
+        }
+        """);
+  }
+
+  @Test
+  public void annotationTest2() {
+    // FIXME if "default Integer.class;" below is replaced with "default { };" the test fails
+    // it seems to be related to the javaTypeDefBody rule not detecting the end of the annotation body correctly
+    new Script().run("""
+        import static java.lang.annotation.RetentionPolicy.RUNTIME;
+        import java.lang.annotation.Documented;
+        import java.lang.annotation.Retention;
+        @Documented
+        @Retention(RUNTIME)
+        public @interface NotEmpty {
+          String message() default "{org.hibernate.validator.constraints.NotEmpty.message}";
+          Class<?>[] groups() default Integer.class; //{ };
+          // FIXME this breaks the test but it should work
+          //Class<?>[] groups() default { };
+          @Retention(RUNTIME)
+          @Documented
+          public @interface List {
+            NotEmpty[] value();
+          }
+        }
+        @NotEmpty.List({
+            @NotEmpty( message = "Person name should not be empty",
+                       groups=String.class),
+            @NotEmpty( message = "Company name should not be empty",
+                       groups=String.class),
+        })
+        public class A {
+        }
+        """);
+  }
+
 }
