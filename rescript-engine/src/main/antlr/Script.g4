@@ -152,6 +152,7 @@ remainingTypeDef
   : ( ~'{' )+
   ;
 
+// FIXME, see org.rescript.JavaTypeDefTest.annotationTest2
 javaTypeDefBody
   : '{' ( ~'}' | javaTypeDefBody )* '}'
   ;
