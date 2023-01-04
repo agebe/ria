@@ -149,7 +149,7 @@ annotation
   ;
 
 remainingTypeDef
-  : ( ~'{' )*
+  : ( ~'{' )+
   ;
 
 javaTypeDefBody
