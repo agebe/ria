@@ -145,7 +145,7 @@ javaAnnotationDef
   ;
 
 annotation
-  : '@' type ( '(' .* ')' )?
+  : '@' type ( '(' .*? ')' )?
   ;
 
 remainingTypeDef
