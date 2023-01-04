@@ -1555,16 +1555,9 @@ public class ParserListener implements ScriptListener {
     return l;
   }
 
-  @Override
-  public void enterJavaClassDef(JavaClassDefContext ctx) {
-    log.debug("enterJavaClassDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaClassDef(JavaClassDefContext ctx) {
-    log.debug("exitJavaClassDef '{}'", ctx.getText());
+  private void parseJavaType(ParserRuleContext ctx, JavaType javaType) {
     JavaTypeSource source = new JavaTypeSource();
-    source.setType(JavaType.CLASS);
+    source.setType(javaType);
     if(nextItemIs(RemainingTypeDef.class)) {
       source.setRemain(pop(RemainingTypeDef.class).remain());
     }
@@ -1573,8 +1566,13 @@ public class ParserListener implements ScriptListener {
     String packageName = type.packageName();
     source.setPackageName(packageName);
     source.setTypeName(className);
-    log.debug("java class type '{}'", type);
-    popTerminal("class");
+    if(JavaType.ANNOTATION.equals(javaType)) {
+      popTerminal("interface");
+      popTerminal("@");
+    } else {
+      popTerminal(javaType.code());
+    }
+    // abstract is only for classes but accept it here for other types too, javac will throw the error later...
     final String ABSTRACT = "abstract";
     if(nextTerminalIs(ABSTRACT)) {
       popTerminal(ABSTRACT);
@@ -1594,6 +1592,17 @@ public class ParserListener implements ScriptListener {
   }
 
   @Override
+  public void enterJavaClassDef(JavaClassDefContext ctx) {
+    log.debug("enterJavaClassDef '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitJavaClassDef(JavaClassDefContext ctx) {
+    log.debug("exitJavaClassDef '{}'", ctx.getText());
+    parseJavaType(ctx, JavaType.CLASS);
+  }
+
+  @Override
   public void enterJavaInterfaceDef(JavaInterfaceDefContext ctx) {
     log.debug("enterJavaInterfaceDef '{}'", ctx.getText());
   }
@@ -1601,28 +1610,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitJavaInterfaceDef(JavaInterfaceDefContext ctx) {
     log.debug("exitJavaInterfaceDef '{}'", ctx.getText());
-    JavaTypeSource source = new JavaTypeSource();
-    source.setType(JavaType.INTERFACE);
-    if(nextItemIs(RemainingTypeDef.class)) {
-      source.setRemain(pop(RemainingTypeDef.class).remain());
-    }
-    Type type = pop(Type.class);
-    String className = type.typeWithoutPackage();
-    String packageName = type.packageName();
-    source.setPackageName(packageName);
-    source.setTypeName(className);
-    popTerminal("interface");
-    final String PUBLIC = "public";
-    if(nextTerminalIs(PUBLIC)) {
-      popTerminal(PUBLIC);
-      source.setAccessModifer(PUBLIC);
-    }
-    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
-    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
-    source.setBody(getFullText(body));
-    stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    // java types are created after the header is processed after imports are known
-    headerExit.addJavaType(source);
+    parseJavaType(ctx, JavaType.INTERFACE);
   }
 
   @Override
@@ -1672,28 +1660,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitJavaEnumDef(JavaEnumDefContext ctx) {
     log.debug("exitJavaEnumDef '{}'", ctx.getText());
-    JavaTypeSource source = new JavaTypeSource();
-    source.setType(JavaType.ENUM);
-    if(nextItemIs(RemainingTypeDef.class)) {
-      source.setRemain(pop(RemainingTypeDef.class).remain());
-    }
-    Type type = pop(Type.class);
-    String className = type.typeWithoutPackage();
-    String packageName = type.packageName();
-    source.setPackageName(packageName);
-    source.setTypeName(className);
-    popTerminal("enum");
-    final String PUBLIC = "public";
-    if(nextTerminalIs(PUBLIC)) {
-      popTerminal(PUBLIC);
-      source.setAccessModifer(PUBLIC);
-    }
-    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
-    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
-    source.setBody(getFullText(body));
-    stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    // java types are created after the header is processed after imports are known
-    headerExit.addJavaType(source);
+    parseJavaType(ctx, JavaType.ENUM);
   }
 
   @Override
@@ -1704,28 +1671,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitJavaRecordDef(JavaRecordDefContext ctx) {
     log.debug("exitJavaRecordDef '{}'", ctx.getText());
-    JavaTypeSource source = new JavaTypeSource();
-    source.setType(JavaType.RECORD);
-    if(nextItemIs(RemainingTypeDef.class)) {
-      source.setRemain(pop(RemainingTypeDef.class).remain());
-    }
-    Type type = pop(Type.class);
-    String className = type.typeWithoutPackage();
-    String packageName = type.packageName();
-    source.setPackageName(packageName);
-    source.setTypeName(className);
-    popTerminal("record");
-    final String PUBLIC = "public";
-    if(nextTerminalIs(PUBLIC)) {
-      popTerminal(PUBLIC);
-      source.setAccessModifer(PUBLIC);
-    }
-    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
-    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
-    source.setBody(getFullText(body));
-    stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    // java types are created after the header is processed after imports are known
-    headerExit.addJavaType(source);
+    parseJavaType(ctx, JavaType.RECORD);
   }
 
   @Override
@@ -1736,29 +1682,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitJavaAnnotationDef(JavaAnnotationDefContext ctx) {
     log.debug("exitJavaAnnotationDef '{}'", ctx.getText());
-    JavaTypeSource source = new JavaTypeSource();
-    source.setType(JavaType.ANNOTATION);
-    if(nextItemIs(RemainingTypeDef.class)) {
-      source.setRemain(pop(RemainingTypeDef.class).remain());
-    }
-    Type type = pop(Type.class);
-    String className = type.typeWithoutPackage();
-    String packageName = type.packageName();
-    source.setPackageName(packageName);
-    source.setTypeName(className);
-    popTerminal("interface");
-    popTerminal("@");
-    final String PUBLIC = "public";
-    if(nextTerminalIs(PUBLIC)) {
-      popTerminal(PUBLIC);
-      source.setAccessModifer(PUBLIC);
-    }
-    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
-    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
-    source.setBody(getFullText(body));
-    stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    // java types are created after the header is processed after imports are known
-    headerExit.addJavaType(source);
+    parseJavaType(ctx, JavaType.ANNOTATION);
   }
 
 }

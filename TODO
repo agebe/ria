@@ -3,7 +3,6 @@
 * script firewall (which java methods are allowed/denied)
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
-* script imports should come before auto imports (other than java.lang.*)
 * add more default imports from the jre, scan dependencies and auto add all the packages too.
 * anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
   -> actually allow any statements in the objects scope like e.g. expr : expr { stmt* }
@@ -11,9 +10,6 @@
      (if public otherwise call setter) or calling methods. the expression evaluates to the same object, with
      its internal state modified as per the statements.
      Adding or overwriting methods should probably only be possible together with the new operator?
-* create java types (classes, interfaces, enums, records) via java compiler
-  -> https://stackoverflow.com/a/7989365/20615256
-  * those types can not call into script functions (except through lambdas) but the script can use the types
 * add other maven repositories (currently hardcoded to maven central only)
 * launcher, add option to download dependencies only so e.g. docker containers can be built that have all jars already and don't have to download them every time they start
 * apache license on all files
