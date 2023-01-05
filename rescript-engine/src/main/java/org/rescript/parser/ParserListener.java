@@ -10,6 +10,7 @@ import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ReservedKeywordException;
@@ -71,6 +72,7 @@ import org.rescript.antlr.ScriptParser.MultiAssignmentOpContext;
 import org.rescript.antlr.ScriptParser.NewArrayContext;
 import org.rescript.antlr.ScriptParser.NewArrayInitContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
+import org.rescript.antlr.ScriptParser.ObjectScopeStmtContext;
 import org.rescript.antlr.ScriptParser.RemainingTypeDefContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
@@ -104,6 +106,7 @@ import org.rescript.expression.NewArrayInitOp;
 import org.rescript.expression.NewArrayOp;
 import org.rescript.expression.NewOp;
 import org.rescript.expression.NullLiteral;
+import org.rescript.expression.ObjectScopeExpression;
 import org.rescript.expression.StringLiteral;
 import org.rescript.expression.SwitchArrowCase;
 import org.rescript.expression.SwitchColonCase;
@@ -277,18 +280,64 @@ public class ParserListener implements ScriptListener {
     log.debug("exit assign '{}'", ctx.getText());
   }
 
+  private List<ParseTree> getChildren(ParserRuleContext ctx) {
+    ArrayList<ParseTree> l = new ArrayList<>();
+    for(int i=0;i<ctx.getChildCount();i++) {
+      l.add(ctx.getChild(i));
+    }
+    return l;
+  }
+
+  private boolean isTerminal(ParseTree parseTree, String s) {
+    return parseTree instanceof TerminalNode n && n.getText().equals(s);
+  }
+
+  private boolean isObjectScopeExpression(ExprContext ctx) {
+    List<ParseTree> children = getChildren(ctx);
+    return
+        (children.size() >= 3) &&
+        (children.get(0) instanceof ExprContext) &&
+        isTerminal(children.get(1), "{") &&
+        isTerminal(children.get(children.size()-1), "}");
+  }
+
   @Override
   public void enterExpr(ExprContext ctx) {
     log.debug("enter expr '{}'", ctx.getText());
-    // push an expression start marker on the stack
-    // so we know how far to go back on exitExpr
-    stack.push(new ExpressionStartMarker(ctx));
+    if(isObjectScopeExpression(ctx)) {
+      // TODO if we have a list of statements push a new BlockStatement here
+      // also the block requires a surrounding ObjectScopeNode
+      if((ctx.getChildCount() > 3) && (ctx.getChild(2) instanceof StmtContext)) {
+        throw new ScriptException("object scope expression, statement list not implemented yet");
+      }
+    } else {
+      // push an expression start marker on the stack
+      // so we know how far to go back on exitExpr
+      stack.push(new ExpressionStartMarker(ctx));
+    }
   }
 
   @Override
   public void exitExpr(ExprContext ctx) {
     log.debug("exit expr '{}'", ctx.getText());
-    new ExpressionParser(ctx, stack).parse();
+    if(isObjectScopeExpression(ctx)) {
+      popTerminal("}");
+      LinkedList<Expression> l = new LinkedList<>();
+      for(;;) {
+        if(nextItemIsExpression()) {
+          l.addFirst(popExpression());
+        } else if(nextTerminalIs("{")) {
+          popTerminal("{");
+          break;
+        } else {
+          throw new ScriptException("unexpected item on stack '%s'".formatted(stack.peek()));
+        }
+      }
+      Expression expression = popExpression();
+      stack.push(new ObjectScopeExpression(expression, l));
+    } else {
+      new ExpressionParser(ctx, stack).parse();
+    }
   }
 
   @Override
@@ -1683,6 +1732,17 @@ public class ParserListener implements ScriptListener {
   public void exitJavaAnnotationDef(JavaAnnotationDefContext ctx) {
     log.debug("exitJavaAnnotationDef '{}'", ctx.getText());
     parseJavaType(ctx, JavaType.ANNOTATION);
+  }
+
+  @Override
+  public void enterObjectScopeStmt(ObjectScopeStmtContext ctx) {
+    log.debug("enterObjectScopeStmt '{}'", ctx.getText());
+  }
+
+  @Override
+  public void exitObjectScopeStmt(ObjectScopeStmtContext ctx) {
+    log.debug("exitObjectScopeStmt '{}'", ctx.getText());
+    throw new ScriptException("object scope not impl");
   }
 
 }

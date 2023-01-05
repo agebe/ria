@@ -66,6 +66,7 @@ stmt
   | switchStmt
   | yieldStmt
   | javaTypeDef
+  | objectScopeStmt
   ;
 
 emptyStmt: SEMI;
@@ -160,6 +161,10 @@ javaTypeDefBody
 // java types end -----------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
 
+objectScopeStmt
+  : expr '{' ( stmt+ | expr+ )? '}'
+  ;
+
 expr
 // do operators first, order by precedence
 // https://introcs.cs.princeton.edu/java/11precedence/
@@ -220,6 +225,7 @@ expr
   | literal
   | ident
   | switchExpr
+  | expr '{' ( stmt+ | expr+ )? '}'
   ;
 
 lambda
