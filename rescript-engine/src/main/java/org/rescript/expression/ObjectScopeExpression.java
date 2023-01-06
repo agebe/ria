@@ -27,15 +27,20 @@ public class ObjectScopeExpression implements Expression {
       return v;
     }
     final Object o = v.val();
-    expressions.forEach(expr -> {
-      Value v2 = expr.eval(ctx);
-      if(!VoidValue.VOID.equals(v2)) {
-        if(o instanceof Consumer c) {
-          c.accept(v2.val());
+    try {
+      ctx.getSymbols().getScriptSymbols().enterObjectScope(o);
+      expressions.forEach(expr -> {
+        Value v2 = expr.eval(ctx);
+        if(!VoidValue.VOID.equals(v2)) {
+          if(o instanceof Consumer c) {
+            c.accept(v2.val());
+          }
         }
-      }
-    });
-    return v;
+      });
+      return v;
+    } finally {
+      ctx.getSymbols().getScriptSymbols().exitScope();
+    }
   }
 
 }

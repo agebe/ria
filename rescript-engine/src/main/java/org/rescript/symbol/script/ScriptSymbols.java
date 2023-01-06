@@ -18,7 +18,7 @@ public class ScriptSymbols {
 
   private Function main;
 
-  private ScopeNode root;
+  private ScriptScopeNode root;
 
   private ThreadLocal<ScopeNode> current = ThreadLocal.withInitial(() -> root);
 
@@ -26,7 +26,7 @@ public class ScriptSymbols {
 
   public ScriptSymbols() {
     super();
-    root = new ScopeNode();
+    root = new ScriptScopeNode();
     defineVar("println", new MethodValue(System.out.getClass(), System.out, "println"));
   }
 
@@ -64,7 +64,8 @@ public class ScriptSymbols {
   }
 
   public Value getVariable(String name) {
-    return current.get().getVariable(name);
+    VarSymbol sym = resolveVar(name);
+    return sym!=null?sym.getVal():null;
   }
 
   public VarSymbol resolveVar(String ident) {
@@ -73,7 +74,12 @@ public class ScriptSymbols {
 
   public void enterScope() {
     ScopeNode parent = current.get();
-    current.set(new ScopeNode(parent));
+    current.set(new ScriptScopeNode(parent));
+  }
+
+  public void enterObjectScope(Object o) {
+    ScopeNode parent = current.get();
+    current.set(new ObjectScopeNode(o, parent, ctx));
   }
 
   public void exitScope() {

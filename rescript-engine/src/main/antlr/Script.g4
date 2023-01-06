@@ -161,6 +161,8 @@ javaTypeDefBody
 // java types end -----------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
 
+// same rule as in the expression block.
+// this is only here so the object scope expression can be written without a final semicolon
 objectScopeStmt
   : expr '{' ( stmt+ | expr+ )? '}'
   ;

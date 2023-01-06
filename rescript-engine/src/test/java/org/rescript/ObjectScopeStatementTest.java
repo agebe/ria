@@ -64,18 +64,26 @@ public class ObjectScopeStatementTest {
   }
 
   @Test
-  @Disabled
   public void statement2() {
-    new Script().run("""
+    Script script = new Script();
+    script.run("""
         public class A {
-          public int a;
+          public int i;
+          public int i2;
         }
         var a = new A();
+        var foo = 5;
         a {
           i = 42
+          i++
+          i2 = foo - 1
         }
         println(a.i);
+        var i = a.i;
+        var i2 = a.i2;
         """);
+    assertEquals(43, script.getVariable("i"));
+    assertEquals(4, script.getVariable("i2"));
   }
 
   @Test
