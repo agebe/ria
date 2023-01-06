@@ -322,17 +322,19 @@ public class ParserListener implements ScriptListener {
       }
     }
     Expression expression = popExpression();
-    return new ObjectScopeExpression(expression, l);
+    BlockStatement block = null;
+    if(isObjectScopeExpressionWithStatements(ctx)) {
+      block = pop(BlockStatement.class);
+    }
+    return new ObjectScopeExpression(expression, l, block);
   }
 
   @Override
   public void enterExpr(ExprContext ctx) {
     log.debug("enter expr '{}'", ctx.getText());
     if(isObjectScopeExpression(ctx)) {
-      // TODO if we have a list of statements push a new BlockStatement here
-      // also the block requires a surrounding ObjectScopeNode
       if(isObjectScopeExpressionWithStatements(ctx)) {
-        throw new ScriptException("object scope expression, statement list not implemented yet");
+        stack.push(new BlockStatement(ctx.getStart().getLine()));
       }
     } else {
       // push an expression start marker on the stack
@@ -1749,7 +1751,7 @@ public class ParserListener implements ScriptListener {
   public void enterObjectScopeStmt(ObjectScopeStmtContext ctx) {
     log.debug("enterObjectScopeStmt '{}'", ctx.getText());
     if(isObjectScopeExpressionWithStatements(ctx)) {
-      throw new ScriptException("object scope statement, statement list not implemented yet");
+      stack.push(new BlockStatement(ctx.getStart().getLine()));
     }
   }
 

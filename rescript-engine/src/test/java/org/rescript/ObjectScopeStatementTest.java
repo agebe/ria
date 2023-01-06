@@ -87,18 +87,42 @@ public class ObjectScopeStatementTest {
   }
 
   @Test
-  @Disabled
   public void statements() {
-    new Script().run("""
+    Script script = new Script();
+    script.run("""
         public class A {
-          public int a;
+          public int i;
         }
         var a = new A() {
-          println('foo');
-          i = 42;
+          for(int j=0;j<2;j++) {
+            println('foo');
+            i = 42;
+          }
         };
         println(a.i);
+        var i = a.i;
         """);
+    assertEquals(42, script.getVariable("i"));
+  }
+
+  @Test
+  public void statements2() {
+    Script script = new Script();
+    script.run("""
+        public class A {
+          public int i;
+        }
+        var a = new A();
+        a {
+          for(int j=0;j<2;j++) {
+            println('foo');
+            i = 42;
+          }
+        }
+        println(a.i);
+        var i = a.i;
+        """);
+    assertEquals(42, script.getVariable("i"));
   }
 
   @Test
