@@ -13,6 +13,8 @@ public interface ScopeNode {
 
   VarSymbol getVarSymbol(String name);
 
+  VarSymbol getFunctionSymbol(String name);
+
   VarSymbol unset(String name);
 
   ScopeNode getParent();

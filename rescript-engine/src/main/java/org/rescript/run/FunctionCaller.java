@@ -43,7 +43,13 @@ public class FunctionCaller {
     } else if((varSym != null) && varSym.getVal().isMethod()) {
       return javaFunctionCaller.call(varSym.getVal().toMethodValue(), function);
     } else {
-      if(target != null) {
+      VarSymbol functionSymbol = ctx.getSymbols()
+          .getScriptSymbols()
+          .getCurrentScope()
+          .getFunctionSymbol(function.getName().getName());
+      if(functionSymbol != null) {
+        return javaFunctionCaller.call(functionSymbol.getVal().toMethodValue(), function);
+      } else if(target != null) {
         // no own types currently in the script language so has to be a java function
         return javaFunctionCaller.call(function, target);
       } else {

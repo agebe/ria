@@ -92,4 +92,11 @@ public class ScriptScopeNode implements ScopeNode {
     }
   }
 
+  @Override
+  public VarSymbol getFunctionSymbol(String name) {
+    // currently only used in ObjectScopeNode
+    // but might want to move the script function finding to here
+    return parent!=null?parent.getFunctionSymbol(name):null;
+  }
+
 }

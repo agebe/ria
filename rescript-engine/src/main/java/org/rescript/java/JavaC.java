@@ -26,6 +26,14 @@ public class JavaC {
 
   private static final Logger log = LoggerFactory.getLogger(JavaC.class);
 
+  private static String getPath(Diagnostic<? extends JavaFileObject> d) {
+    try {
+      return d.getSource().toUri().getPath();
+    } catch(Exception e) {
+      return "(unknown)";
+    }
+  }
+
   private static String diagnosticToString(Diagnostic<? extends JavaFileObject> d) {
     return 
         "javac: code '%s', kind '%s', position '%s', start position '%s', end position '%s', source '%s', message '%s'"
@@ -35,7 +43,7 @@ public class JavaC {
             d.getPosition(),
             d.getStartPosition(),
             d.getEndPosition(),
-            d.getSource().toUri().getPath(),
+            getPath(d),
             d.getMessage(null));
   }
 

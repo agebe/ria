@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ObjectScopeStatementTest {
@@ -126,24 +125,37 @@ public class ObjectScopeStatementTest {
   }
 
   @Test
-  @Disabled
   public void expressions() {
     new Script().run("""
+        import static org.junit.jupiter.api.Assertions.*;
         public class A implements Consumer<Object> {
           private String test;
+          private List<Object> l = new ArrayList<>();
           public A(String s) {
             this.test = s;
           }
           public String test() {
             return test;
           }
+          public int testInt() {
+            return 99;
+          }
+          public List<Object> getL() {
+            return l;
+          }
           @Override
           public void accept(Object o) {
             System.out.println(o);
+            l.add(o);
           }
         }
         public class B {
           private int myInt;
+          public B() {
+          }
+          public B(int i) {
+            this.myInt = i;
+          }
           public void setMyInt(int i) {
             myInt = i;
           }
@@ -151,8 +163,20 @@ public class ObjectScopeStatementTest {
             return myInt;
           }
           @Override
+          public boolean equals(Object other) {
+            if(other instanceof B b) {
+              return this.myInt == b.myInt;
+            } else {
+              return false;
+            }
+          }
+          @Override
+          public int hashCode() {
+            return myInt;
+          }
+          @Override
           public String toString() {
-            return "" + myInt;
+            return "B:" + myInt;
           }
         }
         function lower(s) {
@@ -160,15 +184,20 @@ public class ObjectScopeStatementTest {
         }
         var a = new A('foo') {
           'S1'
+          testInt()
           lower('S2')
           new B() {
             setMyInt(11)
             println(getMyInt())
           }
+          new B() {
+            setMyInt(testInt());
+          }
           42
         };
-        //a {
-        //}
+        a {
+        }
+        assertEquals(List.of('S1', 99, 's2', new B(11), new B(99), 42), a.getL());
         """);
   }
 

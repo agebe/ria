@@ -1,13 +1,17 @@
 package org.rescript.symbol.script;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import org.rescript.ScriptException;
 import org.rescript.parser.Type;
 import org.rescript.run.ScriptContext;
+import org.rescript.symbol.ObjectMethodSymbol;
 import org.rescript.symbol.ObjectVarSymbol;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.symbol.java.RUtils;
+import org.rescript.value.MethodValue;
 import org.rescript.value.Value;
 
 public class ObjectScopeNode implements ScopeNode {
@@ -65,6 +69,12 @@ public class ObjectScopeNode implements ScopeNode {
   @Override
   public ScopeNode getParent() {
     return parent;
+  }
+
+  @Override
+  public VarSymbol getFunctionSymbol(String name) {
+    List<Method> methods = RUtils.findAccessibleMethods(o.getClass(), o, name);
+    return !methods.isEmpty()?new ObjectMethodSymbol(new MethodValue(o.getClass(), o, name)):parent.getFunctionSymbol(name);
   }
 
 }
