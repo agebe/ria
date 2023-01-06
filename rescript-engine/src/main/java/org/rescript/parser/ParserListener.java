@@ -292,7 +292,7 @@ public class ParserListener implements ScriptListener {
     return parseTree instanceof TerminalNode n && n.getText().equals(s);
   }
 
-  private boolean isObjectScopeExpression(ExprContext ctx) {
+  private boolean isObjectScopeExpression(ParserRuleContext ctx) {
     List<ParseTree> children = getChildren(ctx);
     return
         (children.size() >= 3) &&
@@ -301,13 +301,37 @@ public class ParserListener implements ScriptListener {
         isTerminal(children.get(children.size()-1), "}");
   }
 
+  private boolean isObjectScopeExpressionWithStatements(ParserRuleContext ctx) {
+    return
+        isObjectScopeExpression(ctx) &&
+        (ctx.getChildCount() > 3) &&
+        (ctx.getChild(2) instanceof StmtContext);
+  }
+
+  private ObjectScopeExpression parseObjectScopeExpression(ParserRuleContext ctx) {
+    popTerminal("}");
+    LinkedList<Expression> l = new LinkedList<>();
+    for(;;) {
+      if(nextItemIsExpression()) {
+        l.addFirst(popExpression());
+      } else if(nextTerminalIs("{")) {
+        popTerminal("{");
+        break;
+      } else {
+        throw new ScriptException("unexpected item on stack '%s'".formatted(stack.peek()));
+      }
+    }
+    Expression expression = popExpression();
+    return new ObjectScopeExpression(expression, l);
+  }
+
   @Override
   public void enterExpr(ExprContext ctx) {
     log.debug("enter expr '{}'", ctx.getText());
     if(isObjectScopeExpression(ctx)) {
       // TODO if we have a list of statements push a new BlockStatement here
       // also the block requires a surrounding ObjectScopeNode
-      if((ctx.getChildCount() > 3) && (ctx.getChild(2) instanceof StmtContext)) {
+      if(isObjectScopeExpressionWithStatements(ctx)) {
         throw new ScriptException("object scope expression, statement list not implemented yet");
       }
     } else {
@@ -321,20 +345,7 @@ public class ParserListener implements ScriptListener {
   public void exitExpr(ExprContext ctx) {
     log.debug("exit expr '{}'", ctx.getText());
     if(isObjectScopeExpression(ctx)) {
-      popTerminal("}");
-      LinkedList<Expression> l = new LinkedList<>();
-      for(;;) {
-        if(nextItemIsExpression()) {
-          l.addFirst(popExpression());
-        } else if(nextTerminalIs("{")) {
-          popTerminal("{");
-          break;
-        } else {
-          throw new ScriptException("unexpected item on stack '%s'".formatted(stack.peek()));
-        }
-      }
-      Expression expression = popExpression();
-      stack.push(new ObjectScopeExpression(expression, l));
+      stack.push(parseObjectScopeExpression(ctx));
     } else {
       new ExpressionParser(ctx, stack).parse();
     }
@@ -1737,12 +1748,15 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterObjectScopeStmt(ObjectScopeStmtContext ctx) {
     log.debug("enterObjectScopeStmt '{}'", ctx.getText());
+    if(isObjectScopeExpressionWithStatements(ctx)) {
+      throw new ScriptException("object scope statement, statement list not implemented yet");
+    }
   }
 
   @Override
   public void exitObjectScopeStmt(ObjectScopeStmtContext ctx) {
     log.debug("exitObjectScopeStmt '{}'", ctx.getText());
-    throw new ScriptException("object scope not impl");
+    stack.push(new ExpressionStatement(ctx.getStart().getLine(), parseObjectScopeExpression(ctx)));
   }
 
 }

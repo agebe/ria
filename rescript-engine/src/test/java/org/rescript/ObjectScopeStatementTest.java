@@ -11,6 +11,11 @@ public class ObjectScopeStatementTest {
 
   @Test
   public void simple() {
+    new Script().run("new Object() {}");
+  }
+
+  @Test
+  public void expression1() {
     Script script = new Script();
     script.run("""
         public class A implements Consumer<Object> {
@@ -34,8 +39,33 @@ public class ObjectScopeStatementTest {
   }
 
   @Test
+  public void statement1() {
+    Script script = new Script();
+    script.run("""
+        public class A implements Consumer<Object> {
+          public List<Object> l = new ArrayList<>();
+          @Override
+          public void accept(Object o) {
+            //System.out.println(o);
+            l.add(o);
+          }
+        }
+        var a = new A();
+        a {
+          '123'
+          42
+          println('foo')
+          1+1
+        };
+        var l = a.l;
+        """);
+    Object o = script.getVariable("l");
+    assertEquals(List.of("123", 42, 2), o);
+  }
+
+  @Test
   @Disabled
-  public void statement() {
+  public void statement2() {
     new Script().run("""
         public class A {
           public int a;
