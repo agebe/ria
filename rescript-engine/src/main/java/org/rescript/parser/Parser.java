@@ -22,7 +22,7 @@ public class Parser {
     this.showErrorsOnConsole = showErrorsOnConsole;
   }
 
-  public ParserListener parse(String script) {
+  public ParserListener parse(String script, ClassLoader scriptClassLoader) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -43,7 +43,7 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ParserListener listener = new ParserListener();
+    ParserListener listener = new ParserListener(scriptClassLoader);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

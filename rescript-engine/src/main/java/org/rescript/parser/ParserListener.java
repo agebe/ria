@@ -31,8 +31,6 @@ import org.rescript.antlr.ScriptParser.CcallContext;
 import org.rescript.antlr.ScriptParser.ColonCaseContext;
 import org.rescript.antlr.ScriptParser.ConstructorRefContext;
 import org.rescript.antlr.ScriptParser.ContinueStmtContext;
-import org.rescript.antlr.ScriptParser.DependencyBlockContext;
-import org.rescript.antlr.ScriptParser.DependencyContext;
 import org.rescript.antlr.ScriptParser.DoWhileStmtContext;
 import org.rescript.antlr.ScriptParser.EmptyStmtContext;
 import org.rescript.antlr.ScriptParser.ExprContext;
@@ -128,6 +126,7 @@ import org.rescript.statement.ForEachStatement;
 import org.rescript.statement.ForInitStatement;
 import org.rescript.statement.ForStatementBuilder;
 import org.rescript.statement.Function;
+import org.rescript.statement.HeaderEnterStatement;
 import org.rescript.statement.HeaderExitStatement;
 import org.rescript.statement.IfStatement;
 import org.rescript.statement.ImportStatement;
@@ -150,25 +149,19 @@ public class ParserListener implements ScriptListener {
 
   private Deque<ParseItem> stack = new ArrayDeque<>();
 
- // private List<Dependency> dependencies = new ArrayList<>();
-  private List<Expression> dependencies = new ArrayList<>();
-
   private int javaBody;
 
   private boolean checkKeywords = true;
 
-  private HeaderExitStatement headerExit = new HeaderExitStatement(0);
+  private HeaderExitStatement headerExit;
 
-  public ParserListener() {
+  public ParserListener(ClassLoader scriptClassLoader) {
+    headerExit = new HeaderExitStatement(0, scriptClassLoader);
     // add main function
     Function main = Function.main();
     stack.push(main);
     // add main function body
     stack.push(main.getStatements());
-  }
-
-  public List<Expression> getDependencies() {
-    return dependencies;
   }
 
   @Override
@@ -844,6 +837,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterHeader(HeaderContext ctx) {
     log.debug("enterHeader '{}'", ctx.getText());
+    findMostRecentContainerStatement().addStatement(new HeaderEnterStatement(ctx.getStart().getLine()));
   }
 
   @Override
@@ -862,15 +856,15 @@ public class ParserListener implements ScriptListener {
     log.debug("exitImportStmt '{}'", ctx.getText());
     popSemi();
     ImportType type = (ImportType)stack.pop();
+    Statement stmt = null;
     if(nextTerminalIs("static")) {
       popTerminal("static");
-      findMostRecentContainerStatement().addStatement(
-          new ImportStaticStatement(ctx.getStart().getLine(), type.getType()));
+      stmt = new ImportStaticStatement(ctx.getStart().getLine(), type.getType());
     } else {
-      findMostRecentContainerStatement().addStatement(
-          new ImportStatement(ctx.getStart().getLine(), type.getType()));
+      stmt = new ImportStatement(ctx.getStart().getLine(), type.getType());
     }
     popTerminal("import");
+    stack.push(stmt);
   }
 
   @Override
@@ -1294,30 +1288,6 @@ public class ParserListener implements ScriptListener {
   }
 
   @Override
-  public void enterDependencyBlock(DependencyBlockContext ctx) {
-    log.debug("enterDependencyBlock '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitDependencyBlock(DependencyBlockContext ctx) {
-    log.debug("exitDependencyBlock '{}'", ctx.getText());
-    popTerminal("}");
-    popTerminal("{");
-    popTerminal("dependencies");
-  }
-
-  @Override
-  public void enterDependency(DependencyContext ctx) {
-    log.debug("enterDependency '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitDependency(DependencyContext ctx) {
-    log.debug("exitDependency '{}'", ctx.getText());
-    dependencies.add(popExpression());
-  }
-
-  @Override
   public void enterHeaderElement(HeaderElementContext ctx) {
     log.debug("enterHeaderElement '{}'", ctx.getText());
   }
@@ -1325,6 +1295,9 @@ public class ParserListener implements ScriptListener {
   @Override
   public void exitHeaderElement(HeaderElementContext ctx) {
     log.debug("exitHeaderElement '{}'", ctx.getText());
+    if(nextItemIs(Statement.class)) {
+      findMostRecentContainerStatement().addStatement(popStatement());
+    }
   }
 
   @Override

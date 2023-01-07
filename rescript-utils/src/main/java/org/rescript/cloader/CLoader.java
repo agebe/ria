@@ -20,6 +20,8 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.rescript.ScriptException;
+
 public class CLoader extends ClassLoader implements AutoCloseable {
 
   static {
@@ -43,7 +45,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
     try {
       return Paths.get(url.toURI()).toFile();
     } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+      throw new ScriptException(e);
     }
   }
 
@@ -69,7 +71,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
       }
       return resources.stream();
     } catch(Exception e) {
-      throw new RuntimeException(e);
+      throw new ScriptException(e);
     }
   }
 
@@ -116,7 +118,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
       Enumeration<URL> enumeration = findResources(name);
       return enumeration.hasMoreElements()?enumeration.nextElement():null;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ScriptException(e);
     }
   }
 

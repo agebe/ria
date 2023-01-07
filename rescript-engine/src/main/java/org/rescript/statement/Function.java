@@ -141,14 +141,6 @@ public class Function extends AbstractStatement implements Statement, Expression
     return f;
   }
 
-  public static Function dependencies() {
-    Function f = new Function(0);
-    f.name = "__dependencies";
-    f.parameterNames = new ArrayList<>();
-    f.statements = new BlockStatement(0, true);
-    return f;
-  }
-
   @Override
   public String toString() {
     return "Function [name=" + name + "]";

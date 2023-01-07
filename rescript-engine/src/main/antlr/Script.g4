@@ -16,15 +16,7 @@ header
 
 headerElement
   : importStmt
-  | dependencyBlock
-  ;
-
-dependencyBlock
-  : 'dependencies' '{' dependency* '}'
-  ;
-
-dependency
-  : expr
+  | objectScopeStmt
   ;
 
 importStmt

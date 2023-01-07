@@ -72,6 +72,15 @@ public class ScriptSymbols {
     return current.get().getVarSymbol(ident);
   }
 
+  /**
+   * returns true if a variable or field is defined
+   * @param ident
+   * @return true if a variable or field is defined
+   */
+  public boolean isDefined(String ident) {
+    return resolveVar(ident) != null;
+  }
+
   public void enterScope() {
     ScopeNode parent = current.get();
     current.set(new ScriptScopeNode(parent));

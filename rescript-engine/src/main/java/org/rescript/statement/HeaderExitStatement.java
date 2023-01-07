@@ -3,10 +3,13 @@ package org.rescript.statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rescript.dependency.Dependencies;
+import org.rescript.dependency.DependencyResolver;
 import org.rescript.java.JavaC;
 import org.rescript.java.JavaSource;
 import org.rescript.java.JavaSourceBuilder;
 import org.rescript.run.ScriptContext;
+import org.rescript.symbol.VarSymbol;
 import org.rescript.symbol.java.JavaSymbols;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +20,32 @@ public class HeaderExitStatement extends AbstractStatement {
 
   private List<JavaSourceBuilder> javaTypes = new ArrayList<>();
 
-  public HeaderExitStatement(int lineNumber) {
+  private ClassLoader scriptClassLoader;
+
+  public HeaderExitStatement(int lineNumber, ClassLoader scriptClassLoader) {
     super(lineNumber);
+    this.scriptClassLoader = scriptClassLoader;
   }
 
-  @Override
-  public void execute(ScriptContext ctx) {
-    JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
+  private void resolveDependencies(ScriptContext ctx) {
+    VarSymbol v = ctx.getSymbols().getScriptSymbols().resolveVar("dependencies");
+    if(v != null) {
+      Object o = v.get().val();
+      if(o instanceof Dependencies dependencies) {
+        ClassLoader dependencyClassLoader = new DependencyResolver()
+            .resolveAll(dependencies, scriptClassLoader);
+        ClassLoader loader = dependencyClassLoader;
+        ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+      }
+    }
+  }
+
+  private void addStdImports(ScriptContext ctx) {
     // TODO additional default imports should be configurable?
     // FIXME add a flag that disables additional default imports (other than java.lang.*) (language keyword for headers)
     // TODO all packages from direct dependencies should also be auto imported
     // add additional auto imports late so the user defined imports take precedence
+    JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     symbols.addImport("java.math.*");
     symbols.addImport("java.util.*");
     symbols.addImport("java.util.concurrent.*");
@@ -49,6 +67,10 @@ public class HeaderExitStatement extends AbstractStatement {
     symbols.addImport("java.nio.file.*");
     symbols.addImport("java.nio.file.attribute.*");
     symbols.addImport("java.text.*");
+  }
+
+  private void compileJavaTypes(ScriptContext ctx) {
+    JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     if(!javaTypes.isEmpty()) {
       List<JavaSource> l = javaTypes.stream()
           .map(builder -> toJavaSource(builder, ctx))
@@ -57,6 +79,13 @@ public class HeaderExitStatement extends AbstractStatement {
       ClassLoader loader = JavaC.compile(l, symbols.getClassLoader());
       ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
     }
+  }
+
+  @Override
+  public void execute(ScriptContext ctx) {
+    resolveDependencies(ctx);
+    addStdImports(ctx);
+    compileJavaTypes(ctx);
   }
 
   private JavaSource toJavaSource(JavaSourceBuilder builder, ScriptContext ctx) {

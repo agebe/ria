@@ -338,8 +338,13 @@ public class JavaSymbols {
       LinkedList<String> split = RUtils.splitTypeName(im);
       if(StringUtils.equals(name, split.getLast())) {
         Class<?> c = RUtils.findClass(im, classLoader);
-        log.debug("found '{}' for name '{}'", c.getName(), im);
-        return c;
+        if(c != null) {
+          log.debug("found '{}' for name '{}'", c.getName(), im);
+          return c;
+        } else {
+          log.debug("not found '{}'", im);
+          return null;
+        }
       } else if(StringUtils.equals("*", split.getLast())) {
         split.removeLast();
         String joined = split.stream().collect(Collectors.joining("."));

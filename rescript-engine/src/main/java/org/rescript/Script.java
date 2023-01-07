@@ -1,6 +1,5 @@
 package org.rescript;
 
-import org.rescript.dependency.DependencyResolver;
 import org.rescript.parser.Parser;
 import org.rescript.parser.ParserListener;
 import org.rescript.run.ScriptRunner;
@@ -186,13 +185,9 @@ public class Script {
 
   private Script parse(String script) {
     if(this.entry == null) {
-      ParserListener listener = new Parser(showErrorsOnConsole).parse(script);
+      ParserListener listener = new Parser(showErrorsOnConsole).parse(script, scriptClassLoader);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
-      ClassLoader dependencyClassLoader = new DependencyResolver()
-          .resolveAll(listener.getDependencies(), scriptClassLoader);
-      ClassLoader loader = dependencyClassLoader;
-      this.symbols.getJavaSymbols().setClassLoader(loader);
     }
     return this;
   }

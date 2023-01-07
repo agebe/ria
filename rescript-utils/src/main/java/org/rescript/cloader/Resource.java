@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.rescript.ScriptException;
+
 record Resource(
     String name,
     File jar) {
@@ -12,7 +14,7 @@ record Resource(
     try {
       return new URL("jar:file:"+jar.getAbsolutePath()+"!/"+name);
     } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
+      throw new ScriptException(e);
     }
   }
 }

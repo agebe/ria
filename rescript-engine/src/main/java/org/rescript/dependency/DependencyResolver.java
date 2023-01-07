@@ -14,16 +14,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
 import org.rescript.cloader.CLoader;
-import org.rescript.expression.Expression;
-import org.rescript.expression.NewOp;
-import org.rescript.parser.FunctionParameter;
 import org.rescript.pom.MavenCoordinates;
 import org.rescript.pom.MavenRepository;
-import org.rescript.run.ScriptContext;
-import org.rescript.statement.BlockStatement;
-import org.rescript.statement.ExpressionStatement;
-import org.rescript.statement.Function;
-import org.rescript.symbol.SymbolTable;
 
 public class DependencyResolver {
 
@@ -35,7 +27,7 @@ public class DependencyResolver {
     }
   }
 
-  public ClassLoader resolveAll(List<Expression> dependencies, ClassLoader parentClassLoader) {
+  public ClassLoader resolveAll(Dependencies dependencies, ClassLoader parentClassLoader) {
     List<File> l = resolveDependencies(dependencies);
     if(l.isEmpty()) {
       return parentClassLoader;
@@ -49,44 +41,12 @@ public class DependencyResolver {
     }
   }
 
-  private Function fileTree() {
-    BlockStatement block = new BlockStatement(0);
-    FunctionParameter p0 = new FunctionParameter(
-        ctx -> ctx.getSymbols().getScriptSymbols().resolveVar("baseDir").getVal());
-    NewOp n = new NewOp(FileTreeDependency.class.getName(), List.of(p0));
-    block.addStatement(new ExpressionStatement(0, n));
-    Function f = new Function(0);
-    f.setName("fileTree");
-    f.setParameterNames(List.of("baseDir"));
-    f.setStatements(block);
-    return f;
-  }
-
-  private List<File> resolveDependencies(List<Expression> expressions) {
+  private List<File> resolveDependencies(Dependencies dependencies) {
     // FIXME repository need to be configurable
     MavenRepository mavenCentral = new MavenRepository("https://repo.maven.apache.org/maven2/");
-    ScriptContext ctx = new ScriptContext(new SymbolTable());
-    ctx.getSymbols().getScriptSymbols().setCtx(ctx);
-    Function dependencyMain = Function.dependencies();
-    ctx.getSymbols().getScriptSymbols().setMain(dependencyMain);
-    ctx.enterFunction(ctx.getSymbols().getScriptSymbols().getMain());
-    dependencyMain.addFunction(fileTree());
     final DependencyNode root = new DependencyNode();
+    dependencies.getDependencies().forEach(dep -> root.addChildren(dep.resolve()));
     // TODO add support for variables and variable replacements in the dependencies e.g. for versions
-    expressions.stream()
-    .map(expr -> expr.eval(ctx))
-    .map(val -> {
-      if(val.val() instanceof String s) {
-        return new MultiFormatDependency(s);
-      } else if(val.val() instanceof Dependency d) {
-        return d;
-      } else {
-        throw new ScriptException(
-            "dependency expression evaluated to '%s'".formatted(val.type())
-            + " but expected an instanceof String or Dependency");
-      }
-    })
-    .forEach(dep -> root.addChildren(dep.resolve()));
     // make sure to resolve different versions of the same group:artifact
     // dependency node might require a type so jar and pom dependencies can be distinguished
     // https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies
@@ -144,7 +104,9 @@ public class DependencyResolver {
         }
       }
     }
-    return Stream.concat(managedDependencies.stream(), root.asList().stream().filter(d -> d.getFile() != null))
+    return Stream.concat(
+        managedDependencies.stream(),
+        root.asList().stream().filter(d -> d.getFile() != null))
         .map(d -> toFile(d, mavenCentral))
         .filter(Objects::nonNull)
         .toList();
