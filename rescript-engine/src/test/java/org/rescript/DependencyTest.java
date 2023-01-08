@@ -7,6 +7,9 @@ public class DependencyTest {
   @Test
   public void simple() {
     new Script("""
+        repositories {
+          mavenCentral()
+        }
         dependencies {
           '''
           <dependency>

@@ -19,6 +19,13 @@ import org.rescript.pom.MavenRepository;
 
 public class DependencyResolver {
 
+  private Repositories repositories;
+
+  public DependencyResolver(Repositories repositories) {
+    super();
+    this.repositories = repositories;
+  }
+
   private URL toUrl(File f) {
     try {
       return f.toURI().toURL();
@@ -42,8 +49,6 @@ public class DependencyResolver {
   }
 
   private List<File> resolveDependencies(Dependencies dependencies) {
-    // FIXME repository need to be configurable
-    MavenRepository mavenCentral = new MavenRepository("https://repo.maven.apache.org/maven2/");
     final DependencyNode root = new DependencyNode();
     dependencies.getDependencies().forEach(dep -> root.addChildren(dep.resolve()));
     // TODO add support for variables and variable replacements in the dependencies e.g. for versions
@@ -74,7 +79,7 @@ public class DependencyResolver {
 //    managedDependencies.forEach(System.out::println);
     while(!queue.isEmpty()) {
       DependencyNode v = queue.remove();
-      PomDependency resolver = new PomDependency(v.id(), mavenCentral);
+      PomDependency resolver = new PomDependency(v, repositories);
       List<DependencyNode> transitiveDependencies = resolver.resolve();
       v.addChildren(transitiveDependencies);
       for(DependencyNode transitive : transitiveDependencies) {
@@ -107,24 +112,41 @@ public class DependencyResolver {
     return Stream.concat(
         managedDependencies.stream(),
         root.asList().stream().filter(d -> d.getFile() != null))
-        .map(d -> toFile(d, mavenCentral))
+        .map(d -> toFile(d, repositories))
         .filter(Objects::nonNull)
         .toList();
   }
 
-  private File toFile(DependencyNode node, MavenRepository repo) {
+  private File toFile(DependencyNode node, Repositories repos) {
     if(node.getFile() != null) {
       return node.getFile();
     }
     if(StringUtils.isBlank(node.getGroup())) {
       return null;
     }
-    MavenCoordinates coord = new MavenCoordinates(node.getGroup(), node.getArtifact(), node.getVersion());
-    try {
-      return repo.fetchFile(coord, ".jar");
-    } catch(Exception e) {
-      throw new ScriptException("failed to fetch jar file for dependency " + coord, e);
+    if(!node.getPackaging().equals("jar")) {
+      return null;
     }
+    MavenCoordinates coord = new MavenCoordinates(node.getGroup(), node.getArtifact(), node.getVersion());
+    List<Exception> suppressed = new ArrayList<>();
+    List<MavenRepository> r = repos.getRepositoriesOrCentral();
+    // TODO if the node has the repository set on it (from which the pom was downloaded) only try that repo
+    for(int i=0;i<r.size();i++) {
+      try {
+        MavenRepository mr = r.get(i);
+        return mr.fetchFile(coord, ".jar");
+      } catch(Exception e) {
+        if(i == r.size() -1) {
+          ScriptException exception = new ScriptException("failed to fetch jar file from remote '%s' from all repositories"
+              .formatted(coord), e);
+          suppressed.forEach(exception::addSuppressed);
+          throw exception;
+        } else {
+          suppressed.add(e);
+        }
+      }
+    }
+    throw new ScriptException("failed to fetch jar file for dependency " + coord);
   }
 
 }

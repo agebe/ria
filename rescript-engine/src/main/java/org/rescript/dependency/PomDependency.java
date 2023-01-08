@@ -1,9 +1,11 @@
 package org.rescript.dependency;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.model.Model;
 import org.rescript.ScriptException;
 import org.rescript.pom.MavenCoordinates;
@@ -11,6 +13,8 @@ import org.rescript.pom.MavenDependencyResolver;
 import org.rescript.pom.MavenRepository;
 
 public class PomDependency implements Dependency {
+
+  private DependencyNode node;
 
   private String gradleShort;
 
@@ -20,11 +24,12 @@ public class PomDependency implements Dependency {
 
   private String version;
 
-  private MavenRepository repo;
+  private Repositories repos;
 
-  public PomDependency(String gradleShort, MavenRepository repo) {
+  public PomDependency(DependencyNode node, Repositories repos) {
     super();
-    this.gradleShort = gradleShort;
+    this.node = node;
+    this.gradleShort = node.id();
     String[] split = StringUtils.split(gradleShort, ':');
     if(split.length != 3) {
       throw new ScriptException("gradle short dependencies, wrong format."
@@ -33,15 +38,43 @@ public class PomDependency implements Dependency {
     group = split[0];
     artifact = split[1];
     version = split[2];
-    this.repo = repo;
+    this.repos = repos;
+  }
+
+  private Pair<Model, MavenRepository> resolveModel() {
+    List<Exception> suppressed = new ArrayList<>();
+    List<MavenRepository> r = repos.getRepositoriesOrCentral();
+    for(int i=0;i<r.size();i++) {
+      try {
+        MavenRepository mr = r.get(i);
+        var resolver = new MavenDependencyResolver(mr);
+        Model model = resolver.resolve(new MavenCoordinates(group, artifact, version));
+        return Pair.of(model, mr);
+      } catch(Exception e) {
+        if(i == r.size() -1) {
+          ScriptException exception = new ScriptException("failed to resolve '%s' from all repositories"
+              .formatted(gradleShort), e);
+          suppressed.forEach(exception::addSuppressed);
+          throw exception;
+        } else {
+          suppressed.add(e);
+        }
+      }
+    }
+    throw new ScriptException("'%s' failed to resolve".formatted(gradleShort));
   }
 
   @Override
   public List<DependencyNode> resolve() {
     try {
-      var resolver = new MavenDependencyResolver(repo);
-      Model model = resolver.resolve(new MavenCoordinates(group, artifact, version));
-      if((model == null) || (model.getDependencies() == null)) {
+      Pair<Model, MavenRepository> p = resolveModel();
+      Model model = p.getLeft();
+      if(model == null) {
+        return List.of();
+      }
+      node.setRepository(p.getRight());
+      node.setPackaging(model.getPackaging());
+      if(model.getDependencies() == null) {
         return List.of();
       }
       // FIXME honour excludes

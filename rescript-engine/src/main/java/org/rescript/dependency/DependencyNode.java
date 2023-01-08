@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.pom.MavenRepository;
 
 public class DependencyNode {
 
@@ -25,6 +26,10 @@ public class DependencyNode {
 
   private boolean optional;
 
+  private MavenRepository repository;
+
+  private String packaging;
+
   public DependencyNode() {
     super();
   }
@@ -34,7 +39,12 @@ public class DependencyNode {
     this.file = file;
   }
 
-  public DependencyNode(String group, String artifact, String version, List<Exclusion> exclusions, boolean optional) {
+  public DependencyNode(
+      String group,
+      String artifact,
+      String version,
+      List<Exclusion> exclusions,
+      boolean optional) {
     super();
     if(StringUtils.isBlank(group)) {
       throw new ScriptException("group is blank");
@@ -147,6 +157,22 @@ public class DependencyNode {
 
   public boolean isOptional() {
     return optional;
+  }
+
+  public MavenRepository getRepository() {
+    return repository;
+  }
+
+  public void setRepository(MavenRepository repository) {
+    this.repository = repository;
+  }
+
+  public String getPackaging() {
+    return packaging;
+  }
+
+  public void setPackaging(String packaging) {
+    this.packaging = packaging;
   }
 
   @Override

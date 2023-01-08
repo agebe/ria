@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.rescript.ScriptException;
 
 public class MavenRepository {
 
@@ -52,14 +53,23 @@ public class MavenRepository {
 
   private byte[] fromRemote(MavenCoordinates coord, String suffix) throws Exception {
     String url = url(coord, suffix);
-    HttpRequest request = HttpRequest.newBuilder()
-        .uri(new URI(url))
-        .GET()
-        .build();
-    HttpClient client = HttpClient.newHttpClient();
-    System.err.println("get " + url);
-    HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
-    return response.body();
+    try {
+      HttpRequest request = HttpRequest.newBuilder()
+          .uri(new URI(url))
+          .GET()
+          .build();
+      HttpClient client = HttpClient.newHttpClient();
+      System.err.println("get " + url);
+      HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
+      if((response.statusCode() >= 200) && (response.statusCode() <= 299)) {
+        return response.body();
+      } else {
+        throw new ScriptException("failed with http status '%s', url '%s'".formatted(
+            response.statusCode(), url));
+      }
+    } catch(Exception e) {
+      throw new ScriptException("failed to fetch from remote '%s'".formatted(url), e);
+    }
   }
 
   private File cache(MavenCoordinates coord, String suffix) {

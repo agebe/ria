@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.rescript.dependency.Dependencies;
 import org.rescript.dependency.DependencyResolver;
+import org.rescript.dependency.Repositories;
 import org.rescript.java.JavaC;
 import org.rescript.java.JavaSource;
 import org.rescript.java.JavaSourceBuilder;
@@ -27,12 +28,23 @@ public class HeaderExitStatement extends AbstractStatement {
     this.scriptClassLoader = scriptClassLoader;
   }
 
+  private Repositories getRepos(ScriptContext ctx) {
+    VarSymbol r = ctx.getSymbols().getScriptSymbols().resolveVar(HeaderEnterStatement.REPOSITORIES);
+    if(r != null) {
+      Object o = r.get().val();
+      if(o instanceof Repositories repos) {
+        return repos;
+      }
+    }
+    return new Repositories();
+  }
+
   private void resolveDependencies(ScriptContext ctx) {
     VarSymbol v = ctx.getSymbols().getScriptSymbols().resolveVar("dependencies");
     if(v != null) {
       Object o = v.get().val();
       if(o instanceof Dependencies dependencies) {
-        ClassLoader dependencyClassLoader = new DependencyResolver()
+        ClassLoader dependencyClassLoader = new DependencyResolver(getRepos(ctx))
             .resolveAll(dependencies, scriptClassLoader);
         ClassLoader loader = dependencyClassLoader;
         ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
