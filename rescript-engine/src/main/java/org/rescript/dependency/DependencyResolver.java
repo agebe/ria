@@ -32,8 +32,8 @@ public class DependencyResolver {
     if(l.isEmpty()) {
       return parentClassLoader;
     } else {
-      System.out.println("dependencies on classloader:");
-      l.stream().map(f -> f.getName()).sorted().forEach(System.out::println);
+      System.err.println("dependencies on classloader:");
+      l.stream().map(f -> f.getName()).sorted().forEach(System.err::println);
       return new CLoader(
           "scriptClassLoader",
           l.stream().map(this::toUrl).toArray(URL[]::new),

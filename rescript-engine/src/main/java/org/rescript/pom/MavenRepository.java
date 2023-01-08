@@ -57,7 +57,7 @@ public class MavenRepository {
         .GET()
         .build();
     HttpClient client = HttpClient.newHttpClient();
-    System.out.println("get " + url);
+    System.err.println("get " + url);
     HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
     return response.body();
   }
