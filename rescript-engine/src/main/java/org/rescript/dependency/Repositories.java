@@ -48,8 +48,4 @@ public class Repositories implements Consumer<Object> {
     return new MavenRepository(url);
   }
 
-  public MavenRepository getRepo0() {
-    return getRepositoriesOrCentral().get(0);
-  }
-
 }
