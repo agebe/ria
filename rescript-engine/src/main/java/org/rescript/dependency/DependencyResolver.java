@@ -112,19 +112,19 @@ public class DependencyResolver {
     return Stream.concat(
         managedDependencies.stream(),
         root.asList().stream().filter(d -> d.getFile() != null))
-        .map(d -> toFile(d, repositories))
+        .map(d -> toJar(d, repositories))
         .filter(Objects::nonNull)
         .toList();
   }
 
-  private File toFile(DependencyNode node, Repositories repos) {
+  private File toJar(DependencyNode node, Repositories repos) {
     if(node.getFile() != null) {
       return node.getFile();
     }
     if(StringUtils.isBlank(node.getGroup())) {
       return null;
     }
-    if(!node.getPackaging().equals("jar")) {
+    if(!StringUtils.equalsAnyIgnoreCase(node.getPackaging(), "jar", "bundle")) {
       return null;
     }
     MavenCoordinates coord = new MavenCoordinates(node.getGroup(), node.getArtifact(), node.getVersion());
