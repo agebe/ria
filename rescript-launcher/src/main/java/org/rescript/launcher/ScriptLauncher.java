@@ -35,8 +35,7 @@ public class ScriptLauncher {
     try {
       return f.toURI().toURL();
     } catch (MalformedURLException e) {
-      // TODO replace with ScriptLauncherException
-      throw new RuntimeException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
+      throw new ScriptLauncherException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
     }
   }
 
@@ -58,14 +57,14 @@ public class ScriptLauncher {
           if(version != null) {
             return version;
           } else {
-            throw new RuntimeException("no version on rescript launcher manifest");
+            throw new ScriptLauncherException("no version on rescript launcher manifest");
           }
         }
       }
     } catch (IOException e) {
       throw new UncheckedIOException("failed to determine rescript launcher version", e);
     }
-    throw new RuntimeException("failed to determine rescript lancher version, manifest not found");
+    throw new ScriptLauncherException("failed to determine rescript lancher version, manifest not found");
   }
 
   private static void downloadFromRemote(String url, File libsDir) {
@@ -83,7 +82,7 @@ public class ScriptLauncher {
           .build();
       client.send(request, BodyHandlers.ofFile(f.toPath()));
     } catch(Exception e) {
-      throw new RuntimeException("failed to download file from " + url, e);
+      throw new ScriptLauncherException("failed to download file from " + url, e);
     }
   }
 
@@ -147,7 +146,7 @@ public class ScriptLauncher {
     File libsDir = new File(bsHomeVersion, "libs");
     // the native launcher should have created the libs dir
     if(!libsDir.exists()) {
-      throw new RuntimeException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
+      throw new ScriptLauncherException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
     }
     setupMavenRepo();
     downloadMissing(bsHomeVersion, libsDir);
