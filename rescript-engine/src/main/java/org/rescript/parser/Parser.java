@@ -17,9 +17,12 @@ public class Parser {
 
   private boolean showErrorsOnConsole;
 
-  public Parser(boolean showErrorsOnConsole) {
+  private String defaultMavenRepo;
+
+  public Parser(boolean showErrorsOnConsole, String defaultMavenRepo) {
     super();
     this.showErrorsOnConsole = showErrorsOnConsole;
+    this.defaultMavenRepo = defaultMavenRepo;
   }
 
   public ParserListener parse(String script, ClassLoader scriptClassLoader) {
@@ -43,7 +46,7 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ParserListener listener = new ParserListener(scriptClassLoader);
+    ParserListener listener = new ParserListener(scriptClassLoader, defaultMavenRepo);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

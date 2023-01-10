@@ -3,7 +3,6 @@ package org.rescript.launcher;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import org.rescript.ScriptEngine;
 import org.rescript.cloader.CLoader;
 
 public class ScriptLauncher {
@@ -166,16 +166,12 @@ public class ScriptLauncher {
         String script = new String(Files.readAllBytes(f.toPath()));
         Class<?> scriptClass = loader.loadClass("org.rescript.Script");
         Object s = scriptClass.getDeclaredConstructor().newInstance();
-        Method setShowErrorsOnConsole = scriptClass.getMethod("setShowErrorsOnConsole", boolean.class);
-        setShowErrorsOnConsole.invoke(s, true);
-        Method setArguments = scriptClass.getMethod("setArguments", String[].class);
-        setArguments.invoke(s, new Object[]{scriptArgs(args)});
-        // setting the script class loader to the app class loader prevents the script seeing (and clashing)
-        // with the script engines own dependencies (like antlr4 or commons lang3 etc.)
-        Method setScriptClassLoader = scriptClass.getMethod("setScriptClassLoader", ClassLoader.class);
-        setScriptClassLoader.invoke(s, ScriptLauncher.class.getClassLoader());
-        Method run = scriptClass.getMethod("run", String.class);
-        run.invoke(s, script);
+        ScriptEngine engine = (ScriptEngine)s;
+        engine.setDefaultMavenRepository(MAVEN_REPO);
+        engine.setScriptClassLoader(ScriptLauncher.class.getClassLoader());
+        engine.setShowErrorsOnConsole(true);
+        engine.setArguments(scriptArgs(args));
+        engine.run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
         System.exit(1);

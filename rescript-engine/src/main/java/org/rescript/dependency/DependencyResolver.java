@@ -129,7 +129,7 @@ public class DependencyResolver {
     }
     MavenCoordinates coord = new MavenCoordinates(node.getGroup(), node.getArtifact(), node.getVersion());
     List<Exception> suppressed = new ArrayList<>();
-    List<MavenRepository> r = repos.getRepositoriesOrCentral();
+    List<MavenRepository> r = repos.getRepositoriesOrDefault();
     // TODO if the node has the repository set on it (from which the pom was downloaded) only try that repo
     for(int i=0;i<r.size();i++) {
       try {

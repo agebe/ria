@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.pom.MavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +13,23 @@ public class Repositories implements Consumer<Object> {
 
   private static final Logger log = LoggerFactory.getLogger(Repositories.class);
 
+  private static final String CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
+
   private static final MavenRepository CENTRAL =
-      new MavenRepository("https://repo.maven.apache.org/maven2/");
+      new MavenRepository(CENTRAL_URL);
+
+  private MavenRepository defaultRepository;
 
   private List<MavenRepository> repositories = new ArrayList<>();
+
+  public Repositories() {
+    this(CENTRAL_URL);
+  }
+
+  public Repositories(String defaultMavenRepo) {
+    super();
+    defaultRepository = StringUtils.isBlank(defaultMavenRepo)?CENTRAL:new MavenRepository(defaultMavenRepo);
+  }
 
   @Override
   public void accept(Object t) {
@@ -36,14 +50,16 @@ public class Repositories implements Consumer<Object> {
     this.repositories = repositories;
   }
 
-  public List<MavenRepository> getRepositoriesOrCentral() {
-    return (repositories == null || repositories.isEmpty())?List.of(CENTRAL):repositories;
+  public List<MavenRepository> getRepositoriesOrDefault() {
+    return (repositories == null || repositories.isEmpty())?List.of(defaultRepository):repositories;
   }
 
+  // keep this, it is used by scripts
   public MavenRepository mavenCentral() {
     return CENTRAL;
   }
 
+  // keep this, it is used by scripts
   public MavenRepository maven(String url) {
     return new MavenRepository(url);
   }

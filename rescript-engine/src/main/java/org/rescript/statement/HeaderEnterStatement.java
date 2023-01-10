@@ -10,8 +10,11 @@ public class HeaderEnterStatement extends AbstractStatement {
   public static final String DEPENDENCIES = "dependencies";
   public static final String REPOSITORIES = "repositories";
 
-  public HeaderEnterStatement(int lineNumber) {
+  private Repositories repos;
+
+  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo) {
     super(lineNumber);
+    this.repos = new Repositories(defaultMavenRepo);
   }
 
   @Override
@@ -22,7 +25,7 @@ public class HeaderEnterStatement extends AbstractStatement {
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(REPOSITORIES)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(
-          REPOSITORIES, Value.of(new Repositories()));
+          REPOSITORIES, Value.of(repos));
     }
   }
 

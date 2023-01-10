@@ -153,9 +153,12 @@ public class ParserListener implements ScriptListener {
 
   private boolean checkKeywords = true;
 
+  private HeaderEnterStatement headerEnter;
+
   private HeaderExitStatement headerExit;
 
-  public ParserListener(ClassLoader scriptClassLoader) {
+  public ParserListener(ClassLoader scriptClassLoader, String defaultMavenRepo) {
+    headerEnter = new HeaderEnterStatement(0, defaultMavenRepo);
     headerExit = new HeaderExitStatement(0, scriptClassLoader);
     // add main function
     Function main = Function.main();
@@ -837,7 +840,7 @@ public class ParserListener implements ScriptListener {
   @Override
   public void enterHeader(HeaderContext ctx) {
     log.debug("enterHeader '{}'", ctx.getText());
-    findMostRecentContainerStatement().addStatement(new HeaderEnterStatement(ctx.getStart().getLine()));
+    findMostRecentContainerStatement().addStatement(headerEnter);
   }
 
   @Override

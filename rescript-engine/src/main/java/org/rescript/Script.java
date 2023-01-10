@@ -8,7 +8,7 @@ import org.rescript.symbol.SymbolTable;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.value.Value;
 
-public class Script {
+public class Script implements ScriptEngine {
 
   private SymbolTable symbols;
 
@@ -22,6 +22,8 @@ public class Script {
 
   // the class loader to load types used by the script
   private ClassLoader scriptClassLoader = this.getClass().getClassLoader();
+
+  private String defaultMavenRepo;
 
   public Script() {
     this(null, null);
@@ -77,6 +79,7 @@ public class Script {
     }
   }
 
+  @Override
   public Object run(String script) {
     return reparse(script).run();
   }
@@ -185,7 +188,7 @@ public class Script {
 
   private Script parse(String script) {
     if(this.entry == null) {
-      ParserListener listener = new Parser(showErrorsOnConsole).parse(script, scriptClassLoader);
+      ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo).parse(script, scriptClassLoader);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
     }
@@ -196,6 +199,7 @@ public class Script {
     return showErrorsOnConsole;
   }
 
+  @Override
   public void setShowErrorsOnConsole(boolean showErrorsOnConsole) {
     this.showErrorsOnConsole = showErrorsOnConsole;
   }
@@ -204,6 +208,7 @@ public class Script {
     return arguments;
   }
 
+  @Override
   public void setArguments(String[] arguments) {
     this.arguments = arguments;
   }
@@ -212,8 +217,14 @@ public class Script {
     return scriptClassLoader;
   }
 
+  @Override
   public void setScriptClassLoader(ClassLoader scriptClassLoader) {
     this.scriptClassLoader = scriptClassLoader;
+  }
+
+  @Override
+  public void setDefaultMavenRepository(String url) {
+    this.defaultMavenRepo = url;
   }
 
 }

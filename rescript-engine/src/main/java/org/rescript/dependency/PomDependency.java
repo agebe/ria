@@ -43,7 +43,7 @@ public class PomDependency implements Dependency {
 
   private Pair<Model, MavenRepository> resolveModel() {
     List<Exception> suppressed = new ArrayList<>();
-    List<MavenRepository> r = repos.getRepositoriesOrCentral();
+    List<MavenRepository> r = repos.getRepositoriesOrDefault();
     for(int i=0;i<r.size();i++) {
       try {
         MavenRepository mr = r.get(i);
