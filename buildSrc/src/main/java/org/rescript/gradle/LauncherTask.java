@@ -94,7 +94,8 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
       if(m.matches()) {
         String url = m.group(1);
         String filename = url.substring(url.lastIndexOf('/')+1);
-        filenameToUrlMap.put(filename, url);
+        String path = url.substring("https://repo.maven.apache.org/maven2/".length());
+        filenameToUrlMap.put(filename, path);
       }
     }
   }

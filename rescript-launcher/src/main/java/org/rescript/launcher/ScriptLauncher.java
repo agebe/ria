@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Manifest;
@@ -19,6 +20,10 @@ import java.util.stream.Stream;
 import org.rescript.cloader.CLoader;
 
 public class ScriptLauncher {
+
+  private static final String MAVEN_REPO_ENV = "BS_MAVEN_REPO";
+
+  private static String MAVEN_REPO = "https://repo.maven.apache.org/maven2/";
 
   private static String[] scriptArgs(String[] args) {
     String[] scriptArgs = new String[args.length-1];
@@ -33,6 +38,13 @@ public class ScriptLauncher {
       // TODO replace with ScriptLauncherException
       throw new RuntimeException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
     }
+  }
+
+  private static String toUrl(String path) {
+    if(path.startsWith("http://") || path.startsWith("https://")) {
+      return path;
+    }
+    return MAVEN_REPO.endsWith("/")?MAVEN_REPO + path:MAVEN_REPO + "/" + path;
   }
 
   private static String version() {
@@ -56,30 +68,72 @@ public class ScriptLauncher {
     throw new RuntimeException("failed to determine rescript lancher version, manifest not found");
   }
 
-  private static void downloadIfMissing(String url, File libsDir) {
+  private static void downloadFromRemote(String url, File libsDir) {
     try {
       HttpClient client = HttpClient
           .newBuilder()
           .build();
       String filename = url.substring(url.lastIndexOf('/')+1);
       File f = new File(libsDir, filename);
-      if(!f.exists()) {
-        System.err.println("get " + url);
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI(url))
-            .version(HttpClient.Version.HTTP_2)
-            .GET()
-            .build();
-        client.send(request, BodyHandlers.ofFile(f.toPath()));
-      }
+      System.err.println("get script engine dependency " + url);
+      HttpRequest request = HttpRequest.newBuilder()
+          .uri(new URI(url))
+          .version(HttpClient.Version.HTTP_2)
+          .GET()
+          .build();
+      client.send(request, BodyHandlers.ofFile(f.toPath()));
     } catch(Exception e) {
       throw new RuntimeException("failed to download file from " + url, e);
     }
   }
 
+  private static void copy(File src, File dest) {
+    try {
+      Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING,
+          StandardCopyOption.COPY_ATTRIBUTES);
+    } catch (IOException e) {
+      throw new ScriptLauncherException("failed to copy file from '%s' to '%s'"
+          .formatted(src.getAbsolutePath(), dest.getAbsolutePath()), e);
+    }
+  }
+
+  private static void fetchIfMissing(String url, File libsDir) {
+    String filename = url.substring(url.lastIndexOf('/')+1);
+    File f = new File(libsDir, filename);
+    if(!f.exists()) {
+      if(url.startsWith("/")) {
+        copy(new File(url), new File(libsDir, filename));
+      } else if(url.startsWith("file:")) {
+        copy(new File(url.substring("file:".length())), new File(libsDir, filename));
+      } else {
+        downloadFromRemote(url, libsDir);
+      }
+    }
+  }
+
   private static void downloadMissing(File bsHomeVersion, File libsDir) throws IOException {
     Files.readAllLines(new File(bsHomeVersion, "libs.txt").toPath())
-    .forEach(url -> downloadIfMissing(url, libsDir));
+    .forEach(path -> fetchIfMissing(toUrl(path), libsDir));
+  }
+
+  public static boolean isBlank(final CharSequence cs) {
+    final int strLen = cs == null ? 0 : cs.length();
+    if (strLen == 0) {
+        return true;
+    }
+    for (int i = 0; i < strLen; i++) {
+        if (!Character.isWhitespace(cs.charAt(i))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+  private static void setupMavenRepo() {
+    String repos = System.getenv().get(MAVEN_REPO_ENV);
+    if(!isBlank(repos)) {
+      MAVEN_REPO = repos;
+    }
   }
 
   public static void main(String[] args) throws Exception {
@@ -95,6 +149,7 @@ public class ScriptLauncher {
     if(!libsDir.exists()) {
       throw new RuntimeException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
     }
+    setupMavenRepo();
     downloadMissing(bsHomeVersion, libsDir);
     List<File> libs = Stream.of(libsDir.listFiles())
     .filter(file -> !file.isDirectory())
