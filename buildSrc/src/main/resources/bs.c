@@ -15,6 +15,8 @@
 #include "launchJvm.h"
 #include "files.h"
 
+const char* BS_HOME = "BS_HOME";
+
 char bsHome[PATH_MAX];
 char bsHomeVersion[PATH_MAX];
 char bsHomeLibs[PATH_MAX];
@@ -100,7 +102,11 @@ void writeFiles() {
 }
 
 void initBsInfo() {
-  snprintf(bsHome, PATH_MAX, "%s/.bs", getenv("HOME"));
+  if(getenv(BS_HOME)) {
+    snprintf(bsHome, PATH_MAX, "%s", getenv("BS_HOME"));
+  } else {
+    snprintf(bsHome, PATH_MAX, "%s/.bs", getenv("HOME"));
+  }
   snprintf(bsHomeVersion, PATH_MAX, "%s/%s", bsHome, version);
   snprintf(bsHomeLibs, PATH_MAX, "%s/libs", bsHomeVersion);
   snprintf(bsHomeBoot, PATH_MAX, "%s/boot", bsHomeVersion);

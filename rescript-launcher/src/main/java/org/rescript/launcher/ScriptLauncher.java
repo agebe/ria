@@ -2,7 +2,6 @@ package org.rescript.launcher;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -11,13 +10,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 import org.rescript.ScriptEngine;
 import org.rescript.cloader.CLoader;
+import org.rescript.util.ManifestUtils;
 
 public class ScriptLauncher {
 
@@ -44,27 +42,6 @@ public class ScriptLauncher {
       return path;
     }
     return MAVEN_REPO.endsWith("/")?MAVEN_REPO + path:MAVEN_REPO + "/" + path;
-  }
-
-  private static String version() {
-    try {
-      Enumeration<URL> manifestUrls = ScriptLauncher.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-      while(manifestUrls.hasMoreElements()) {
-        URL url = manifestUrls.nextElement();
-        Manifest manifest = new Manifest(url.openStream());
-        if("rescript-launcher".equals(manifest.getMainAttributes().getValue("Implementation-Title"))) {
-          String version = manifest.getMainAttributes().getValue("Implementation-Version");
-          if(version != null) {
-            return version;
-          } else {
-            throw new ScriptLauncherException("no version on rescript launcher manifest");
-          }
-        }
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException("failed to determine rescript launcher version", e);
-    }
-    throw new ScriptLauncherException("failed to determine rescript lancher version, manifest not found");
   }
 
   private static void downloadFromRemote(String url, File libsDir) {
@@ -141,8 +118,9 @@ public class ScriptLauncher {
       System.err.println("script file parameter missing");
       System.exit(1);
     }
-    String rescriptHome = args[0];
-    File bsHomeVersion = new File(rescriptHome+"/"+version());
+    File rescriptHome = new File(args[0]);
+    String version = ManifestUtils.version(ScriptLauncher.class.getClassLoader(), "rescript-launcher");
+    File bsHomeVersion = new File(rescriptHome, version);
     File libsDir = new File(bsHomeVersion, "libs");
     // the native launcher should have created the libs dir
     if(!libsDir.exists()) {
@@ -171,6 +149,7 @@ public class ScriptLauncher {
         engine.setScriptClassLoader(ScriptLauncher.class.getClassLoader());
         engine.setShowErrorsOnConsole(true);
         engine.setArguments(scriptArgs(args));
+        engine.setRescriptHome(rescriptHome);
         engine.run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));

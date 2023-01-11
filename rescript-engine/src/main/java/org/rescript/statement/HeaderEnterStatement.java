@@ -1,5 +1,7 @@
 package org.rescript.statement;
 
+import java.io.File;
+
 import org.rescript.dependency.Dependencies;
 import org.rescript.dependency.Repositories;
 import org.rescript.run.ScriptContext;
@@ -12,9 +14,9 @@ public class HeaderEnterStatement extends AbstractStatement {
 
   private Repositories repos;
 
-  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo) {
+  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo, File cacheBase) {
     super(lineNumber);
-    this.repos = new Repositories(defaultMavenRepo);
+    this.repos = new Repositories(defaultMavenRepo, cacheBase);
   }
 
   @Override

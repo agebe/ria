@@ -1,11 +1,17 @@
 package org.rescript;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.parser.Parser;
 import org.rescript.parser.ParserListener;
 import org.rescript.run.ScriptRunner;
 import org.rescript.statement.Function;
 import org.rescript.symbol.SymbolTable;
 import org.rescript.symbol.VarSymbol;
+import org.rescript.util.ManifestUtils;
 import org.rescript.value.Value;
 
 public class Script implements ScriptEngine {
@@ -24,6 +30,8 @@ public class Script implements ScriptEngine {
   private ClassLoader scriptClassLoader = this.getClass().getClassLoader();
 
   private String defaultMavenRepo;
+
+  private File rescriptHome;
 
   public Script() {
     this(null, null);
@@ -185,9 +193,38 @@ public class Script implements ScriptEngine {
     return parse(script);
   }
 
+  private String getVersion() {
+    try {
+      // try to read the version from the manifest first
+      return ManifestUtils.version(this.getClass().getClassLoader(), "rescript-engine");
+    } catch(Exception e) {
+      try {
+        // if we are running from inside eclipse (e.g. run junit tests) the version might be here:
+        return StringUtils.strip(FileUtils.readFileToString(new File("../version"), StandardCharsets.UTF_8));
+      } catch(Exception e2) {
+        throw new ScriptException("failed to determine script engine version");
+      }
+    }
+  }
+
+  private File getCacheBase() {
+    File home = getRescriptHome()!=null?getRescriptHome():new File(new File(System.getProperty("user.home")), ".bs");
+    File versionBase = new File(home, getVersion());
+    File cacheBase = new File(versionBase, "cache");
+    if(!cacheBase.exists()) {
+      cacheBase.mkdirs();
+    }
+    if(!(cacheBase.exists() && cacheBase.isDirectory())) {
+      throw new ScriptException("failed to create cache directory '%s'".formatted(cacheBase));
+    }
+    System.err.println("cache base " + cacheBase.getAbsolutePath());
+    return cacheBase;
+  }
+
   private Script parse(String script) {
     if(this.entry == null) {
-      ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo).parse(script, scriptClassLoader);
+      ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo)
+          .parse(script, scriptClassLoader, getCacheBase());
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
     }
@@ -224,6 +261,15 @@ public class Script implements ScriptEngine {
   @Override
   public void setDefaultMavenRepository(String url) {
     this.defaultMavenRepo = url;
+  }
+
+  public File getRescriptHome() {
+    return rescriptHome;
+  }
+
+  @Override
+  public void setRescriptHome(File rescriptHome) {
+    this.rescriptHome = rescriptHome;
   }
 
 }

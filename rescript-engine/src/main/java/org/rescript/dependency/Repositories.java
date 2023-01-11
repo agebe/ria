@@ -1,5 +1,6 @@
 package org.rescript.dependency;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -15,20 +16,23 @@ public class Repositories implements Consumer<Object> {
 
   private static final String CENTRAL_URL = "https://repo.maven.apache.org/maven2/";
 
-  private static final MavenRepository CENTRAL =
-      new MavenRepository(CENTRAL_URL);
+  private final MavenRepository CENTRAL;
 
   private MavenRepository defaultRepository;
 
   private List<MavenRepository> repositories = new ArrayList<>();
 
-  public Repositories() {
-    this(CENTRAL_URL);
+  private File cacheBase;
+
+  public Repositories(File cacheBase) {
+    this(null, cacheBase);
   }
 
-  public Repositories(String defaultMavenRepo) {
+  public Repositories(String defaultMavenRepo, File cacheBase) {
     super();
-    defaultRepository = StringUtils.isBlank(defaultMavenRepo)?CENTRAL:new MavenRepository(defaultMavenRepo);
+    CENTRAL = new MavenRepository(CENTRAL_URL, cacheBase);
+    defaultRepository = StringUtils.isBlank(defaultMavenRepo)?CENTRAL:new MavenRepository(defaultMavenRepo, cacheBase);
+    this.cacheBase = cacheBase;
   }
 
   @Override
@@ -36,7 +40,7 @@ public class Repositories implements Consumer<Object> {
     if(t instanceof MavenRepository m) {
       repositories.add(m);
     } else if(t instanceof String s) {
-      repositories.add(new MavenRepository(s));
+      repositories.add(new MavenRepository(s, cacheBase));
     } else {
       log.warn("ignoring repository '{}', unknown type", t);
     }
@@ -61,7 +65,7 @@ public class Repositories implements Consumer<Object> {
 
   // keep this, it is used by scripts
   public MavenRepository maven(String url) {
-    return new MavenRepository(url);
+    return new MavenRepository(url, cacheBase);
   }
 
 }

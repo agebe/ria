@@ -1,5 +1,7 @@
 package org.rescript.parser;
 
+import java.io.File;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
@@ -25,7 +27,7 @@ public class Parser {
     this.defaultMavenRepo = defaultMavenRepo;
   }
 
-  public ParserListener parse(String script, ClassLoader scriptClassLoader) {
+  public ParserListener parse(String script, ClassLoader scriptClassLoader, File cacheBase) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -46,7 +48,7 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ParserListener listener = new ParserListener(scriptClassLoader, defaultMavenRepo);
+    ParserListener listener = new ParserListener(scriptClassLoader, defaultMavenRepo, cacheBase);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

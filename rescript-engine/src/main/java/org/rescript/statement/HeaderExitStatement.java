@@ -3,6 +3,7 @@ package org.rescript.statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rescript.ScriptException;
 import org.rescript.dependency.Dependencies;
 import org.rescript.dependency.DependencyResolver;
 import org.rescript.dependency.Repositories;
@@ -36,7 +37,7 @@ public class HeaderExitStatement extends AbstractStatement {
         return repos;
       }
     }
-    return new Repositories();
+    throw new ScriptException("no maven repositories have been setup");
   }
 
   private void resolveDependencies(ScriptContext ctx) {

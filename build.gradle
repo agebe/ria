@@ -9,7 +9,7 @@ subprojects {
   apply plugin: 'java-library'
   apply plugin: 'eclipse'
 
-  version = '0.1.0-SNAPSHOT'
+  version = project.file('../version').text.trim()
   group = 'io.github.agebe'
 
   repositories {

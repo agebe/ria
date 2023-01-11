@@ -1,5 +1,6 @@
 package org.rescript.parser;
 
+import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -157,8 +158,8 @@ public class ParserListener implements ScriptListener {
 
   private HeaderExitStatement headerExit;
 
-  public ParserListener(ClassLoader scriptClassLoader, String defaultMavenRepo) {
-    headerEnter = new HeaderEnterStatement(0, defaultMavenRepo);
+  public ParserListener(ClassLoader scriptClassLoader, String defaultMavenRepo, File cacheBase) {
+    headerEnter = new HeaderEnterStatement(0, defaultMavenRepo, cacheBase);
     headerExit = new HeaderExitStatement(0, scriptClassLoader);
     // add main function
     Function main = Function.main();

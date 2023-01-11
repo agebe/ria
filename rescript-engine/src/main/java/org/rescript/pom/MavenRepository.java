@@ -18,9 +18,12 @@ public class MavenRepository {
 
   private String repositoryUrl;
 
-  public MavenRepository(String repositoryUrl) {
+  private File cacheBase;
+
+  public MavenRepository(String repositoryUrl, File cacheBase) {
     super();
     this.repositoryUrl = repositoryUrl;
+    this.cacheBase = cacheBase;
   }
 
   public String getFile(MavenCoordinates coord, String suffix) throws Exception {
@@ -73,9 +76,6 @@ public class MavenRepository {
   }
 
   private File cache(MavenCoordinates coord, String suffix) {
-    File userHome = new File(System.getProperty("user.home"));
-    // FIXME version needs to be read from the manifest
-    File cacheBase = new File(userHome, ".bs/0.1.0-SNAPSHOT/cache");
     File group = new File(cacheBase, coord.group());
     File artifact = new File(group, coord.artifact());
     File version = new File(artifact, coord.version());
