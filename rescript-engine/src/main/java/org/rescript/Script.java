@@ -40,13 +40,12 @@ public class Script implements ScriptEngine {
   }
 
   private Value runVal() {
+    // remember the context class loader. It is set in HeaderExitStatement, after the dependencies have been resolved
+    // and the java types have been compiled.
     ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
     try {
       parse(script);
       setupArguments();
-      // some libraries like e.g. kafka prefer to use the context class loader
-      // so set it up here but restore to the previous context class loader when the script is done executing
-      Thread.currentThread().setContextClassLoader(this.symbols.getJavaSymbols().getClassLoader());
       return new ScriptRunner(symbols).run();
     } finally {
       Thread.currentThread().setContextClassLoader(ctxLoader);

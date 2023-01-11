@@ -89,7 +89,7 @@ public class HeaderExitStatement extends AbstractStatement {
           .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
           .toList();
       ClassLoader loader = JavaC.compile(l, symbols.getClassLoader());
-      ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+      symbols.setClassLoader(loader);
     }
   }
 
@@ -98,6 +98,11 @@ public class HeaderExitStatement extends AbstractStatement {
     resolveDependencies(ctx);
     addStdImports(ctx);
     compileJavaTypes(ctx);
+    JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
+    // some libraries like e.g. kafka prefer to use the context class loader
+    // so set it up here but restore to the previous context class loader when the script is done executing
+    // the restoring is done in Script.runVal
+    Thread.currentThread().setContextClassLoader(symbols.getClassLoader());
   }
 
   private JavaSource toJavaSource(JavaSourceBuilder builder, ScriptContext ctx) {
