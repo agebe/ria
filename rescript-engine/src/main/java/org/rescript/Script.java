@@ -13,8 +13,12 @@ import org.rescript.symbol.SymbolTable;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.util.ManifestUtils;
 import org.rescript.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Script implements ScriptEngine {
+
+  private static final Logger log = LoggerFactory.getLogger(Script.class);
 
   private SymbolTable symbols;
 
@@ -217,7 +221,7 @@ public class Script implements ScriptEngine {
     if(!(cacheBase.exists() && cacheBase.isDirectory())) {
       throw new ScriptException("failed to create cache directory '%s'".formatted(cacheBase));
     }
-    System.err.println("cache base " + cacheBase.getAbsolutePath());
+    log.debug("cache base '{}'", cacheBase.getAbsolutePath());
     return cacheBase;
   }
 
