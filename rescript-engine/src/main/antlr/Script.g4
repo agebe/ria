@@ -21,6 +21,7 @@ headerElement
 
 importStmt
   : IMPORT STATIC? importType SEMI
+  | IMPORT STATIC? strLiteral SEMI
   ;
 
 importType

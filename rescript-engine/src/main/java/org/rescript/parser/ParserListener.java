@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
@@ -859,7 +860,15 @@ public class ParserListener implements ScriptListener {
   public void exitImportStmt(ImportStmtContext ctx) {
     log.debug("exitImportStmt '{}'", ctx.getText());
     popSemi();
-    ImportType type = (ImportType)stack.pop();
+    ImportType type = null;
+    if(nextItemIs(ImportType.class)) {
+      type = pop(ImportType.class);
+    } else if(nextItemIs(StringLiteral.class)) {
+      StringLiteral s = pop(StringLiteral.class);
+      type = new ImportType(s.getUnescaped());
+    } else {
+      throw new ScriptException("unexpected item on stack '%s'".formatted(Objects.toString(stack.peek())));
+    }
     Statement stmt = null;
     if(nextTerminalIs("static")) {
       popTerminal("static");

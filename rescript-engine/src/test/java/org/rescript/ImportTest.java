@@ -52,4 +52,15 @@ public class ImportTest {
     assertTrue(b);
   }
 
+  @Test
+  public void importFunctionPackage() {
+    // function is a keyword in the script language and can not be used in package names.
+    // to make this work also allow the import from a string
+    int i = new Script().evalInt("""
+        import 'org.rescript.function.A';
+        var a = A.test();
+        """);
+    assertEquals(42, i);
+  }
+
 }
