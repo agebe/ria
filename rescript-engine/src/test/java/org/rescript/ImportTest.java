@@ -1,6 +1,7 @@
 package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,27 @@ public class ImportTest {
         var a = A.test();
         """);
     assertEquals(42, i);
+  }
+
+  @Test
+  public void noDefaultImports() {
+    assertThrows(ScriptException.class, () ->
+    new Script().run("""
+        options {
+          defaultImportsEnabled = false;
+        }
+        var l = List.of();
+        """));
+  }
+
+  @Test
+  public void changeDefaultImports() {
+    assertEquals("java.awt.List", new Script().run("""
+        options {
+          defaultImports.addFirst('java.awt.List');
+        }
+        typeof new List();
+        """));
   }
 
 }

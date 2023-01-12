@@ -3,6 +3,7 @@ package org.rescript.statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rescript.Options;
 import org.rescript.ScriptException;
 import org.rescript.dependency.Dependencies;
 import org.rescript.dependency.DependencyResolver;
@@ -29,6 +30,17 @@ public class HeaderExitStatement extends AbstractStatement {
     this.scriptClassLoader = scriptClassLoader;
   }
 
+  private <T> T resolve(ScriptContext ctx, String name, Class<T> cls) {
+    VarSymbol r = ctx.getSymbols().getScriptSymbols().resolveVar(name);
+    if(r != null) {
+      Object o = r.get().val();
+      if(cls.isAssignableFrom(o.getClass())) {
+        return cls.cast(o);
+      }
+    }
+    return null;
+  }
+
   private Repositories getRepos(ScriptContext ctx) {
     VarSymbol r = ctx.getSymbols().getScriptSymbols().resolveVar(HeaderEnterStatement.REPOSITORIES);
     if(r != null) {
@@ -41,7 +53,7 @@ public class HeaderExitStatement extends AbstractStatement {
   }
 
   private void resolveDependencies(ScriptContext ctx) {
-    VarSymbol v = ctx.getSymbols().getScriptSymbols().resolveVar("dependencies");
+    VarSymbol v = ctx.getSymbols().getScriptSymbols().resolveVar(HeaderEnterStatement.DEPENDENCIES);
     if(v != null) {
       Object o = v.get().val();
       if(o instanceof Dependencies dependencies) {
@@ -49,37 +61,28 @@ public class HeaderExitStatement extends AbstractStatement {
             .resolveAll(dependencies, scriptClassLoader);
         ClassLoader loader = dependencyClassLoader;
         ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+        // TODO all packages from direct dependencies should also be auto imported
       }
     }
   }
 
-  private void addStdImports(ScriptContext ctx) {
-    // TODO additional default imports should be configurable?
-    // FIXME add a flag that disables additional default imports (other than java.lang.*) (language keyword for headers)
-    // TODO all packages from direct dependencies should also be auto imported
-    // add additional auto imports late so the user defined imports take precedence
+  private void addDefaultImports(ScriptContext ctx) {
+    Options options = resolve(ctx, HeaderEnterStatement.OPTIONS, Options.class);
+    if(options == null) {
+      log.debug("options is null");
+      return;
+    }
+    if(!options.defaultImportsEnabled) {
+      log.debug("default imports disabled");
+      return;
+    }
+    if(options.defaultImports == null) {
+      log.debug("default imports list is null");
+      return;
+    }
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
-    symbols.addImport("java.math.*");
-    symbols.addImport("java.util.*");
-    symbols.addImport("java.util.concurrent.*");
-    symbols.addImport("java.util.concurrent.atomic.*");
-    symbols.addImport("java.util.concurrent.locks.*");
-    symbols.addImport("java.util.function.*");
-    symbols.addImport("java.util.regex.*");
-    symbols.addImport("java.util.stream.*");
-    symbols.addImport("java.time.*");
-    symbols.addImport("java.time.chrono.*");
-    symbols.addImport("java.time.format.*");
-    symbols.addImport("java.time.temporal.*");
-    symbols.addImport("java.time.zone.*");
-    symbols.addImport("java.io.*");
-    symbols.addImport("java.net.*");
-    symbols.addImport("java.nio.*");
-    symbols.addImport("java.nio.channels.*");
-    symbols.addImport("java.nio.charset.*");
-    symbols.addImport("java.nio.file.*");
-    symbols.addImport("java.nio.file.attribute.*");
-    symbols.addImport("java.text.*");
+    // add additional auto imports late so the user defined imports take precedence
+    options.defaultImports.forEach(symbols::addImport);
   }
 
   private void compileJavaTypes(ScriptContext ctx) {
@@ -97,7 +100,7 @@ public class HeaderExitStatement extends AbstractStatement {
   @Override
   public void execute(ScriptContext ctx) {
     resolveDependencies(ctx);
-    addStdImports(ctx);
+    addDefaultImports(ctx);
     compileJavaTypes(ctx);
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     // some libraries like e.g. kafka prefer to use the context class loader
