@@ -41,28 +41,20 @@ public class HeaderExitStatement extends AbstractStatement {
     return null;
   }
 
-  private Repositories getRepos(ScriptContext ctx) {
-    VarSymbol r = ctx.getSymbols().getScriptSymbols().resolveVar(HeaderEnterStatement.REPOSITORIES);
-    if(r != null) {
-      Object o = r.get().val();
-      if(o instanceof Repositories repos) {
-        return repos;
-      }
-    }
-    throw new ScriptException("no maven repositories have been setup");
-  }
-
   private void resolveDependencies(ScriptContext ctx) {
-    VarSymbol v = ctx.getSymbols().getScriptSymbols().resolveVar(HeaderEnterStatement.DEPENDENCIES);
-    if(v != null) {
-      Object o = v.get().val();
-      if(o instanceof Dependencies dependencies) {
-        ClassLoader dependencyClassLoader = new DependencyResolver(getRepos(ctx))
-            .resolveAll(dependencies, scriptClassLoader);
-        ClassLoader loader = dependencyClassLoader;
-        ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
-        // TODO all packages from direct dependencies should also be auto imported
-      }
+    Repositories repos = resolve(ctx, HeaderEnterStatement.REPOSITORIES, Repositories.class);
+    if(repos == null) {
+      throw new ScriptException("no maven repositories have been setup");
+    }
+    Dependencies dependencies = resolve(ctx, HeaderEnterStatement.DEPENDENCIES, Dependencies.class);
+    if(dependencies != null) {
+      ClassLoader dependencyClassLoader = new DependencyResolver(repos)
+          .resolveAll(dependencies, scriptClassLoader);
+      ClassLoader loader = dependencyClassLoader;
+      ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+      // TODO all packages from direct dependencies should also be auto imported
+    } else {
+      log.debug("dependencies is null");
     }
   }
 
