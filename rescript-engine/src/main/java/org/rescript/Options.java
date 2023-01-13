@@ -41,4 +41,6 @@ public class Options {
       "java.util.stream.*"
       ));
 
+  public boolean importDependencies = true;
+
 }

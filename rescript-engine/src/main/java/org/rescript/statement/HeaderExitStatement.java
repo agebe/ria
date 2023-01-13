@@ -74,6 +74,45 @@ public class HeaderExitStatement extends AbstractStatement {
     }
   }
 
+  private List<File> jarsToImport(DependencyNode root) {
+    return jarsToImport(root, new ArrayList<>());
+  }
+
+  private List<File> jarsToImport(DependencyNode node, List<File> result) {
+    List<DependencyNode> l = node.getChildren();
+    // import all packages from direct dependencies.
+    // if the direct dependencies does not have a jar file (e.g. pom only dependency) then
+    // import the packages of children of that dependency recursively until there is a jar file or no more dependencies
+    // exist
+    for(DependencyNode c : l) {
+      if(c.getFile() != null) {
+        result.add(c.getFile());
+      } else {
+        jarsToImport(c, result);
+      }
+    }
+    return result;
+  }
+
+  private boolean importFromDependencies(ScriptContext ctx) {
+    Options options = resolve(ctx, HeaderEnterStatement.OPTIONS, Options.class);
+    if(options == null) {
+      log.debug("options is null");
+      return true;
+    } else {
+      return options.importDependencies;
+    }
+  }
+
+  private void importDependencies(DependencyNode root) {
+    // TODO all packages from direct dependencies should also be auto imported
+    List<File> jars = jarsToImport(root);
+    System.out.println("jars to import");
+    jars.forEach(System.out::println);
+    System.out.println("jars to import done");
+    // TODO write package scanner
+  }
+
   private void resolveDependencies(ScriptContext ctx) {
     Repositories repos = resolve(ctx, HeaderEnterStatement.REPOSITORIES, Repositories.class);
     if(repos == null) {
@@ -91,8 +130,10 @@ public class HeaderExitStatement extends AbstractStatement {
             allJars.stream().map(this::toUrl).toArray(URL[]::new),
             scriptClassLoader);
         ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+        if(importFromDependencies(ctx)) {
+          importDependencies(root);
+        }
       }
-      // TODO all packages from direct dependencies should also be auto imported
     } else {
       log.debug("dependencies is null");
     }
