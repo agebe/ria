@@ -106,6 +106,10 @@ public class DependencyNode {
     return file;
   }
 
+  public void setFile(File file) {
+    this.file = file;
+  }
+
   public List<File> filesRecursive() {
     return filesRecursive(new ArrayList<>());
   }
@@ -173,6 +177,10 @@ public class DependencyNode {
 
   public void setPackaging(String packaging) {
     this.packaging = packaging;
+  }
+
+  public List<DependencyNode> getChildren() {
+    return children;
   }
 
   @Override

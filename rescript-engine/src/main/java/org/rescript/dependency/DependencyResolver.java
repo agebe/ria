@@ -1,19 +1,14 @@
 package org.rescript.dependency;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
-import org.rescript.cloader.CLoader;
 import org.rescript.pom.MavenCoordinates;
 import org.rescript.pom.MavenRepository;
 
@@ -26,29 +21,15 @@ public class DependencyResolver {
     this.repositories = repositories;
   }
 
-  private URL toUrl(File f) {
-    try {
-      return f.toURI().toURL();
-    } catch (MalformedURLException e) {
-      throw new ScriptException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
-    }
+  public DependencyNode resolveAll(Dependencies dependencies) {
+    return resolveDependencies(dependencies);
   }
 
-  public ClassLoader resolveAll(Dependencies dependencies, ClassLoader parentClassLoader) {
-    List<File> l = resolveDependencies(dependencies);
-    if(l.isEmpty()) {
-      return parentClassLoader;
-    } else {
-      System.err.println("dependencies on classloader:");
-      l.stream().map(f -> f.getName()).sorted().forEach(System.err::println);
-      return new CLoader(
-          "scriptClassLoader",
-          l.stream().map(this::toUrl).toArray(URL[]::new),
-          parentClassLoader);
-    }
+  public List<File> directDependencies(Dependencies dependencies) {
+    return List.of();
   }
 
-  private List<File> resolveDependencies(Dependencies dependencies) {
+  private DependencyNode resolveDependencies(Dependencies dependencies) {
     final DependencyNode root = new DependencyNode();
     dependencies.getDependencies().forEach(dep -> root.addChildren(dep.resolve()));
     // TODO add support for variables and variable replacements in the dependencies e.g. for versions
@@ -109,12 +90,8 @@ public class DependencyResolver {
         }
       }
     }
-    return Stream.concat(
-        managedDependencies.stream(),
-        root.asList().stream().filter(d -> d.getFile() != null))
-        .map(d -> toJar(d, repositories))
-        .filter(Objects::nonNull)
-        .toList();
+    root.asList().stream().forEachOrdered(d -> toJar(d, repositories));
+    return root;
   }
 
   private File toJar(DependencyNode node, Repositories repos) {
@@ -134,7 +111,9 @@ public class DependencyResolver {
     for(int i=0;i<r.size();i++) {
       try {
         MavenRepository mr = r.get(i);
-        return mr.fetchFile(coord, ".jar");
+        File f = mr.fetchFile(coord, ".jar");
+        node.setFile(f);
+        return f;
       } catch(Exception e) {
         if(i == r.size() -1) {
           ScriptException exception = new ScriptException("failed to fetch jar file from remote '%s' from all repositories"

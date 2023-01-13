@@ -1,11 +1,18 @@
 package org.rescript.statement;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.rescript.Options;
 import org.rescript.ScriptException;
+import org.rescript.cloader.CLoader;
 import org.rescript.dependency.Dependencies;
+import org.rescript.dependency.DependencyNode;
 import org.rescript.dependency.DependencyResolver;
 import org.rescript.dependency.Repositories;
 import org.rescript.java.JavaC;
@@ -41,6 +48,32 @@ public class HeaderExitStatement extends AbstractStatement {
     return null;
   }
 
+  private File canonical(File f) {
+    try {
+      return f.getCanonicalFile();
+    } catch (IOException e) {
+      throw new ScriptException("failed to get canonical file of " + f.getAbsolutePath());
+    }
+  }
+
+  private List<File> allJars(DependencyNode root) {
+    return root.asList()
+        .stream()
+        .map(DependencyNode::getFile)
+        .filter(Objects::nonNull)
+        .map(this::canonical)
+        .distinct()
+        .toList();
+  }
+
+  private URL toUrl(File f) {
+    try {
+      return f.toURI().toURL();
+    } catch (MalformedURLException e) {
+      throw new ScriptException("failed to convert file '%s' to url".formatted(f.getAbsolutePath()), e);
+    }
+  }
+
   private void resolveDependencies(ScriptContext ctx) {
     Repositories repos = resolve(ctx, HeaderEnterStatement.REPOSITORIES, Repositories.class);
     if(repos == null) {
@@ -48,10 +81,17 @@ public class HeaderExitStatement extends AbstractStatement {
     }
     Dependencies dependencies = resolve(ctx, HeaderEnterStatement.DEPENDENCIES, Dependencies.class);
     if(dependencies != null) {
-      ClassLoader dependencyClassLoader = new DependencyResolver(repos)
-          .resolveAll(dependencies, scriptClassLoader);
-      ClassLoader loader = dependencyClassLoader;
-      ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+      DependencyNode root = new DependencyResolver(repos).resolveAll(dependencies);
+      List<File> allJars = allJars(root);
+      if(!allJars.isEmpty()) {
+        System.err.println("dependencies on classloader:");
+        allJars.stream().map(f -> f.getName()).sorted().forEach(System.err::println);
+        CLoader loader = new CLoader(
+            "scriptClassLoader",
+            allJars.stream().map(this::toUrl).toArray(URL[]::new),
+            scriptClassLoader);
+        ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+      }
       // TODO all packages from direct dependencies should also be auto imported
     } else {
       log.debug("dependencies is null");
