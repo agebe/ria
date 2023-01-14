@@ -42,16 +42,15 @@ public class JavaTypeDefTest {
   @Test
   public void gsonTypeAdapterGenerics() {
     new Script().run("""
+// just showing how to exclude some packages from the automatic package import
+// but not necessary in this case
+options {
+  importDependenciesFilter.add('com.google.gson.internal.*');
+}
+
 dependencies {
   'com.google.code.gson:gson:2.10'
 }
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 public class ListOfInstantTypeToken extends TypeToken<List<Instant>> {
 }

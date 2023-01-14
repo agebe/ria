@@ -35,5 +35,5 @@ var json = '''
 		value: "#000"
 	}
 ]''';
-var l = new com.google.gson.Gson().fromJson(json, List.class);
+var l = new Gson().fromJson(json, List.class);
 println(l.get(0).get("value"));

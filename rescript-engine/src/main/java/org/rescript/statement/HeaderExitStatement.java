@@ -7,7 +7,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.rescript.Options;
 import org.rescript.ScriptException;
 import org.rescript.cloader.CLoader;
@@ -21,6 +28,7 @@ import org.rescript.java.JavaSourceBuilder;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.symbol.java.JavaSymbols;
+import org.rescript.util.PackageNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,13 +112,50 @@ public class HeaderExitStatement extends AbstractStatement {
     }
   }
 
-  private void importDependencies(DependencyNode root) {
+  private boolean filterOut(String s, Set<Pattern> filters) {
+    boolean result = filters.stream().anyMatch(p -> p.matcher(s).matches());
+    if(result) {
+      log.debug("path '{}' is filtered out on importDependenciesFilter filters", s, result);
+    }
+    return result;
+  }
+
+  private Set<String> getPackages(File f, Set<String> filters) {
+    Set<Pattern> patterns = filters.stream()
+        .map(Pattern::compile)
+        .collect(Collectors.toSet());
+    try(ZipFile zip = new ZipFile(f)) {
+      return zip.stream()
+          .map(ZipEntry::getName)
+          .map(StringUtils::strip)
+          .filter(name -> StringUtils.endsWith(name, ".class"))
+          .filter(name -> !filterOut(name, patterns))
+          .map(FilenameUtils::getPathNoEndSeparator)
+          .map(path -> StringUtils.replaceChars(path, '/', '.'))
+          .filter(StringUtils::isNotBlank)
+          .filter(PackageNameUtils::isPackageNameValid)
+          .collect(Collectors.toSet());
+    } catch (Exception e) {
+      log.debug("failed to extract package names from '{}'", f, e);
+      return Set.of();
+    }
+  }
+
+  private void importDependencies(DependencyNode root, ScriptContext ctx) {
+    Options options = resolve(ctx, HeaderEnterStatement.OPTIONS, Options.class);
+    Set<String> filters = options!=null?options.importDependenciesFilter:Set.of();
+    JavaSymbols sym = ctx.getSymbols().getJavaSymbols();
     // TODO all packages from direct dependencies should also be auto imported
     List<File> jars = jarsToImport(root);
-    System.out.println("jars to import");
-    jars.forEach(System.out::println);
-    System.out.println("jars to import done");
-    // TODO write package scanner
+    jars.stream()
+    .flatMap(jar -> getPackages(jar, filters).stream())
+    .distinct()
+    .sorted()
+    .forEachOrdered(pkg -> {
+      String p = pkg+".*";
+      log.debug("adding package '{}'", p);
+      sym.addImport(p);
+    });
   }
 
   private void resolveDependencies(ScriptContext ctx) {
@@ -131,7 +176,7 @@ public class HeaderExitStatement extends AbstractStatement {
             scriptClassLoader);
         ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
         if(importFromDependencies(ctx)) {
-          importDependencies(root);
+          importDependencies(root, ctx);
         }
       }
     } else {
@@ -172,8 +217,8 @@ public class HeaderExitStatement extends AbstractStatement {
 
   @Override
   public void execute(ScriptContext ctx) {
-    resolveDependencies(ctx);
     addDefaultImports(ctx);
+    resolveDependencies(ctx);
     compileJavaTypes(ctx);
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     // some libraries like e.g. kafka prefer to use the context class loader

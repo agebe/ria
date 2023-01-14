@@ -1,13 +1,12 @@
 #!/usr/bin/env bs
 // pdf box example from https://pdfbox.apache.org/1.8/cookbook/documentcreation.html
-
 dependencies {
   'org.apache.pdfbox:pdfbox:2.0.22'
 }
 
-import org.apache.pdfbox.pdmodel.*;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
+//import org.apache.pdfbox.pdmodel.*;
+//import org.apache.pdfbox.pdmodel.font.PDFont;
+//import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 // Create a document and add a page to it
 PDDocument document = new PDDocument();
