@@ -40,9 +40,12 @@ public class HeaderExitStatement extends AbstractStatement {
 
   private ClassLoader scriptClassLoader;
 
-  public HeaderExitStatement(int lineNumber, ClassLoader scriptClassLoader) {
+  private boolean downloadDependenciesOnly;
+
+  public HeaderExitStatement(int lineNumber, ClassLoader scriptClassLoader, boolean downloadDependenciesOnly) {
     super(lineNumber);
     this.scriptClassLoader = scriptClassLoader;
+    this.downloadDependenciesOnly = downloadDependenciesOnly;
   }
 
   private <T> T resolve(ScriptContext ctx, String name, Class<T> cls) {
@@ -219,6 +222,11 @@ public class HeaderExitStatement extends AbstractStatement {
   public void execute(ScriptContext ctx) {
     addDefaultImports(ctx);
     resolveDependencies(ctx);
+    if(downloadDependenciesOnly) {
+      ctx.setExit();
+      // skip compiling java types as we exit anyway
+      return;
+    }
     compileJavaTypes(ctx);
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     // some libraries like e.g. kafka prefer to use the context class loader

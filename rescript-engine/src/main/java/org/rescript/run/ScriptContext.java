@@ -22,6 +22,8 @@ public class ScriptContext {
     // for parameter and return value passing into/from functions
     private Deque<Value> stack = new ArrayDeque<>();
 
+    private boolean exit;
+
   }
 
   private SymbolTable symbols;
@@ -92,6 +94,14 @@ public class ScriptContext {
         // TODO if the script was executed from a file the file name should appear in the stack trace instead of 'inline' 
         .map(sf -> new StackTraceElement("script", sf.getFunction().getName(), "inline", sf.getLine()))
         .toArray(StackTraceElement[]::new);
+  }
+
+  public void setExit() {
+    contexts.get().exit = true;
+  }
+
+  public boolean isExit() {
+    return contexts.get().exit;
   }
 
 }

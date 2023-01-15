@@ -11,7 +11,6 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -169,6 +168,7 @@ public class ScriptLauncher {
         engine.setShowErrorsOnConsole(true);
         engine.setArguments(cliOptions.scriptArgs);
         engine.setRescriptHome(rescriptHome);
+        engine.setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly);
         engine.run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));

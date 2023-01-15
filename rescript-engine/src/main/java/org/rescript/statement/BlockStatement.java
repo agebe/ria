@@ -33,6 +33,9 @@ public class BlockStatement extends AbstractStatement implements ContainerStatem
       }
       for(Statement s : statements) {
         ctx.getCurrentFrame().setLine(s.getLineNumber());
+        if(ctx.isExit()) {
+          break;
+        }
         if(ctx.isReturnFlag()) {
           log.debug("return flag set, break out of block");
           break;

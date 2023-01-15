@@ -9,4 +9,5 @@ public interface ScriptEngine {
   void setArguments(String[] arguments);
   Object run(String script);
   void setRescriptHome(File rescriptHome);
+  void setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
 }

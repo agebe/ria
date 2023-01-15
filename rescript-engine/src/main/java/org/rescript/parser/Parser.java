@@ -27,7 +27,11 @@ public class Parser {
     this.defaultMavenRepo = defaultMavenRepo;
   }
 
-  public ParserListener parse(String script, ClassLoader scriptClassLoader, File cacheBase) {
+  public ParserListener parse(
+      String script,
+      ClassLoader scriptClassLoader,
+      File cacheBase,
+      boolean downloadDependenciesOnly) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -48,7 +52,11 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ParserListener listener = new ParserListener(scriptClassLoader, defaultMavenRepo, cacheBase);
+    ParserListener listener = new ParserListener(
+        scriptClassLoader,
+        defaultMavenRepo,
+        cacheBase,
+        downloadDependenciesOnly);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

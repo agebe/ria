@@ -37,6 +37,8 @@ public class Script implements ScriptEngine {
 
   private File rescriptHome;
 
+  private boolean downloadDependenciesOnly;
+
   public Script() {
     this(null, null);
   }
@@ -226,7 +228,7 @@ public class Script implements ScriptEngine {
   private Script parse(String script) {
     if(this.entry == null) {
       ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo)
-          .parse(script, scriptClassLoader, getCacheBase());
+          .parse(script, scriptClassLoader, getCacheBase(), downloadDependenciesOnly);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
     }
@@ -272,6 +274,11 @@ public class Script implements ScriptEngine {
   @Override
   public void setRescriptHome(File rescriptHome) {
     this.rescriptHome = rescriptHome;
+  }
+
+  @Override
+  public void setDownloadDependenciesOnly(boolean downloadDependenciesOnly) {
+    this.downloadDependenciesOnly = downloadDependenciesOnly;
   }
 
 }

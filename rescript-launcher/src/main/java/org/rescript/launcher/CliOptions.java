@@ -15,7 +15,7 @@ public class CliOptions {
   public boolean quiet;
 
   public boolean help;
-  
+
   public String mavenRepo;
 
   public Path engineHome;
