@@ -9,7 +9,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -23,11 +25,7 @@ public class ScriptLauncher {
 
   private static String MAVEN_REPO = "https://repo.maven.apache.org/maven2/";
 
-  private static String[] scriptArgs(String[] args) {
-    String[] scriptArgs = new String[args.length-1];
-    System.arraycopy(args, 1, scriptArgs, 0, scriptArgs.length);
-    return scriptArgs;
-  }
+  private static CliOptions cliOptions;
 
   private static URL toUrl(File f) {
     try {
@@ -106,20 +104,41 @@ public class ScriptLauncher {
 }
 
   private static void setupMavenRepo() {
-    String repos = System.getenv().get(MAVEN_REPO_ENV);
-    if(!isBlank(repos)) {
-      MAVEN_REPO = repos;
+    if(cliOptions.mavenRepo != null) {
+      MAVEN_REPO = cliOptions.mavenRepo;
+    } else {
+      String repos = System.getenv().get(MAVEN_REPO_ENV);
+      if(!isBlank(repos)) {
+        MAVEN_REPO = repos;
+      }
     }
   }
 
   public static void main(String[] args) throws Exception {
+    cliOptions = new CliOptions(args);
+//    System.err.println(Arrays.toString(args));
+//    System.err.println(cliOptions);
+    if(cliOptions.help) {
+      cliOptions.printHelp();
+      System.exit(0);
+    }
+    String version = ManifestUtils.version(ScriptLauncher.class.getClassLoader(), "rescript-launcher");
+    if(cliOptions.version) {
+      System.err.println(version);
+      if(version.endsWith("-SNAPSHOT")) {
+        System.err.println(ManifestUtils.gitVersion(ScriptLauncher.class.getClassLoader(), "rescript-launcher"));
+      }
+    }
 //    System.out.println(Arrays.toString(args));
-    if(args.length < 2) {
+    if(cliOptions.scriptFile == null) {
       System.err.println("script file parameter missing");
       System.exit(1);
     }
-    File rescriptHome = new File(args[0]);
-    String version = ManifestUtils.version(ScriptLauncher.class.getClassLoader(), "rescript-launcher");
+    if(Files.notExists(cliOptions.scriptFile)) {
+      System.err.println("script file not found " + cliOptions.scriptFile);
+      System.exit(1);
+    }
+    File rescriptHome = cliOptions.nativeHome.toFile();
     File bsHomeVersion = new File(rescriptHome, version);
     File libsDir = new File(bsHomeVersion, "libs");
     // the native launcher should have created the libs dir
@@ -131,7 +150,7 @@ public class ScriptLauncher {
     List<File> libs = Stream.of(libsDir.listFiles())
     .filter(file -> !file.isDirectory())
     .toList();
-    String scriptFile = args[1];
+    Path scriptFile = cliOptions.scriptFile;
 //    try(URLClassLoader loader = new URLClassLoader(
     try(CLoader loader = new CLoader(
         "launcherClassLoader",
@@ -139,7 +158,7 @@ public class ScriptLauncher {
         .map(ScriptLauncher::toUrl)
         .toArray(URL[]::new),
         ScriptLauncher.class.getClassLoader())) {
-      File f = new File(scriptFile);
+      File f = scriptFile.toFile();
       if(f.exists()) {
         String script = new String(Files.readAllBytes(f.toPath()));
         Class<?> scriptClass = loader.loadClass("org.rescript.Script");
@@ -148,7 +167,7 @@ public class ScriptLauncher {
         engine.setDefaultMavenRepository(MAVEN_REPO);
         engine.setScriptClassLoader(ScriptLauncher.class.getClassLoader());
         engine.setShowErrorsOnConsole(true);
-        engine.setArguments(scriptArgs(args));
+        engine.setArguments(cliOptions.scriptArgs);
         engine.setRescriptHome(rescriptHome);
         engine.run(script);
       } else {

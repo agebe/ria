@@ -36,4 +36,14 @@ public class ManifestUtils {
     }
   }
 
+  public static String gitVersion(ClassLoader loader, String title) {
+    Manifest manifest = manifest(loader, title);
+    String version = manifest.getMainAttributes().getValue("git-version");
+    if(version != null) {
+      return version;
+    } else {
+      throw new ScriptException("could not determine git version for '%s'".formatted(title));
+    }
+  }
+
 }

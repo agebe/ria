@@ -3,13 +3,5 @@
 * script firewall (which java methods are allowed/denied)
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
-* add more default imports from the jre, scan dependencies and auto add all the packages too.
-* anonymous types via new operator. implement interfaces (also partial) or override some/all methods of a class.
-  -> actually allow any statements in the objects scope like e.g. expr : expr { stmt* }
-     The difference to the block statement is that we are in the objects scope, changing fields
-     (if public otherwise call setter) or calling methods. the expression evaluates to the same object, with
-     its internal state modified as per the statements.
-     Adding or overwriting methods should probably only be possible together with the new operator?
 * launcher, add option to download dependencies only so e.g. docker containers can be built that have all jars already and don't have to download them every time they start
 * apache license on all files
-* add builtin function (e.g. exec) for scripting

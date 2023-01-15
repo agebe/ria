@@ -66,12 +66,10 @@ public class Script implements ScriptEngine {
 
   private void setupArguments() {
     if(this.arguments != null) {
-      String[] a = new String[arguments.length-1];
-      System.arraycopy(arguments, 1, a, 0, arguments.length-1);
-      for(int i=0;i<a.length;i++) {
-        this.setVariable("$"+i, a[i]);
+      for(int i=0;i<arguments.length;i++) {
+        this.setVariable("$"+i, arguments[i]);
       }
-      this.setVariable("$", a);
+      this.setVariable("$", arguments);
     } else {
       this.setVariable("$", new String[0]);
     }
