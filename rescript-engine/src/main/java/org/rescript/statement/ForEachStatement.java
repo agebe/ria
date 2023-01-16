@@ -53,8 +53,8 @@ public class ForEachStatement extends AbstractLoop implements ContainerStatement
     }
     if(v.val() instanceof Iterable<?> iterable) {
       forEach(iterable.iterator(), ctx);
-    } else if(v instanceof Array a) {
-      forEach(a, ctx);
+    } else if(v.isArray()) {
+      forEach((Array)v, ctx);
     } else {
       throw new ScriptException("for each can only iterate over an Iterable or Array, but not '%s'"
           .formatted(v.type().getName()));

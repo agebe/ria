@@ -2,7 +2,7 @@ package org.rescript.value;
 
 import org.rescript.symbol.Symbol;
 
-public abstract class EvaluatedFromValue implements Value {
+public abstract class EvaluatedFromValue implements Value, Array {
 
   protected abstract Value getWrapped();
 
@@ -192,6 +192,16 @@ public abstract class EvaluatedFromValue implements Value {
   @Override
   public short toShort() {
     return getWrapped().toShort();
+  }
+
+  @Override
+  public Value get(int index) {
+    return ((Array)getWrapped()).get(index);
+  }
+
+  @Override
+  public int length() {
+    return ((Array)getWrapped()).length();
   }
 
 }

@@ -5,6 +5,10 @@ else
   println("script executed without arguments");
 for(int i=0;i<$.length;i++)
   println("arg %s: %s".formatted(i, $[i]));
+for(var s : $) {
+  println(s);
+}
 if($.length > 0)
   println("first argument is " + $0);
+
 println("done");
