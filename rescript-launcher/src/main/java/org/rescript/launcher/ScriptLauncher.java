@@ -2,6 +2,7 @@ package org.rescript.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -25,6 +26,12 @@ public class ScriptLauncher {
   private static String mavenRepo = "https://repo.maven.apache.org/maven2/";
 
   private static CliOptions cliOptions;
+
+  private static String getBasePackage() {
+    String s = ScriptLauncher.class.getPackageName();
+    int i = s.lastIndexOf('.');
+    return s.substring(0, i);
+  }
 
   private static URL toUrl(File f) {
     try {
@@ -113,6 +120,23 @@ public class ScriptLauncher {
     }
   }
 
+  private static void setupDebugLogging(ClassLoader cloader) {
+    try {
+      Class<?> clsLoggerFactory = cloader.loadClass("org.slf4j.LoggerFactory");
+      Method methodGetILoggerFactory = clsLoggerFactory.getMethod("getILoggerFactory", new Class[0]);
+      Object loggerContext = methodGetILoggerFactory.invoke(null, new Object[0]);
+      Method methodGetLogger = loggerContext.getClass().getMethod("getLogger", String.class);
+      Object logger = methodGetLogger.invoke(loggerContext, getBasePackage());
+      Class<?> clsLevel = cloader.loadClass("ch.qos.logback.classic.Level");
+      Method methodValueOf = clsLevel.getMethod("valueOf", String.class);
+      Object levelDebug = methodValueOf.invoke(null, "DEBUG");
+      Method methodSetLevel = logger.getClass().getMethod("setLevel", clsLevel);
+      methodSetLevel.invoke(logger, levelDebug);
+    } catch(Exception e) {
+      e.printStackTrace(System.err);
+    }
+  }
+
   public static void main(String[] args) throws Exception {
     cliOptions = new CliOptions(args);
 //    System.err.println(Arrays.toString(args));
@@ -158,10 +182,13 @@ public class ScriptLauncher {
         .map(ScriptLauncher::toUrl)
         .toArray(URL[]::new),
         ScriptLauncher.class.getClassLoader())) {
+      if(cliOptions.debug) {
+        setupDebugLogging(loader);
+      }
       File f = scriptFile.toFile();
       if(f.exists()) {
         String script = new String(Files.readAllBytes(f.toPath()));
-        Class<?> scriptClass = loader.loadClass("org.rescript.Script");
+        Class<?> scriptClass = loader.loadClass(getBasePackage()+".Script");
         Object s = scriptClass.getDeclaredConstructor().newInstance();
         ScriptEngine engine = (ScriptEngine)s;
         engine.setDefaultMavenRepository(mavenRepo);
