@@ -22,7 +22,7 @@ public class ScriptLauncher {
 
   private static final String MAVEN_REPO_ENV = "BS_MAVEN_REPO";
 
-  private static String MAVEN_REPO = "https://repo.maven.apache.org/maven2/";
+  private static String mavenRepo = "https://repo.maven.apache.org/maven2/";
 
   private static CliOptions cliOptions;
 
@@ -38,7 +38,7 @@ public class ScriptLauncher {
     if(path.startsWith("http://") || path.startsWith("https://")) {
       return path;
     }
-    return MAVEN_REPO.endsWith("/")?MAVEN_REPO + path:MAVEN_REPO + "/" + path;
+    return mavenRepo.endsWith("/")?mavenRepo + path:mavenRepo + "/" + path;
   }
 
   private static void downloadFromRemote(String url, File libsDir) {
@@ -104,11 +104,11 @@ public class ScriptLauncher {
 
   private static void setupMavenRepo() {
     if(cliOptions.mavenRepo != null) {
-      MAVEN_REPO = cliOptions.mavenRepo;
+      mavenRepo = cliOptions.mavenRepo;
     } else {
       String repos = System.getenv().get(MAVEN_REPO_ENV);
       if(!isBlank(repos)) {
-        MAVEN_REPO = repos;
+        mavenRepo = repos;
       }
     }
   }
@@ -164,7 +164,7 @@ public class ScriptLauncher {
         Class<?> scriptClass = loader.loadClass("org.rescript.Script");
         Object s = scriptClass.getDeclaredConstructor().newInstance();
         ScriptEngine engine = (ScriptEngine)s;
-        engine.setDefaultMavenRepository(MAVEN_REPO);
+        engine.setDefaultMavenRepository(mavenRepo);
         engine.setScriptClassLoader(ScriptLauncher.class.getClassLoader());
         engine.setShowErrorsOnConsole(true);
         engine.setArguments(cliOptions.scriptArgs);
