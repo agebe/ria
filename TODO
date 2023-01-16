@@ -3,5 +3,4 @@
 * script firewall (which java methods are allowed/denied)
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
-* launcher, add option to download dependencies only so e.g. docker containers can be built that have all jars already and don't have to download them every time they start
 * apache license on all files
