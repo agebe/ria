@@ -12,7 +12,7 @@ public class CliOptions {
 
   public boolean debug;
 
-  public boolean quiet;
+  public boolean info;
 
   public boolean help;
 
@@ -37,8 +37,8 @@ public class CliOptions {
         mavenRepo = args[i];
       } else if(equalsAny(s, "--debug")) {
         debug = true;
-      } else if(equalsAny(s, "--quiet", "-q")) {
-        quiet = true;
+      } else if(equalsAny(s, "--info")) {
+        info = true;
       } else if(equalsAny(s, "--home")) {
         // ignore, this is passed as argument 0 from the native launcher
         i++;
@@ -67,7 +67,7 @@ public class CliOptions {
           --maven-repository, -r            the default maven repo to use if not specified in the script
           --home                            set script engine home, e.g. maven download cache ('%s')
           --debug                           display debug output
-          --quiet, -q                       display less output
+          --info                            display info output on std error
           --help, -h                        display this help and exit
         """.formatted(scriptEngineHome));
   }
@@ -84,7 +84,7 @@ public class CliOptions {
   @Override
   public String toString() {
     return "CliOptions [version=" + version + ", downloadDependenciesOnly=" + downloadDependenciesOnly + ", debug="
-        + debug + ", quiet=" + quiet + ", help=" + help + ", mavenRepo=" + mavenRepo + ", scriptEngineHome="
+        + debug + ", info=" + info + ", help=" + help + ", mavenRepo=" + mavenRepo + ", scriptEngineHome="
         + scriptEngineHome + ", scriptFile=" + scriptFile + ", scriptArgs=" + Arrays.toString(scriptArgs) + "]";
   }
 

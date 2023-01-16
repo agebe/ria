@@ -42,10 +42,17 @@ public class HeaderExitStatement extends AbstractStatement {
 
   private boolean downloadDependenciesOnly;
 
-  public HeaderExitStatement(int lineNumber, ClassLoader scriptClassLoader, boolean downloadDependenciesOnly) {
+  private boolean printDependencies;
+
+  public HeaderExitStatement(
+      int lineNumber,
+      ClassLoader scriptClassLoader,
+      boolean downloadDependenciesOnly,
+      boolean printDependencies) {
     super(lineNumber);
     this.scriptClassLoader = scriptClassLoader;
     this.downloadDependenciesOnly = downloadDependenciesOnly;
+    this.printDependencies = printDependencies;
   }
 
   private <T> T resolve(ScriptContext ctx, String name, Class<T> cls) {
@@ -171,8 +178,12 @@ public class HeaderExitStatement extends AbstractStatement {
       DependencyNode root = new DependencyResolver(repos).resolveAll(dependencies);
       List<File> allJars = allJars(root);
       if(!allJars.isEmpty()) {
-        System.err.println("dependencies on classloader:");
-        allJars.stream().map(f -> f.getName()).sorted().forEach(System.err::println);
+        if(printDependencies) {
+          allJars.stream()
+            .map(f -> f.getAbsolutePath())
+            .sorted()
+            .forEach(System.err::println);
+        }
         CLoader loader = new CLoader(
             "scriptClassLoader",
             allJars.stream().map(this::toUrl).toArray(URL[]::new),

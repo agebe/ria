@@ -197,6 +197,7 @@ public class ScriptLauncher {
         engine.setArguments(cliOptions.scriptArgs);
         engine.setRescriptHome(rescriptHome);
         engine.setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly);
+        engine.setDisplayInfo(cliOptions.info);
         engine.run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));

@@ -39,6 +39,8 @@ public class Script implements ScriptEngine {
 
   private boolean downloadDependenciesOnly;
 
+  private boolean displayInfo;
+
   public Script() {
     this(null, null);
   }
@@ -228,7 +230,7 @@ public class Script implements ScriptEngine {
   private Script parse(String script) {
     if(this.entry == null) {
       ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo)
-          .parse(script, scriptClassLoader, getCacheBase(), downloadDependenciesOnly);
+          .parse(script, scriptClassLoader, getCacheBase(), downloadDependenciesOnly, displayInfo);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
     }
@@ -279,6 +281,11 @@ public class Script implements ScriptEngine {
   @Override
   public void setDownloadDependenciesOnly(boolean downloadDependenciesOnly) {
     this.downloadDependenciesOnly = downloadDependenciesOnly;
+  }
+
+  @Override
+  public void setDisplayInfo(boolean enabled) {
+    this.displayInfo = enabled;
   }
 
 }

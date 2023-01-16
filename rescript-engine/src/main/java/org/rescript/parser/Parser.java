@@ -31,7 +31,8 @@ public class Parser {
       String script,
       ClassLoader scriptClassLoader,
       File cacheBase,
-      boolean downloadDependenciesOnly) {
+      boolean downloadDependenciesOnly,
+      boolean printDependencies) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -56,7 +57,8 @@ public class Parser {
         scriptClassLoader,
         defaultMavenRepo,
         cacheBase,
-        downloadDependenciesOnly);
+        downloadDependenciesOnly,
+        printDependencies);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

@@ -10,4 +10,5 @@ public interface ScriptEngine {
   Object run(String script);
   void setRescriptHome(File rescriptHome);
   void setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
+  void setDisplayInfo(boolean enabled);
 }
