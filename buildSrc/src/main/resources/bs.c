@@ -101,8 +101,26 @@ void writeFiles() {
   }
 }
 
-void initBsInfo() {
-  if(getenv(BS_HOME)) {
+char* getHomeDir(int argc, char **argv) {
+  for(int i=0;i<argc;i++) {
+    char* s = argv[i];
+    if(strcmp("--home", s) == 0) {
+      i++;
+      if(i < argc) {
+        return argv[i];
+      } else {
+        return NULL;
+      }
+    }
+  }
+  return NULL;
+}
+
+void initBsInfo(int argc, char **argv) {
+  char* homeDir = getHomeDir(argc, argv);
+  if(homeDir) {
+    snprintf(bsHome, PATH_MAX, "%s", homeDir);
+  } else if(getenv(BS_HOME)) {
     snprintf(bsHome, PATH_MAX, "%s", getenv("BS_HOME"));
   } else {
     snprintf(bsHome, PATH_MAX, "%s/.bs", getenv("HOME"));
@@ -118,7 +136,7 @@ void initBsInfo() {
 }
 
 int main(int argc, char **argv) {
-  initBsInfo();
+  initBsInfo(argc, argv);
   writeFiles();
   char* libjvm = findLibJvm();
   launchJvm(libjvm, argc, argv);

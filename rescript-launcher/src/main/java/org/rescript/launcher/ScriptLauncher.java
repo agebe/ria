@@ -138,7 +138,7 @@ public class ScriptLauncher {
       System.err.println("script file not found " + cliOptions.scriptFile);
       System.exit(1);
     }
-    File rescriptHome = cliOptions.nativeHome.toFile();
+    File rescriptHome = cliOptions.scriptEngineHome.toFile();
     File bsHomeVersion = new File(rescriptHome, version);
     File libsDir = new File(bsHomeVersion, "libs");
     // the native launcher should have created the libs dir

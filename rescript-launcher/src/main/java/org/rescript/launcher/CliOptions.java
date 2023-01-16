@@ -18,16 +18,14 @@ public class CliOptions {
 
   public String mavenRepo;
 
-  public Path engineHome;
-
-  public Path nativeHome;
+  public Path scriptEngineHome;
 
   public Path scriptFile;
 
   public String[] scriptArgs;
 
   public CliOptions(String[] args) {
-    nativeHome = Paths.get(args[0]);
+    scriptEngineHome = Paths.get(args[0]);
     for(int i=1;i<args.length;i++) {
       String s = args[i];
       if(equalsAny(s, "--version", "-v")) {
@@ -37,13 +35,13 @@ public class CliOptions {
       } else if(equalsAny(s, "--maven-repository", "-r")) {
         i++;
         mavenRepo = args[i];
-      } else if(equalsAny(s, "--home")) {
-        i++;
-        engineHome = Paths.get(args[i]);
       } else if(equalsAny(s, "--debug")) {
         debug = true;
       } else if(equalsAny(s, "--quiet", "-q")) {
         quiet = true;
+      } else if(equalsAny(s, "--home")) {
+        // ignore, this is passed as argument 0 from the native launcher
+        i++;
       } else if(equalsAny(s, "--help", "-h")) {
         help = true;
       } else {
@@ -67,11 +65,11 @@ public class CliOptions {
           --version, -v                     display version
           --download-dependencies-only, -d  download missing dependencies into the cache and exit
           --maven-repository, -r            the default maven repo to use if not specified in the script
-          --home                            set engine home, e.g. maven download cache
+          --home                            set script engine home, e.g. maven download cache ('%s')
           --debug                           display debug output
           --quiet, -q                       display less output
           --help, -h                        display this help and exit
-        """);
+        """.formatted(scriptEngineHome));
   }
 
   private boolean equalsAny(String s, String... others) {
@@ -86,8 +84,8 @@ public class CliOptions {
   @Override
   public String toString() {
     return "CliOptions [version=" + version + ", downloadDependenciesOnly=" + downloadDependenciesOnly + ", debug="
-        + debug + ", quiet=" + quiet + ", help=" + help + ", mavenRepo=" + mavenRepo + ", engineHome=" + engineHome
-        + ", scriptFile=" + scriptFile + ", scriptArgs=" + Arrays.toString(scriptArgs) + "]";
+        + debug + ", quiet=" + quiet + ", help=" + help + ", mavenRepo=" + mavenRepo + ", scriptEngineHome="
+        + scriptEngineHome + ", scriptFile=" + scriptFile + ", scriptArgs=" + Arrays.toString(scriptArgs) + "]";
   }
 
 }
