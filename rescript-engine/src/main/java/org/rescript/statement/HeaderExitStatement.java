@@ -25,6 +25,7 @@ import org.rescript.dependency.Repositories;
 import org.rescript.java.JavaC;
 import org.rescript.java.JavaSource;
 import org.rescript.java.JavaSourceBuilder;
+import org.rescript.pom.DependencyOptions;
 import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.symbol.java.JavaSymbols;
@@ -44,15 +45,19 @@ public class HeaderExitStatement extends AbstractStatement {
 
   private boolean printDependencies;
 
+  private boolean quiet;
+
   public HeaderExitStatement(
       int lineNumber,
       ClassLoader scriptClassLoader,
       boolean downloadDependenciesOnly,
-      boolean printDependencies) {
+      boolean printDependencies,
+      boolean quiet) {
     super(lineNumber);
     this.scriptClassLoader = scriptClassLoader;
     this.downloadDependenciesOnly = downloadDependenciesOnly;
     this.printDependencies = printDependencies;
+    this.quiet = quiet;
   }
 
   private <T> T resolve(ScriptContext ctx, String name, Class<T> cls) {
@@ -175,6 +180,7 @@ public class HeaderExitStatement extends AbstractStatement {
     }
     Dependencies dependencies = resolve(ctx, HeaderEnterStatement.DEPENDENCIES, Dependencies.class);
     if(dependencies != null) {
+      DependencyOptions.setQuiet(quiet);
       DependencyNode root = new DependencyResolver(repos).resolveAll(dependencies);
       List<File> allJars = allJars(root);
       if(!allJars.isEmpty()) {
@@ -224,7 +230,7 @@ public class HeaderExitStatement extends AbstractStatement {
           .map(builder -> toJavaSource(builder, ctx))
           .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
           .toList();
-      ClassLoader loader = JavaC.compile(l, symbols.getClassLoader());
+      ClassLoader loader = JavaC.compile(l, symbols.getClassLoader(), quiet);
       symbols.setClassLoader(loader);
     }
   }

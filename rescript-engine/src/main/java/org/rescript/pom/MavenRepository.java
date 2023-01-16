@@ -62,7 +62,9 @@ public class MavenRepository {
           .GET()
           .build();
       HttpClient client = HttpClient.newHttpClient();
-      System.err.println("get " + url);
+      if(!DependencyOptions.isQuiet()) {
+        System.err.println("get " + url);
+      }
       HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
       if((response.statusCode() >= 200) && (response.statusCode() <= 299)) {
         return response.body();

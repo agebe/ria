@@ -14,6 +14,8 @@ public class CliOptions {
 
   public boolean info;
 
+  public boolean quiet;
+
   public boolean help;
 
   public String mavenRepo;
@@ -39,6 +41,8 @@ public class CliOptions {
         debug = true;
       } else if(equalsAny(s, "--info")) {
         info = true;
+      } else if(equalsAny(s, "--quiet", "-q")) {
+        quiet = true;
       } else if(equalsAny(s, "--home")) {
         // ignore, this is passed as argument 0 from the native launcher
         i++;
@@ -68,6 +72,7 @@ public class CliOptions {
           --home                            set script engine home, e.g. maven download cache ('%s')
           --debug                           display debug output
           --info                            display info output on std error
+          --quiet, -q                       display less output on std error
           --help, -h                        display this help and exit
         """.formatted(scriptEngineHome));
   }
@@ -84,8 +89,9 @@ public class CliOptions {
   @Override
   public String toString() {
     return "CliOptions [version=" + version + ", downloadDependenciesOnly=" + downloadDependenciesOnly + ", debug="
-        + debug + ", info=" + info + ", help=" + help + ", mavenRepo=" + mavenRepo + ", scriptEngineHome="
-        + scriptEngineHome + ", scriptFile=" + scriptFile + ", scriptArgs=" + Arrays.toString(scriptArgs) + "]";
+        + debug + ", info=" + info + ", quiet=" + quiet + ", help=" + help + ", mavenRepo=" + mavenRepo
+        + ", scriptEngineHome=" + scriptEngineHome + ", scriptFile=" + scriptFile + ", scriptArgs="
+        + Arrays.toString(scriptArgs) + "]";
   }
 
 }

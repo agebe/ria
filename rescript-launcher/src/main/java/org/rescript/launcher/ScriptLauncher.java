@@ -55,7 +55,9 @@ public class ScriptLauncher {
           .build();
       String filename = url.substring(url.lastIndexOf('/')+1);
       File f = new File(libsDir, filename);
-      System.err.println("get script engine dependency " + url);
+      if(!cliOptions.quiet) {
+        System.err.println("get script engine dependency " + url);
+      }
       HttpRequest request = HttpRequest.newBuilder()
           .uri(new URI(url))
           .version(HttpClient.Version.HTTP_2)
@@ -198,6 +200,7 @@ public class ScriptLauncher {
         engine.setRescriptHome(rescriptHome);
         engine.setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly);
         engine.setDisplayInfo(cliOptions.info);
+        engine.setQuiet(cliOptions.quiet);
         engine.run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));

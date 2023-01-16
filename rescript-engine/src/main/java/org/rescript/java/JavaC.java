@@ -47,7 +47,7 @@ public class JavaC {
             d.getMessage(null));
   }
 
-  public static ClassLoader compile(List<? extends JavaFileObject> compilationUnits, ClassLoader loader) {
+  public static ClassLoader compile(List<? extends JavaFileObject> compilationUnits, ClassLoader loader, boolean quiet) {
     List<String> options = new ArrayList<>();
     if(loader instanceof CLoader cloader) {
       String classpath = System.getProperty("java.class.path");
@@ -68,7 +68,9 @@ public class JavaC {
     FileManager fileManager = new FileManager(stdFileManager);
     CompilationTask task = compiler.getTask(null, fileManager, diagnostics, options, null, compilationUnits);
     boolean success = task.call();
-    diagnostics.getDiagnostics().forEach(d -> System.err.println(diagnosticToString(d)));
+    if(!quiet) {
+      diagnostics.getDiagnostics().forEach(d -> System.err.println(diagnosticToString(d)));
+    }
     if(success) {
       return new CfClassLoader(fileManager.getFiles(), loader);
     } else {
@@ -80,37 +82,4 @@ public class JavaC {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    List<JavaSource> sources = List.of(
-        new JavaSource("HelloWorld", """
-            public class HelloWorld {
-              public static void main(String args[]) {
-                System.out.println("This is in another java file");
-                bar.Foo.sayHello();
-              }
-            }
-            """),
-        new JavaSource("bar.Foo", """
-            package bar;
-            public class Foo {
-              int a = 1;
-              public Foo(int b) {
-                a = b;
-                char c = '}';
-                // }
-              }
-              public static void sayHello() {
-                Integer i = new Integer(1);
-                Double d = new Double(1.5);
-                System.out.println("hello");
-                //HelloWorld.main(null);
-              }
-            }
-                """));
-    ClassLoader cloader = compile(sources, JavaC.class.getClassLoader());
-    cloader
-    .loadClass("HelloWorld")
-    .getDeclaredMethod("main", new Class[] { String[].class })
-    .invoke(null, new Object[] { null });
-  }
 }

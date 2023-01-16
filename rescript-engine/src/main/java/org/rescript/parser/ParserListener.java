@@ -164,9 +164,10 @@ public class ParserListener implements ScriptListener {
       String defaultMavenRepo,
       File cacheBase,
       boolean downloadDependenciesOnly,
-      boolean printDependencies) {
+      boolean printDependencies,
+      boolean quiet) {
     headerEnter = new HeaderEnterStatement(0, defaultMavenRepo, cacheBase);
-    headerExit = new HeaderExitStatement(0, scriptClassLoader, downloadDependenciesOnly, printDependencies);
+    headerExit = new HeaderExitStatement(0, scriptClassLoader, downloadDependenciesOnly, printDependencies, quiet);
     // add main function
     Function main = Function.main();
     stack.push(main);
