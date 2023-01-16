@@ -131,6 +131,7 @@ public class ScriptLauncher {
 //    System.out.println(Arrays.toString(args));
     if(cliOptions.scriptFile == null) {
       System.err.println("script file parameter missing");
+      cliOptions.printHelp();
       System.exit(1);
     }
     if(Files.notExists(cliOptions.scriptFile)) {
