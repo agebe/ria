@@ -57,10 +57,24 @@ public class TextBlockUtil {
     }
   }
 
+  private static int lastNonSpaceChar(String s) {
+    for(int i=s.length();i>0;i--) {
+      int cp = s.codePointAt(i-1);
+      if(!(Character.isSpaceChar(cp) || Character.isWhitespace(cp))) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  private static String stripSpaceEnd(String s) {
+    return s!=null?StringUtils.substring(s, 0, lastNonSpaceChar(s)):s;
+  }
+
   private static String removeIncidentalWhiteSpace(String org, int len) {
     return splitPreserveAllLines(org)
         .map(s -> StringUtils.substring(s, len))
-        .map(s -> StringUtils.stripEnd(s, " \t\\u00A0\\u2007\\u202F"))
+        .map(s -> stripSpaceEnd(s))
         .collect(Collectors.joining("\n"));
   }
 

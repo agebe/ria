@@ -50,4 +50,14 @@ public class TextBlockTest {
     assertEquals("", s);
   }
 
+  @Test
+  public void tb1() {
+    String s = (String)new Script().run("""
+            var tb1 = '''
+          XX12''';
+            tb1;
+        """);
+    assertEquals("XX12", s);
+  }
+
 }
