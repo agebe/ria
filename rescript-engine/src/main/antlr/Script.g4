@@ -107,52 +107,9 @@ yieldStmt
   : 'yield' expr SEMI
   ;
 
-// --------------------------------------------------------------------------------------------------------------------
-// java types start ---------------------------------------------------------------------------------------------------
-
 javaTypeDef
-  : javaAnnotationDef
-  | javaClassDef
-  | javaInterfaceDef
-  | javaEnumDef
-  | javaRecordDef
+  : 'javasrc' expr SEMI
   ;
-
-javaClassDef
-  : annotation* PUBLIC? ABSTRACT? CLASS type remainingTypeDef? javaTypeDefBody
-  ;
-
-javaInterfaceDef
-  : annotation* PUBLIC? INTERFACE type remainingTypeDef? javaTypeDefBody
-  ;
-
-javaEnumDef
-  : annotation* PUBLIC? ENUM type remainingTypeDef? javaTypeDefBody
-  ;
-
-javaRecordDef
-  : annotation* PUBLIC? RECORD type remainingTypeDef? javaTypeDefBody
-  ;
-
-javaAnnotationDef
-  : annotation* PUBLIC? '@' INTERFACE type remainingTypeDef? javaTypeDefBody
-  ;
-
-annotation
-  : '@' type ( '(' .*? ')' )?
-  ;
-
-remainingTypeDef
-  : ( ~'{' )+
-  ;
-
-// FIXME, see org.rescript.JavaTypeDefTest.annotationTest2
-javaTypeDefBody
-  : '{' ( ~'}' | javaTypeDefBody )* '}'
-  ;
-
-// java types end -----------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------
 
 // same rule as in the expression block.
 // this is only here so the object scope expression can be written without a final semicolon
@@ -649,12 +606,12 @@ TextBlock
 
 fragment
 SingleQuoteEnclosedTextBlock
-  : '\'\'\''[\r\n] TextBlockCharacter* '\'\'\''
+  : '\'\'\''[\r\n] TextBlockCharacter*? '\'\'\''
   ;
 
 fragment
 DoubleQuoteEnclosedTextBlock
-  : '"""'[\r\n] TextBlockCharacter* '"""'
+  : '"""'[\r\n] TextBlockCharacter*? '"""'
   ;
 
 fragment

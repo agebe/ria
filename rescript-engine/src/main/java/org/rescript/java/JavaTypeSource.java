@@ -1,142 +1,54 @@
 package org.rescript.java;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.rescript.ScriptException;
+import org.rescript.expression.Expression;
+import org.rescript.run.ScriptContext;
+import org.rescript.value.Value;
 
 public class JavaTypeSource implements JavaSourceBuilder {
 
-  private JavaType type;
+  private Expression expression;
 
-  private String packageName;
-
-  private String accessModifer;
-
-  private boolean abstractClass;
-
-  private String typeName;
-
-  private String remain;
-
-  private List<String> imports = new ArrayList<>();
-
-  private List<String> staticImports = new ArrayList<>();
-
-  private List<String> annotations = new ArrayList<>();
-
-  private String body;
-
-  public JavaType getType() {
-    return type;
-  }
-
-  public void setType(JavaType type) {
-    this.type = type;
-  }
-
-  public String getPackageName() {
-    return packageName;
-  }
-
-  public void setPackageName(String packageName) {
-    this.packageName = packageName;
-  }
-
-  public String getAccessModifer() {
-    return accessModifer;
-  }
-
-  public void setAccessModifer(String accessModifer) {
-    this.accessModifer = accessModifer;
-  }
-
-  public String getTypeName() {
-    return typeName;
-  }
-
-  public void setTypeName(String typeName) {
-    this.typeName = typeName;
-  }
-
-  public String getRemain() {
-    return remain;
-  }
-
-  public void setRemain(String remain) {
-    this.remain = remain;
-  }
-
-  public String getBody() {
-    return body;
-  }
-
-  public void setBody(String body) {
-    this.body = body;
+  public JavaTypeSource(Expression expression) {
+    this.expression = expression;
   }
 
   @Override
-  public void addImport(String imp) {
-    imports.add(imp);
+  public JavaSource create(ScriptContext ctx) {
+    Value v = expression.eval(ctx);
+    String s = (String)v.val();
+    return new JavaSource(getName(s), s);
   }
 
-  @Override
-  public void addStaticImport(String staticImport) {
-    staticImports.add(staticImport);
+  private String getName(String source) {
+    // FIXME class, interface keywords etc could appear in strings of type annotations
+    String[] split = StringUtils.split(source);
+    for(int i = 0;i<split.length;i++) {
+      String s = split[i];
+      if("class".equals(s)) {
+        return removeGenericType(split[i+1]);
+      } else if("interface".equals(s)) {
+        return removeGenericType(split[i+1]);
+      } else if("enum".equals(s)) {
+        return removeGenericType(split[i+1]);
+      } else if("record".equals(s)) {
+        return removeParams(removeGenericType(split[i+1]));
+      } else if("@interface".equals(s)) {
+        return split[i+1];
+      }
+    }
+    throw new ScriptException("could not determine name of java source " + source);
   }
 
-  private String fqcn() {
-    return StringUtils.isBlank(packageName)?typeName:packageName+"."+typeName;
+  private String removeGenericType(String name) {
+    int i = StringUtils.indexOf(name, "<");
+    return i==-1?name:StringUtils.substring(name, 0, i);
   }
 
-  public boolean isAbstractClass() {
-    return abstractClass;
-  }
-
-  public void setAbstractClass(boolean abstractClass) {
-    this.abstractClass = abstractClass;
-  }
-
-  public void addAnnotation(String annotation) {
-    this.annotations.add(annotation);
-  }
-
-  @Override
-  public JavaSource create() {
-    if(type == null) {
-      throw new ScriptException("type has not been set");
-    }
-    StringBuilder b = new StringBuilder();
-    if(StringUtils.isNotBlank(packageName)) {
-      b.append("package " + packageName + ";\n\n");
-    }
-    if(!staticImports.isEmpty()) {
-      staticImports.forEach(imp -> b.append("import static " + imp +";\n"));
-      b.append("\n");
-    }
-    if(!imports.isEmpty()) {
-      imports.forEach(imp -> b.append("import " + imp +";\n"));
-      b.append("\n");
-    }
-    annotations.forEach(a -> b.append(a + "\n"));
-    if(StringUtils.isNotBlank(accessModifer)) {
-      b.append(accessModifer);
-      b.append(" ");
-    }
-    if(isAbstractClass()) {
-      b.append("abstract ");
-    }
-    b.append(type.code());
-    b.append(" ");
-    b.append(typeName);
-    b.append(" ");
-    if(StringUtils.isNotBlank(remain)) {
-      b.append(remain);
-      b.append(" ");
-    }
-    b.append(body);
-    return new JavaSource(fqcn(), b.toString());
+  private String removeParams(String name) {
+    int i = StringUtils.indexOf(name, "(");
+    return i==-1?name:StringUtils.substring(name, 0, i);
   }
 
 }

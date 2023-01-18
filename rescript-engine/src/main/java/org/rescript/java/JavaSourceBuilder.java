@@ -1,11 +1,7 @@
 package org.rescript.java;
 
+import org.rescript.run.ScriptContext;
+
 public interface JavaSourceBuilder {
-
-  void addImport(String imp);
-
-  void addStaticImport(String staticImport);
-
-  JavaSource create();
-
+  JavaSource create(ScriptContext ctx);
 }

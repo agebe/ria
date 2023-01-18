@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -18,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.rescript.ReservedKeywordException;
 import org.rescript.ScriptException;
 import org.rescript.antlr.ScriptListener;
-import org.rescript.antlr.ScriptParser.AnnotationContext;
 import org.rescript.antlr.ScriptParser.ArrayInitContext;
 import org.rescript.antlr.ScriptParser.ArrowCaseContext;
 import org.rescript.antlr.ScriptParser.AssignContext;
@@ -58,12 +56,6 @@ import org.rescript.antlr.ScriptParser.IfStmtContext;
 import org.rescript.antlr.ScriptParser.ImportStmtContext;
 import org.rescript.antlr.ScriptParser.ImportTypeContext;
 import org.rescript.antlr.ScriptParser.IntLiteralContext;
-import org.rescript.antlr.ScriptParser.JavaAnnotationDefContext;
-import org.rescript.antlr.ScriptParser.JavaClassDefContext;
-import org.rescript.antlr.ScriptParser.JavaEnumDefContext;
-import org.rescript.antlr.ScriptParser.JavaInterfaceDefContext;
-import org.rescript.antlr.ScriptParser.JavaRecordDefContext;
-import org.rescript.antlr.ScriptParser.JavaTypeDefBodyContext;
 import org.rescript.antlr.ScriptParser.JavaTypeDefContext;
 import org.rescript.antlr.ScriptParser.LambdaContext;
 import org.rescript.antlr.ScriptParser.LiteralContext;
@@ -73,7 +65,6 @@ import org.rescript.antlr.ScriptParser.NewArrayContext;
 import org.rescript.antlr.ScriptParser.NewArrayInitContext;
 import org.rescript.antlr.ScriptParser.NullLiteralContext;
 import org.rescript.antlr.ScriptParser.ObjectScopeStmtContext;
-import org.rescript.antlr.ScriptParser.RemainingTypeDefContext;
 import org.rescript.antlr.ScriptParser.ReturnStmtContext;
 import org.rescript.antlr.ScriptParser.ScriptContext;
 import org.rescript.antlr.ScriptParser.StmtContext;
@@ -113,7 +104,6 @@ import org.rescript.expression.SwitchColonCase;
 import org.rescript.expression.SwitchExpression;
 import org.rescript.expression.Type;
 import org.rescript.expression.VoidLiteral;
-import org.rescript.java.JavaType;
 import org.rescript.java.JavaTypeSource;
 import org.rescript.statement.BlockStatement;
 import org.rescript.statement.BreakStatement;
@@ -151,10 +141,6 @@ public class ParserListener implements ScriptListener {
 
   private Deque<ParseItem> stack = new ArrayDeque<>();
 
-  private int javaBody;
-
-  private boolean checkKeywords = true;
-
   private HeaderEnterStatement headerEnter;
 
   private HeaderExitStatement headerExit;
@@ -177,16 +163,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void visitTerminal(TerminalNode node) {
-    if(javaBody == 0) {
-      log.debug("visit terminal '{}'", node.getSymbol().getText());
-      if(checkKeywords && ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
-        throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
-            .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
-      } else {
-        stack.push(new Terminal(node.getSymbol()));
-      }
+    log.debug("visit terminal '{}'", node.getSymbol().getText());
+    if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
+      throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
+          .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
     } else {
-      log.trace("visit terminal (not recorded) '{}'", node.getSymbol().getText());
+      stack.push(new Terminal(node.getSymbol()));
     }
   }
 
@@ -1572,171 +1554,32 @@ public class ParserListener implements ScriptListener {
   }
 
   //  https://stackoverflow.com/a/58719524/20615256
-  private String getFullText(ParserRuleContext context) {
-    if(StringUtils.isBlank(context.getText())) {
-      return "";
-    }
-    if(context.start == null ||
-        context.stop == null ||
-        context.start.getStartIndex() < 0 ||
-        context.stop.getStopIndex() < 0)
-      return context.getText();
-    return context.start.getInputStream().getText(
-        Interval.of(context.start.getStartIndex(), context.stop.getStopIndex()));
-  }
+//  private String getFullText(ParserRuleContext context) {
+//    if(StringUtils.isBlank(context.getText())) {
+//      return "";
+//    }
+//    if(context.start == null ||
+//        context.stop == null ||
+//        context.start.getStartIndex() < 0 ||
+//        context.stop.getStopIndex() < 0)
+//      return context.getText();
+//    return context.start.getInputStream().getText(
+//        Interval.of(context.start.getStartIndex(), context.stop.getStopIndex()));
+//  }
 
   @Override
   public void enterJavaTypeDef(JavaTypeDefContext ctx) {
     log.debug("enterJavaTypeDef '{}'", ctx.getText());
-    checkKeywords = false;
   }
 
   @Override
   public void exitJavaTypeDef(JavaTypeDefContext ctx) {
     log.debug("exitJavaTypeDef '{}'", ctx.getText());
-    checkKeywords = true;
-  }
-
-  private List<Annotation> popAnnotations() {
-    LinkedList<Annotation> l = new LinkedList<>();
-    for(;;) {
-      if(nextItemIs(Annotation.class)) {
-        l.addFirst(pop(Annotation.class));
-      } else {
-        break;
-      }
-    }
-    return l;
-  }
-
-  private void parseJavaType(ParserRuleContext ctx, JavaType javaType) {
-    JavaTypeSource source = new JavaTypeSource();
-    source.setType(javaType);
-    if(nextItemIs(RemainingTypeDef.class)) {
-      source.setRemain(pop(RemainingTypeDef.class).remain());
-    }
-    Type type = pop(Type.class);
-    String className = type.typeWithoutPackage();
-    String packageName = type.packageName();
-    source.setPackageName(packageName);
-    source.setTypeName(className);
-    if(JavaType.ANNOTATION.equals(javaType)) {
-      popTerminal("interface");
-      popTerminal("@");
-    } else {
-      popTerminal(javaType.code());
-    }
-    // abstract is only for classes but accept it here for other types too, javac will throw the error later...
-    final String ABSTRACT = "abstract";
-    if(nextTerminalIs(ABSTRACT)) {
-      popTerminal(ABSTRACT);
-      source.setAbstractClass(true);
-    }
-    final String PUBLIC = "public";
-    if(nextTerminalIs(PUBLIC)) {
-      popTerminal(PUBLIC);
-      source.setAccessModifer(PUBLIC);
-    }
-    popAnnotations().forEach(a -> source.addAnnotation(a.code()));
-    JavaTypeDefBodyContext body = (JavaTypeDefBodyContext)ctx.getChild(ctx.getChildCount()-1);
-    source.setBody(getFullText(body));
+    popSemi();
+    Expression expr = popExpression();
+    popTerminal("javasrc");
+    headerExit.addJavaType(new JavaTypeSource(expr));
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
-    // java types are created after the header is processed after imports are known
-    headerExit.addJavaType(source);
-  }
-
-  @Override
-  public void enterJavaClassDef(JavaClassDefContext ctx) {
-    log.debug("enterJavaClassDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaClassDef(JavaClassDefContext ctx) {
-    log.debug("exitJavaClassDef '{}'", ctx.getText());
-    parseJavaType(ctx, JavaType.CLASS);
-  }
-
-  @Override
-  public void enterJavaInterfaceDef(JavaInterfaceDefContext ctx) {
-    log.debug("enterJavaInterfaceDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaInterfaceDef(JavaInterfaceDefContext ctx) {
-    log.debug("exitJavaInterfaceDef '{}'", ctx.getText());
-    parseJavaType(ctx, JavaType.INTERFACE);
-  }
-
-  @Override
-  public void enterRemainingTypeDef(RemainingTypeDefContext ctx) {
-    log.debug("enterRemainingTypeDef '{}'", ctx.getText());
-    javaBody++;
-  }
-
-  @Override
-  public void exitRemainingTypeDef(RemainingTypeDefContext ctx) {
-    log.debug("exitRemainingTypeDef '{}'", ctx.getText());
-    javaBody--;
-    stack.push(new RemainingTypeDef(getFullText(ctx)));
-  }
-
-  @Override
-  public void enterJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
-    log.debug("enterJavaTypeDefBody '{}'", ctx.getText());
-    javaBody++;
-  }
-
-  @Override
-  public void exitJavaTypeDefBody(JavaTypeDefBodyContext ctx) {
-    log.debug("exitJavaTypeDefBody '{}'", ctx.getText());
-    javaBody--;
-  }
-
-  @Override
-  public void enterAnnotation(AnnotationContext ctx) {
-    log.debug("enterAnnotation '{}'", ctx.getText());
-    javaBody++;
-  }
-
-  @Override
-  public void exitAnnotation(AnnotationContext ctx) {
-    log.debug("exitAnnotation '{}'", ctx.getText());
-    javaBody--;
-    pop(Type.class);
-    stack.push(new Annotation(getFullText(ctx)));
-  }
-
-  @Override
-  public void enterJavaEnumDef(JavaEnumDefContext ctx) {
-    log.debug("enterJavaEnumDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaEnumDef(JavaEnumDefContext ctx) {
-    log.debug("exitJavaEnumDef '{}'", ctx.getText());
-    parseJavaType(ctx, JavaType.ENUM);
-  }
-
-  @Override
-  public void enterJavaRecordDef(JavaRecordDefContext ctx) {
-    log.debug("enterJavaRecordDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaRecordDef(JavaRecordDefContext ctx) {
-    log.debug("exitJavaRecordDef '{}'", ctx.getText());
-    parseJavaType(ctx, JavaType.RECORD);
-  }
-
-  @Override
-  public void enterJavaAnnotationDef(JavaAnnotationDefContext ctx) {
-    log.debug("enterJavaAnnotationDef '{}'", ctx.getText());
-  }
-
-  @Override
-  public void exitJavaAnnotationDef(JavaAnnotationDefContext ctx) {
-    log.debug("exitJavaAnnotationDef '{}'", ctx.getText());
-    parseJavaType(ctx, JavaType.ANNOTATION);
   }
 
   @Override

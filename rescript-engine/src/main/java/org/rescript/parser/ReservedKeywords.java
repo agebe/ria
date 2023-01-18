@@ -22,6 +22,7 @@ public class ReservedKeywords {
       "private",
       "protected",
       "public",
+      "record",
       "strictfp",
       "super",
       "synchronized",

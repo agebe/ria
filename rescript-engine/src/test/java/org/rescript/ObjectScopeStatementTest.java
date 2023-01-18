@@ -17,6 +17,12 @@ public class ObjectScopeStatementTest {
   public void expression1() {
     Script script = new Script();
     script.run("""
+        javasrc '''
+
+        import java.util.function.Consumer;
+        import java.util.List;
+        import java.util.ArrayList;
+
         public class A implements Consumer<Object> {
           public List<Object> l = new ArrayList<>();
           @Override
@@ -24,7 +30,7 @@ public class ObjectScopeStatementTest {
             //System.out.println(o);
             l.add(o);
           }
-        }
+        }''';
         var a = new A() {
           '123'
           42
@@ -41,6 +47,7 @@ public class ObjectScopeStatementTest {
   public void statement1() {
     Script script = new Script();
     script.run("""
+        javasrc $imports + '''
         public class A implements Consumer<Object> {
           public List<Object> l = new ArrayList<>();
           @Override
@@ -48,7 +55,7 @@ public class ObjectScopeStatementTest {
             //System.out.println(o);
             l.add(o);
           }
-        }
+        }''';
         var a = new A();
         a {
           '123'
@@ -66,10 +73,11 @@ public class ObjectScopeStatementTest {
   public void statement2() {
     Script script = new Script();
     script.run("""
+        javasrc '''
         public class A {
           public int i;
           public int i2;
-        }
+        }''';
         var a = new A();
         var foo = 5;
         a {
@@ -89,9 +97,10 @@ public class ObjectScopeStatementTest {
   public void statements() {
     Script script = new Script();
     script.run("""
+        javasrc '''
         public class A {
           public int i;
-        }
+        }''';
         var a = new A() {
           for(int j=0;j<2;j++) {
             println('foo');
@@ -108,9 +117,10 @@ public class ObjectScopeStatementTest {
   public void statements2() {
     Script script = new Script();
     script.run("""
+        javasrc '''
         public class A {
           public int i;
-        }
+        }''';
         var a = new A();
         a {
           for(int j=0;j<2;j++) {
@@ -128,6 +138,7 @@ public class ObjectScopeStatementTest {
   public void expressions() {
     new Script().run("""
         import static org.junit.jupiter.api.Assertions.*;
+        javasrc $imports + '''
         public class A implements Consumer<Object> {
           private String test;
           private List<Object> l = new ArrayList<>();
@@ -148,7 +159,8 @@ public class ObjectScopeStatementTest {
             System.out.println(o);
             l.add(o);
           }
-        }
+        }''';
+        javasrc '''
         public class B {
           private int myInt;
           public B() {
@@ -178,7 +190,7 @@ public class ObjectScopeStatementTest {
           public String toString() {
             return "B:" + myInt;
           }
-        }
+        }''';
         function lower(s) {
           s.toLowerCase();
         }

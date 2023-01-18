@@ -30,6 +30,7 @@ import org.rescript.run.ScriptContext;
 import org.rescript.symbol.VarSymbol;
 import org.rescript.symbol.java.JavaSymbols;
 import org.rescript.util.PackageNameUtils;
+import org.rescript.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,12 +228,20 @@ public class HeaderExitStatement extends AbstractStatement {
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     if(!javaTypes.isEmpty()) {
       List<JavaSource> l = javaTypes.stream()
-          .map(builder -> toJavaSource(builder, ctx))
+          .map(builder -> builder.create(ctx))
           .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
           .toList();
       ClassLoader loader = JavaC.compile(l, symbols.getClassLoader(), quiet);
       symbols.setClassLoader(loader);
     }
+  }
+
+  private void defineImportsVariable(ScriptContext ctx) {
+    StringBuilder b = new StringBuilder("\n");
+    ctx.getSymbols().getJavaSymbols().getStaticImports().forEach(i -> b.append("import static "+i+";\n"));
+    ctx.getSymbols().getJavaSymbols().getImports().forEach(i -> b.append("import "+i+";\n"));
+    b.append("\n");
+    ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot("$imports", Value.of(b.toString()));
   }
 
   @Override
@@ -244,18 +253,13 @@ public class HeaderExitStatement extends AbstractStatement {
       // skip compiling java types as we exit anyway
       return;
     }
+    defineImportsVariable(ctx);
     compileJavaTypes(ctx);
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     // some libraries like e.g. kafka prefer to use the context class loader
     // so set it up here but restore to the previous context class loader when the script is done executing
     // the restoring is done in Script.runVal
     Thread.currentThread().setContextClassLoader(symbols.getClassLoader());
-  }
-
-  private JavaSource toJavaSource(JavaSourceBuilder builder, ScriptContext ctx) {
-    ctx.getSymbols().getJavaSymbols().getStaticImports().forEach(builder::addStaticImport);
-    ctx.getSymbols().getJavaSymbols().getImports().forEach(builder::addImport);
-    return builder.create();
   }
 
   public void addJavaType(JavaSourceBuilder source) {

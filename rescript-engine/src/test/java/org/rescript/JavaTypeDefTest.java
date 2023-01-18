@@ -2,6 +2,7 @@ package org.rescript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class JavaTypeDefTest {
@@ -9,34 +10,27 @@ public class JavaTypeDefTest {
   @Test
   public void simple() {
     new Script().run("""
-        import org.example.Foo;
-        public class org.example.Foo {
-          int a = 1;
-          public Foo(int b) {
-            a = b;
-            char c = '}';
-            // }
-            String foo = \"\"\"
-             abc
-             }
-            \"\"\";
-          }
-          public static void sayHello() {
-            System.out.println("hello from org.example.Foo");
-          }
+        javasrc '''
+        public class Foo {
         }
-        public class Bar {
-          @Override
-          public String toString() {
-            return "bar to string";
-          }
-        }
-        println('test');
-        Foo.sayHello();
-        var foo = new Foo(1);
-        println(typeof foo);
-        println(new Bar());
+        ''';
         """);
+  }
+
+  @Test
+  public void simple2() {
+    String s = (String)new Script().run("""
+        javasrc '''
+        package bar;
+        public class Foo {
+          public String hello() {
+            return "hello from java";
+          }
+        }
+        ''';
+        new bar.Foo().hello();
+        """);
+    assertEquals("hello from java", s);
   }
 
   @Test
@@ -52,9 +46,11 @@ dependencies {
   'com.google.code.gson:gson:2.10'
 }
 
+javasrc $imports + '''
 public class ListOfInstantTypeToken extends TypeToken<List<Instant>> {
-}
+}''';
 
+javasrc $imports + '''
 public class InstantTypeAdapter extends TypeAdapter<Instant> {
 
   @Override
@@ -70,7 +66,8 @@ public class InstantTypeAdapter extends TypeAdapter<Instant> {
   public Instant read(JsonReader in) throws IOException {
     return Instant.parse(in.nextString());
   }
-}
+}''';
+
 var json = '''
 [
   '2023-01-01T18:21:31.801080912Z',
@@ -90,11 +87,13 @@ println(l.get(0));
   @Test
   public void extendsTest() {
     new Script().run("""
+        javasrc '''
         public class A {
-        }
+        }''';
         
+        javasrc '''
         public class B extends A {
-        }
+        }''';
         
         println(new B());
         """);
@@ -103,9 +102,11 @@ println(l.get(0));
   @Test
   public void extendsTest2() {
     new Script().run("""
+        javasrc '''
         public abstract class A<T> {
           abstract T create();
-        }
+        }''';
+        javasrc '''
         public class B extends A<String> {
           @Override
           String create() {
@@ -115,7 +116,7 @@ println(l.get(0));
           public String toString() {
             return create();
           }
-        }
+        }''';
         println(new B());
         """);
   }
@@ -123,12 +124,13 @@ println(l.get(0));
   @Test
   public void implementsTest4() {
     new Script().run("""
+        javasrc $imports + '''
         public class B implements Consumer<List<String>> {
           @Override
           public void accept(List<String> o) {
             System.out.println(o);
           }
-        }
+        }''';
         new B().accept(List.of(1,2,3));
         """);
   }
@@ -136,11 +138,12 @@ println(l.get(0));
   @Test
   public void implementsTest() {
     new Script().run("""
+        javasrc $imports + '''
         public class A implements Consumer<String> {
           public void accept(String s) {
             System.out.println(s);
           }
-        }
+        }''';
         new A().accept("my message");
         """);
   }
@@ -148,6 +151,7 @@ println(l.get(0));
   @Test
   public void implementsTest2() {
     new Script().run("""
+        javasrc $imports + '''
         public class A implements Consumer<String>, Supplier<Integer> {
           @Override
           public void accept(String s) {
@@ -157,7 +161,7 @@ println(l.get(0));
           public Integer get() {
             return 42;
           }
-        }
+        }''';
         new A().accept("my message");
         """);
   }
@@ -165,12 +169,15 @@ println(l.get(0));
   @Test
   public void interface1() {
     assertEquals("foobar", new Script().run("""
+        javasrc '''
         public interface I1 {
           String foo();
-        }
+        }''';
+        javasrc '''
         public interface I2 {
           String bar();
-        }
+        }''';
+        javasrc '''
         public class B implements I1, I2 {
           @Override
           public String foo() {
@@ -180,7 +187,7 @@ println(l.get(0));
           public String bar() {
             return "bar";
           }
-        }
+        }''';
         var b = new B();
         println(b.foo() + b.bar());
         return b.foo() + b.bar();
@@ -190,12 +197,15 @@ println(l.get(0));
   @Test
   public void interface2() {
     assertEquals("foobar", new Script().run("""
+        javasrc '''
         public interface I1 {
           String foo();
-        }
+        }''';
+        javasrc '''
         public interface I2 extends I1 {
           String bar();
-        }
+        }''';
+        javasrc '''
         public class B implements I2 {
           @Override
           public String foo() {
@@ -205,7 +215,7 @@ println(l.get(0));
           public String bar() {
             return "bar";
           }
-        }
+        }''';
         var b = new B();
         println(b.foo() + b.bar());
         return b.foo() + b.bar();
@@ -215,21 +225,24 @@ println(l.get(0));
   @Test
   public void interface3() {
     new Script().run("""
+        javasrc '''
         @SuppressWarnings(value = {"unchecked", "foo"})
         @FunctionalInterface
         public interface I1 {
           String create();
-        }
+        }''';
         """);
   }
 
   @Test
   public void extendsAndImplementsTest() {
     new Script().run("""
+        javasrc '''
         @SuppressWarnings(value = {"unchecked", "foo"})
         public abstract class A<T> {
           public abstract T create();
-        }
+        }''';
+        javasrc $imports + '''
         public class B extends A<Map<List<String>, String>> implements Consumer<String> {
           @Override
           public Map<List<String>, String> create() {
@@ -238,7 +251,7 @@ println(l.get(0));
           @Override
           public void accept(String s) {
           }
-        }
+        }''';
         println(new B());
         """);
   }
@@ -246,16 +259,18 @@ println(l.get(0));
   @Test
   public void enumTest() {
     new Script().run("""
+        javasrc '''
         @SuppressWarnings(value = {"unchecked", "foo"})
         public enum E1 {
           A,
           B,
           C,
           ;
-        }
+        }''';
+        javasrc '''
         public class B {
           private E1 e = E1.C;
-        }
+        }''';
         println(E1.A);
         """);
   }
@@ -263,29 +278,32 @@ println(l.get(0));
   @Test
   public void recordTest() {
     new Script().run("""
+        javasrc '''
+        package records;
         @SuppressWarnings(value = {"unchecked", "foo"})
         public record RecordTest(String s1, int i2) {
-        }
-        println(new RecordTest("record-test", 42));
+        }''';
+        println(new records.RecordTest("record-test", 42));
         """);
   }
 
   @Test
   public void annotationTest() {
     new Script().run("""
+        javasrc '''
         import static java.lang.annotation.RetentionPolicy.RUNTIME;
         import java.lang.annotation.Retention;
         @Retention(RUNTIME)
         public @interface TestAnnotation {
-        }
+        }''';
         """);
   }
 
   @Test
   public void annotationTest2() {
-    // FIXME if "default Integer.class;" below is replaced with "default { };" the test fails
-    // it seems to be related to the javaTypeDefBody rule not detecting the end of the annotation body correctly
     new Script().run("""
+        javasrc '''
+        package foo.bar.myannotation;
         import static java.lang.annotation.RetentionPolicy.RUNTIME;
         import java.lang.annotation.Documented;
         import java.lang.annotation.Retention;
@@ -293,15 +311,15 @@ println(l.get(0));
         @Retention(RUNTIME)
         public @interface NotEmpty {
           String message() default "{org.hibernate.validator.constraints.NotEmpty.message}";
-          Class<?>[] groups() default Integer.class; //{ };
-          // FIXME this breaks the test but it should work
-          //Class<?>[] groups() default { };
+          Class<?>[] groups() default { };
           @Retention(RUNTIME)
           @Documented
           public @interface List {
             NotEmpty[] value();
           }
-        }
+        }''';
+        javasrc '''
+        import foo.bar.myannotation.NotEmpty;
         @NotEmpty.List({
             @NotEmpty( message = "Person name should not be empty",
                        groups=String.class),
@@ -309,7 +327,28 @@ println(l.get(0));
                        groups=String.class),
         })
         public class A {
-        }
+        }''';
+        """);
+  }
+
+  @Test
+  @Disabled
+  public void annotationTest3() {
+    new Script().run("""
+        javasrc '''
+        import static java.lang.annotation.RetentionPolicy.RUNTIME;
+        import java.lang.annotation.Retention;
+        @Retention(RUNTIME)
+        public @interface TestAnnotation {
+          String value();
+        }''';
+        // FIXME org.rescript.java.JavaTypeSource.getName only splits by whitespace and uses the first name after
+        // class, interface, enum or record. if any of those keywords appear in e.g. strings of annotation then the
+        // name detection fails.
+        javasrc '''
+        @TestAnnotation("implements interface Foo and ...")
+        public class A {
+        }''';
         """);
   }
 
