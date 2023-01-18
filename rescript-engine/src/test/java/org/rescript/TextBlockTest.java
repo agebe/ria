@@ -60,4 +60,16 @@ public class TextBlockTest {
     assertEquals("XX12", s);
   }
 
+  @Test
+  public void twoBlocks() {
+    new Script().run("""
+        var block1 = '''
+        block1''';
+        var block2 = '''
+        block2''';
+        println(block1);
+        println(block2);
+        """);
+  }
+
 }
