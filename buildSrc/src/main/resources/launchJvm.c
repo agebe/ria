@@ -1,5 +1,5 @@
 #include "launchJvm.h"
-#include "bs.h"
+#include "launcher.h"
 
 #include <jni.h>
 #include <stdlib.h>
@@ -17,7 +17,7 @@ char* classpath;
 
 void createClasspath() {
   char buf[PATH_MAX];
-  char* bootDir = bsInfo.bsHomeBoot;
+  char* bootDir = launcherInfo.homeBoot;
   int files = 0;
   int namesSize = 0;
   // https://stackoverflow.com/a/12506/20615256
@@ -76,7 +76,7 @@ struct {
 void initArgs(int argc, char **argv) {
   args.argc = argc;
   args.argv = malloc(sizeof(argv) * args.argc);
-  args.argv[0] = bsInfo.bsHome;
+  args.argv[0] = launcherInfo.home;
   for(int i=1;i<argc;i++) {
     args.argv[i] = argv[i];
   }

@@ -1,4 +1,4 @@
-#!/usr/bin/env bs
+#!/usr/bin/env ria
 // from https://docs.oracle.com/javase/tutorial/displayCode.html?code=https://docs.oracle.com/javase/tutorial/uiswing/examples/components/BorderDemoProject/src/components/BorderDemo.java
 
 import java.awt.*;

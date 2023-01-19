@@ -216,7 +216,7 @@ public class Script implements ScriptEngine {
   }
 
   private File getCacheBase() {
-    File home = getRescriptHome()!=null?getRescriptHome():new File(new File(System.getProperty("user.home")), ".bs");
+    File home = getRescriptHome()!=null?getRescriptHome():new File(new File(System.getProperty("user.home")), ".ria");
     File versionBase = new File(home, getVersion());
     File cacheBase = new File(versionBase, "cache");
     if(!cacheBase.exists()) {

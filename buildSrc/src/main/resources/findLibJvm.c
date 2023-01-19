@@ -9,8 +9,8 @@
 #include <limits.h>
 #include <libgen.h>
 
-const char* BS_LIBJVM = "BS_LIBJVM";
-const char* BS_JAVA_HOME = "BS_JAVA_HOME";
+const char* RIA_LIBJVM = "RIA_LIBJVM";
+const char* RIA_JAVA_HOME = "RIA_JAVA_HOME";
 const char* JAVA_HOME = "JAVA_HOME";
 
 char libjvm[PATH_MAX];
@@ -67,10 +67,10 @@ char* findJavaHome() {
 }
 
 char* findLibJvm() {
-  if(getenv(BS_LIBJVM)) {
-    snprintf(libjvm, sizeof(libjvm), "%s", getenv(BS_LIBJVM));
-  } else if(getenv(BS_JAVA_HOME)) {
-    snprintf(libjvm, sizeof(libjvm), "%s/lib/server/libjvm.so", getenv(BS_JAVA_HOME));
+  if(getenv(RIA_LIBJVM)) {
+    snprintf(libjvm, sizeof(libjvm), "%s", getenv(RIA_LIBJVM));
+  } else if(getenv(RIA_JAVA_HOME)) {
+    snprintf(libjvm, sizeof(libjvm), "%s/lib/server/libjvm.so", getenv(RIA_JAVA_HOME));
   } else if(getenv(JAVA_HOME)) {
     snprintf(libjvm, sizeof(libjvm), "%s/lib/server/libjvm.so", getenv(JAVA_HOME));
   } else {

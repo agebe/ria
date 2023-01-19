@@ -7,7 +7,7 @@ public class PassFunctionTest {
 
   @Test
   public void test() {
-    new Script().run(ResourceUtil.resourceAsString("PassFunction.bs"));
+    new Script().run(ResourceUtil.resourceAsString("passFunction.ria"));
   }
 
 }

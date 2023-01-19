@@ -21,7 +21,7 @@ import org.rescript.util.ManifestUtils;
 
 public class ScriptLauncher {
 
-  private static final String MAVEN_REPO_ENV = "BS_MAVEN_REPO";
+  private static final String MAVEN_REPO_ENV = "RIA_MAVEN_REPO";
 
   private static String mavenRepo = "https://repo.maven.apache.org/maven2/";
 
@@ -93,8 +93,8 @@ public class ScriptLauncher {
     }
   }
 
-  private static void downloadMissing(File bsHomeVersion, File libsDir) throws IOException {
-    Files.readAllLines(new File(bsHomeVersion, "libs.txt").toPath())
+  private static void downloadMissing(File riaHomeVersion, File libsDir) throws IOException {
+    Files.readAllLines(new File(riaHomeVersion, "libs.txt").toPath())
     .forEach(path -> fetchIfMissing(toUrl(path), libsDir));
   }
 
@@ -165,14 +165,14 @@ public class ScriptLauncher {
       System.exit(1);
     }
     File rescriptHome = cliOptions.scriptEngineHome.toFile();
-    File bsHomeVersion = new File(rescriptHome, version);
-    File libsDir = new File(bsHomeVersion, "libs");
+    File riaHomeVersion = new File(rescriptHome, version);
+    File libsDir = new File(riaHomeVersion, "libs");
     // the native launcher should have created the libs dir
     if(!libsDir.exists()) {
       throw new ScriptLauncherException("lib dir '%s' not found".formatted(libsDir.getAbsolutePath()));
     }
     setupMavenRepo();
-    downloadMissing(bsHomeVersion, libsDir);
+    downloadMissing(riaHomeVersion, libsDir);
     List<File> libs = Stream.of(libsDir.listFiles())
     .filter(file -> !file.isDirectory())
     .toList();

@@ -1,5 +1,5 @@
-#ifndef _BS_H
-#define _BS_H
+#ifndef _LAUNCHER_H
+#define _LAUNCHER_H
 
 struct EmbeddedFile {
   char* name;
@@ -12,10 +12,10 @@ struct EmbeddedFile {
 
 struct {
   char* version;
-  char* bsHome;
-  char* bsHomeVersion;
-  char* bsHomeLibs;
-  char* bsHomeBoot;
-} bsInfo;
+  char* home;
+  char* homeVersion;
+  char* homeLibs;
+  char* homeBoot;
+} launcherInfo;
 
 #endif

@@ -1,4 +1,4 @@
-#!/usr/bin/env bs
+#!/usr/bin/env ria
 
 function startsWithLetter(x) {
   if(x instanceof String s) {

@@ -64,7 +64,7 @@ public class CliOptions {
 
   public void printHelp() {
     System.out.println("""
-        Usage: bs [ options ... ] script-file script-arguments
+        Usage: ria [ options ... ] script-file script-arguments
         where options include:
           --version, -v                     display version
           --download-dependencies-only, -d  download missing dependencies into the cache and exit

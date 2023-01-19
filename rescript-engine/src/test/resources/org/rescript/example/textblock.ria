@@ -1,4 +1,4 @@
-#!/usr/bin/env bs
+#!/usr/bin/env ria
 
 var sq = '''
   a

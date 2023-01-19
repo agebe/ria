@@ -1,4 +1,4 @@
-#!/usr/bin/env bs
+#!/usr/bin/env ria
 // pdf box example from https://pdfbox.apache.org/1.8/cookbook/documentcreation.html
 dependencies {
   'org.apache.pdfbox:pdfbox:2.0.22'

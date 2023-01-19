@@ -1,4 +1,4 @@
-#!/usr/bin/env bs
+#!/usr/bin/env ria
 
 dependencies {
   'com.google.code.gson:gson:2.10'

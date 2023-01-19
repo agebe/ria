@@ -1,4 +1,3 @@
-//#include <jni.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <dlfcn.h>
@@ -10,17 +9,17 @@
 #include <limits.h>
 // #include <curl/curl.h>
 
-#include "bs.h"
+#include "launcher.h"
 #include "findLibJvm.h"
 #include "launchJvm.h"
 #include "files.h"
 
-const char* BS_HOME = "BS_HOME";
+const char* RIA_HOME = "RIA_HOME";
 
-char bsHome[PATH_MAX];
-char bsHomeVersion[PATH_MAX];
-char bsHomeLibs[PATH_MAX];
-char bsHomeBoot[PATH_MAX];
+char launcherHome[PATH_MAX];
+char launcherHomeVersion[PATH_MAX];
+char launcherHomeLibs[PATH_MAX];
+char launcherHomeBoot[PATH_MAX];
 
 void makedir(char *name) {
   struct stat st = {0};
@@ -50,7 +49,7 @@ void makedir(char *name) {
 
 void writeLibsFile() {
   char filename[PATH_MAX];
-  snprintf(filename, sizeof(filename), "%s/libs.txt", bsInfo.bsHomeVersion);
+  snprintf(filename, sizeof(filename), "%s/libs.txt", launcherInfo.homeVersion);
   FILE *f = fopen(filename, "w");
   if (f == NULL) {
     printf("Error opening file!\n");
@@ -66,19 +65,19 @@ void writeLibsFile() {
 }
 
 void writeFiles() {
-  makedir(bsInfo.bsHome);
-  makedir(bsInfo.bsHomeVersion);
-  makedir(bsInfo.bsHomeLibs);
-  makedir(bsInfo.bsHomeBoot);
+  makedir(launcherInfo.home);
+  makedir(launcherInfo.homeVersion);
+  makedir(launcherInfo.homeLibs);
+  makedir(launcherInfo.homeBoot);
   initFiles();
   writeLibsFile();
   bool isSnapShotVersion = strstr(version, "SNAPSHOT") != NULL;
   for(int i=0;i<filesCount;i++) {
     char filename[PATH_MAX];
     if(files[i].boot) {
-      snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeBoot, files[i].name);
+      snprintf(filename, sizeof(filename), "%s/%s", launcherInfo.homeBoot, files[i].name);
     } else {
-      snprintf(filename, sizeof(filename), "%s/%s", bsInfo.bsHomeLibs, files[i].name);
+      snprintf(filename, sizeof(filename), "%s/%s", launcherInfo.homeLibs, files[i].name);
     }
     struct stat st = {0};
     bool notExists = stat(filename, &st) == -1;
@@ -116,27 +115,27 @@ char* getHomeDir(int argc, char **argv) {
   return NULL;
 }
 
-void initBsInfo(int argc, char **argv) {
+void initLauncherInfo(int argc, char **argv) {
   char* homeDir = getHomeDir(argc, argv);
   if(homeDir) {
-    snprintf(bsHome, PATH_MAX, "%s", homeDir);
-  } else if(getenv(BS_HOME)) {
-    snprintf(bsHome, PATH_MAX, "%s", getenv("BS_HOME"));
+    snprintf(launcherHome, PATH_MAX, "%s", homeDir);
+  } else if(getenv(RIA_HOME)) {
+    snprintf(launcherHome, PATH_MAX, "%s", getenv(RIA_HOME));
   } else {
-    snprintf(bsHome, PATH_MAX, "%s/.bs", getenv("HOME"));
+    snprintf(launcherHome, PATH_MAX, "%s/.ria", getenv("HOME"));
   }
-  snprintf(bsHomeVersion, PATH_MAX, "%s/%s", bsHome, version);
-  snprintf(bsHomeLibs, PATH_MAX, "%s/libs", bsHomeVersion);
-  snprintf(bsHomeBoot, PATH_MAX, "%s/boot", bsHomeVersion);
-  bsInfo.version = version;
-  bsInfo.bsHome = bsHome;
-  bsInfo.bsHomeVersion = bsHomeVersion;
-  bsInfo.bsHomeLibs = bsHomeLibs;
-  bsInfo.bsHomeBoot = bsHomeBoot;
+  snprintf(launcherHomeVersion, PATH_MAX, "%s/%s", launcherHome, version);
+  snprintf(launcherHomeLibs, PATH_MAX, "%s/libs", launcherHomeVersion);
+  snprintf(launcherHomeBoot, PATH_MAX, "%s/boot", launcherHomeVersion);
+  launcherInfo.version = version;
+  launcherInfo.home = launcherHome;
+  launcherInfo.homeVersion = launcherHomeVersion;
+  launcherInfo.homeLibs = launcherHomeLibs;
+  launcherInfo.homeBoot = launcherHomeBoot;
 }
 
 int main(int argc, char **argv) {
-  initBsInfo(argc, argv);
+  initLauncherInfo(argc, argv);
   writeFiles();
   char* libjvm = findLibJvm();
   launchJvm(libjvm, argc, argv);

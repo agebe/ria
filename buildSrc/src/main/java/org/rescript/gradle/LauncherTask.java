@@ -131,8 +131,8 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
 //    System.out.println(outDir.getAbsolutePath());
     outDir.mkdirs();
     writeFilesDotH(outDir, jars);
-    writeFile(outDir, "bs.c");
-    writeFile(outDir, "bs.h");
+    writeFile(outDir, "launcher.c");
+    writeFile(outDir, "launcher.h");
     writeFile(outDir, "findLibJvm.h");
     writeFile(outDir, "findLibJvm.c");
     writeFile(outDir, "launchJvm.h");
@@ -154,7 +154,7 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
     try(PrintWriter writer = new PrintWriter(new FileWriter(new File(outDir, "files.h")))) {
       writer.println("#ifndef _FILES_H");
       writer.println("#define _FILES_H");
-      writer.println("#include \"bs.h\"");
+      writer.println("#include \"launcher.h\"");
       writer.println();
       writer.println("char *version = \"%s\";".formatted(getProject().getVersion()));
       writer.println();
