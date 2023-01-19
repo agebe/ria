@@ -116,7 +116,7 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
     //System.out.println(includeBootAndSnapshotDependenciesOnly);
     Project project = getProject();
     File buildDir = project.getBuildDir();
-    File libDir = new File(buildDir, "install/rescript-launcher/lib");
+    File libDir = new File(buildDir, "install/ria-launcher/lib");
     //File libDir = new File(buildDir, "libs");
     if(!libDir.isDirectory()) {
       throw new RuntimeException("lib dir does not exist, " + libDir.getAbsolutePath());
@@ -225,7 +225,7 @@ Cached resource https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-
   private boolean isIncludeFile(File f) {
     if(includeBootAndSnapshotDependenciesOnly) {
       String name = f.getName();
-      return name.startsWith("rescript-launcher-") ||
+      return name.startsWith("ria-launcher-") ||
           name.contains("-SNAPSHOT.");
     } else {
       return true;

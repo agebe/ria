@@ -7,8 +7,8 @@ plugins {
 mainClassName = 'org.rescript.launcher.ScriptLauncher'
 
 dependencies {
-  implementation project(':rescript-engine')
-  implementation project(':rescript-utils')
+  implementation project(':ria-engine')
+  implementation project(':ria-utils')
 }
 
 task launcherCompile(type:Exec) {
