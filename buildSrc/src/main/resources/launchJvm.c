@@ -129,11 +129,11 @@ void launchJvm(char* libjvm, int argc, char **argv) {
     printf("error creating jvm. exiting...\n");
     exit(1);
   }
-  jclass jcls = (*env)->FindClass(env, "org/rescript/launcher/ScriptLauncher");
+  jclass jcls = (*env)->FindClass(env, "org/ria/launcher/ScriptLauncher");
   if (jcls == NULL) {
     (*env)->ExceptionDescribe(env);
     (*javaVM)->DestroyJavaVM(javaVM);
-    printf("launcher main class org.rescript.launcher.ScriptLauncher not found\n");
+    printf("launcher main class org.ria.launcher.ScriptLauncher not found\n");
     exit(1);
   }
   if (jcls != NULL) {

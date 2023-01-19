@@ -81,6 +81,7 @@ void writeFiles() {
     }
     struct stat st = {0};
     bool notExists = stat(filename, &st) == -1;
+    //printf("%s\n", filename);
     if(isSnapShotVersion && !files[i].download) {
       FILE *write_ptr;
       write_ptr = fopen(filename,"wb");

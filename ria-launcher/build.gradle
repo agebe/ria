@@ -1,10 +1,10 @@
-import org.rescript.gradle.LauncherTask;
+import org.ria.gradle.LauncherTask;
 
 plugins {
   id 'application'
 }
 
-mainClassName = 'org.rescript.launcher.ScriptLauncher'
+mainClassName = 'org.ria.launcher.ScriptLauncher'
 
 dependencies {
   implementation project(':ria-engine')

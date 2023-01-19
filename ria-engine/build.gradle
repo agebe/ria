@@ -15,7 +15,7 @@ generateGrammarSource {
   //https://github.com/antlr/antlr4/blob/master/doc/tool-options.md
   arguments += ["-visitor", "-long-messages"]
   // workaround, could not get the antlr compiler to work when moving the input-files (.g4) into sub-folder
-  outputDirectory = file("build/generated-src/antlr/main/org/rescript/antlr")
+  outputDirectory = file("build/generated-src/antlr/main/org/ria/antlr")
 }
 
 // generate the java sources from the antlr grammar before the eclipse tasks runs

@@ -2,7 +2,7 @@
 // Lexer rules start with a capital letter
 grammar Script;
 @header {
-package org.rescript.antlr;
+package org.ria.antlr;
 }
 
 // script can either be a list of statements or a single expression (no need for semicolon in this case)

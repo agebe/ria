@@ -1,4 +1,4 @@
-rootProject.name = 'rescript'
+rootProject.name = 'ria'
 include 'ria-engine'
 include 'ria-launcher'
 include 'ria-utils'
