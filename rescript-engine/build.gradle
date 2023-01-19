@@ -35,8 +35,8 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'org.javimmutable:javimmutable-collections:3.2.1'
   implementation 'org.apache.maven:maven-model:3.8.6'
-  runtimeOnly 'ch.qos.logback:logback-classic:1.4.5'
   testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+  testRuntimeOnly 'ch.qos.logback:logback-classic:1.4.5'
 }
 
 test {
