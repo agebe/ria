@@ -16,57 +16,57 @@ import org.ria.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JavaFunctionCaller {
+public class JavaMethodInvoker {
 
-  private static final Logger log = LoggerFactory.getLogger(JavaFunctionCaller.class);
+  private static final Logger log = LoggerFactory.getLogger(JavaMethodInvoker.class);
 
   private ScriptContext ctx;
 
-  public JavaFunctionCaller(ScriptContext ctx) {
+  public JavaMethodInvoker(ScriptContext ctx) {
     super();
     this.ctx = ctx;
   }
 
-  public Value call(FunctionCall function, Value target) {
+  public Value invoke(FunctionCall function, Value target) {
     if(target != null) {
       log.debug("calling function '{}' on target '{}'", function.getName().getName(), target);
       JavaMethodSymbol symbol = new JavaMethodSymbol(
           target.type(),
           function.getName().getName(),
           target.val());
-      return callJavaMethod(symbol, function);
+      return invokeJavaMethod(symbol, function);
     } else {
       log.debug("calling java function '{}'", function.getName().getName());
       JavaMethodSymbol symbol = ctx.getSymbols().getJavaSymbols().resolveFunction(function.getName().getName());
       if(symbol != null) {
-        return callJavaMethod(symbol, function);
+        return invokeJavaMethod(symbol, function);
       } else {
         throw new ScriptException("function '%s' not found".formatted(function.getName().getName()));
       }
     }
   }
 
-  public Value call(MethodValue method, FunctionCall fcall) {
-    return callJavaMethod(new JavaMethodSymbol(
+  public Value invoke(MethodValue method, FunctionCall fcall) {
+    return invokeJavaMethod(new JavaMethodSymbol(
         method.getTargetType(),
         method.getMethodName(),
         method.getTarget()),
         resolveParameters(fcall.getParameters()));
   }
 
-  public Value call(MethodValue method, Value[] values) {
-    return callJavaMethod(new JavaMethodSymbol(
+  public Value invoke(MethodValue method, Value[] values) {
+    return invokeJavaMethod(new JavaMethodSymbol(
         method.getTargetType(),
         method.getMethodName(),
         method.getTarget()),
         values);
   }
 
-  private Value callJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) {
-    return callJavaMethod(symbol, resolveParameters(fcall.getParameters()));
+  private Value invokeJavaMethod(JavaMethodSymbol symbol, FunctionCall fcall) {
+    return invokeJavaMethod(symbol, resolveParameters(fcall.getParameters()));
   }
 
-  private Value callJavaMethod(JavaMethodSymbol symbol, Value[] parameters) {
+  private Value invokeJavaMethod(JavaMethodSymbol symbol, Value[] parameters) {
     String fname = symbol.getMethodName();
     log.debug("function parameters '{}'", Arrays.toString(parameters));
     Object[] params = Arrays.stream(parameters).map(Value::val).toArray();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ria.CheckedExceptionWrapper;
-import org.ria.run.JavaFunctionCaller;
+import org.ria.run.JavaMethodInvoker;
 import org.ria.run.ScriptContext;
 
 public class ExceptionUtils {
@@ -50,7 +50,7 @@ public class ExceptionUtils {
   }
 
   private static int indexOfCaller(Throwable t) {
-    String caller = JavaFunctionCaller.class.getName();
+    String caller = JavaMethodInvoker.class.getName();
     for(int i=0;i<t.getStackTrace().length;i++) {
       StackTraceElement e = t.getStackTrace()[i];
       if(StringUtils.equals(caller, e.getClassName())) {

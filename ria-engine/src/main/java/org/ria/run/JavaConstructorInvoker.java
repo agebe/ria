@@ -12,27 +12,27 @@ import org.ria.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JavaConstructorCaller {
+public class JavaConstructorInvoker {
 
-  private static final Logger log = LoggerFactory.getLogger(JavaConstructorCaller.class);
+  private static final Logger log = LoggerFactory.getLogger(JavaConstructorInvoker.class);
 
   private ScriptContext ctx;
 
-  public JavaConstructorCaller(ScriptContext ctx) {
+  public JavaConstructorInvoker(ScriptContext ctx) {
     super();
     this.ctx = ctx;
   }
 
-  public Value call(String type, List<FunctionParameter> plist) {
+  public Value invoke(String type, List<FunctionParameter> plist) {
     Class<?> cls = ctx.getSymbols().getJavaSymbols().resolveType(type);
     if(cls == null) {
       throw new ScriptException("class not found " + type);
     }
     log.debug("found '{}' for type '{}'", cls.getName(), type);
-    return call(cls, plist);
+    return invoke(cls, plist);
   }
 
-  public Value call(Class<?> cls, List<FunctionParameter> plist) {
+  public Value invoke(Class<?> cls, List<FunctionParameter> plist) {
     try {
       Value[] parameters = resolveParameters(plist, ctx);
       Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()), ctx);
