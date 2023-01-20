@@ -28,14 +28,14 @@ public class ScriptContext {
 
   private SymbolTable symbols;
 
-  private FunctionCaller functions;
+  private FunctionInvoker functions;
 
   private ThreadLocal<Context> contexts = ThreadLocal.withInitial(Context::new);
 
   public ScriptContext(SymbolTable symbols) {
     super();
     this.symbols = symbols;
-    this.functions = new FunctionCaller(this);
+    this.functions = new FunctionInvoker(this);
   }
 
   public Value getLastResult() {
@@ -53,7 +53,7 @@ public class ScriptContext {
     return symbols;
   }
 
-  public FunctionCaller getFunctions() {
+  public FunctionInvoker getFunctions() {
     return functions;
   }
 

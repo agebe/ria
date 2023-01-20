@@ -8,24 +8,24 @@ import org.ria.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FunctionCaller {
+public class FunctionInvoker {
 
-  private static final Logger log = LoggerFactory.getLogger(FunctionCaller.class);
+  private static final Logger log = LoggerFactory.getLogger(FunctionInvoker.class);
 
-  private JavaConstructorInvoker javaConstructorCaller;
+  private JavaConstructorInvoker javaConstructorInvoker;
 
-  private JavaMethodInvoker javaFunctionCaller;
+  private JavaMethodInvoker javaMethodInvoker;
 
-  private ScriptFunctionCaller scriptFunctionCaller;
+  private ScriptFunctionInvoker scriptFunctionInvoker;
 
   private ScriptContext ctx;
 
-  public FunctionCaller(ScriptContext ctx) {
+  public FunctionInvoker(ScriptContext ctx) {
     super();
     this.ctx = ctx;
-    this.javaConstructorCaller = new JavaConstructorInvoker(ctx);
-    this.javaFunctionCaller = new JavaMethodInvoker(ctx);
-    this.scriptFunctionCaller = new ScriptFunctionCaller(ctx);
+    this.javaConstructorInvoker = new JavaConstructorInvoker(ctx);
+    this.javaMethodInvoker = new JavaMethodInvoker(ctx);
+    this.scriptFunctionInvoker = new ScriptFunctionInvoker(ctx);
   }
 
   public Value call(FunctionCall function, Value target) {
@@ -34,29 +34,29 @@ public class FunctionCaller {
     if((varSym != null) && varSym.getVal().isConstructor()) {
       ConstructorValue c = varSym.get().toConstructorValue();
       if(c.getDim() == 0) {
-        return javaConstructorCaller.invoke(c.getTargetType(), function.getParameters());
+        return javaConstructorInvoker.invoke(c.getTargetType(), function.getParameters());
       } else {
         throw new ScriptException(
             "internal error, array construction not handled here. type '%s',  dim '%s', function '%s'"
             .formatted(c.getTargetType(), c.getDim(), function));
       }
     } else if((varSym != null) && varSym.getVal().isMethod()) {
-      return javaFunctionCaller.invoke(varSym.getVal().toMethodValue(), function);
+      return javaMethodInvoker.invoke(varSym.getVal().toMethodValue(), function);
     } else {
       VarSymbol functionSymbol = ctx.getSymbols()
           .getScriptSymbols()
           .getCurrentScope()
           .getFunctionSymbol(function.getName().getName());
       if(functionSymbol != null) {
-        return javaFunctionCaller.invoke(functionSymbol.getVal().toMethodValue(), function);
+        return javaMethodInvoker.invoke(functionSymbol.getVal().toMethodValue(), function);
       } else if(target != null) {
         // no own types currently in the script language so has to be a java function
-        return javaFunctionCaller.invoke(function, target);
+        return javaMethodInvoker.invoke(function, target);
       } else {
-        if(scriptFunctionCaller.hasFunction(function)) {
-          return scriptFunctionCaller.call(function);
+        if(scriptFunctionInvoker.hasFunction(function)) {
+          return scriptFunctionInvoker.call(function);
         } else {
-          return javaFunctionCaller.invoke(function, target);
+          return javaMethodInvoker.invoke(function, target);
         }
       }
     }

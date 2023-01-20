@@ -11,11 +11,11 @@ import org.ria.symbol.VarSymbol;
 import org.ria.value.FunctionValue;
 import org.ria.value.Value;
 
-public class ScriptFunctionCaller {
+public class ScriptFunctionInvoker {
 
   private ScriptContext ctx;
 
-  public ScriptFunctionCaller(ScriptContext ctx) {
+  public ScriptFunctionInvoker(ScriptContext ctx) {
     super();
     this.ctx = ctx;
   }
@@ -31,7 +31,7 @@ public class ScriptFunctionCaller {
     }
   }
 
-  public Value call(FunctionValue val, Object[] args) {
+  public Value invoke(FunctionValue val, Object[] args) {
     // TODO find function if there are multiple
     Function function = val.getFunctions().get(0);
     if(args != null) {

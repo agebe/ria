@@ -30,7 +30,7 @@ public class ScriptLambdaInvocationHandler implements InvocationHandler {
     if(ctx.getSymbols().getScriptSymbols().getCurrentScope() != scope) {
       ctx.getSymbols().getScriptSymbols().setCurrentScope(scope);
     }
-    Value v = new ScriptFunctionCaller(ctx).call(function, args);
+    Value v = new ScriptFunctionInvoker(ctx).invoke(function, args);
     // TODO might want to take control over converting value to method.getReturnType()?
     return v.val();
   }
