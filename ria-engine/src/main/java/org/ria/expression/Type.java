@@ -15,7 +15,7 @@ public class Type implements Expression, Ident {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    return ctx.getSymbols().resolveVarOrTypeOrStaticMember(identifier);
+    return ctx.getSymbols().resolveVarOrTypeOrStaticMember(identifier, ctx);
   }
 
   @Override

@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ria.firewall.Firewall;
 import org.ria.parser.Parser;
 import org.ria.parser.ParserListener;
 import org.ria.run.ScriptRunner;
@@ -43,6 +44,8 @@ public class Script implements ScriptEngine {
 
   private boolean quiet;
 
+  private Firewall firewall = new Firewall();
+
   public Script() {
     this(null, null);
   }
@@ -64,7 +67,7 @@ public class Script implements ScriptEngine {
     try {
       parse(script);
       setupArguments();
-      return new ScriptRunner(symbols).run();
+      return new ScriptRunner(symbols, firewall).run();
     } finally {
       Thread.currentThread().setContextClassLoader(ctxLoader);
     }
@@ -293,6 +296,15 @@ public class Script implements ScriptEngine {
   @Override
   public void setQuiet(boolean quiet) {
     this.quiet = quiet;
+  }
+
+  public Firewall getFirewall() {
+    return firewall;
+  }
+
+  public Script setFirewall(Firewall firewall) {
+    this.firewall = firewall;
+    return this;
   }
 
 }

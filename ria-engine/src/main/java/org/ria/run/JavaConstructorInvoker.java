@@ -40,6 +40,7 @@ public class JavaConstructorInvoker {
         throw new ScriptException("no constructor matching parameters found " + Arrays.toString(parameters));
       }
       log.debug("using constructor " + c);
+      // TODO firewall check
       Object o = c.newInstance(RUtils.prepareParamsForInvoke(c, parameters, ctx));
       return new ObjValue(cls, o);
     } catch(Exception e) {

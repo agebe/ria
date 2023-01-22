@@ -2,7 +2,6 @@ package org.ria.symbol;
 
 import java.lang.reflect.Field;
 
-import org.ria.ScriptException;
 import org.ria.expression.CastOp;
 import org.ria.parser.Type;
 import org.ria.run.ScriptContext;
@@ -32,14 +31,14 @@ public class ObjectVarSymbol implements VarSymbol {
   public Value inc() {
     Value v = getVal().inc();
     setVal(v);
-    return v;
+    return getVal();
   }
 
   @Override
   public Value dec() {
     Value v = getVal().dec();
     setVal(v);
-    return v;
+    return getVal();
   }
 
   @Override
@@ -54,21 +53,13 @@ public class ObjectVarSymbol implements VarSymbol {
 
   @Override
   public Object getObjectOrNull() {
-    try {
-      return f.get(o);
-    } catch (IllegalArgumentException | IllegalAccessException e) {
-      throw new ScriptException("failed to access field '%s'".formatted(f.getName()), e);
-    }
+    return ctx.getFirewall().checkAccessAndGet(f, o);
   }
 
   @Override
   public void setVal(Value val) {
     Value v = CastOp.castTo(val, new Type(f.getType()), ctx);
-    try {
-      f.set(o, v.val());
-    } catch (IllegalArgumentException | IllegalAccessException e) {
-      throw new ScriptException("failed to set field '%s'".formatted(f.getName()), e);
-    }
+    ctx.getFirewall().checkAccessAndSet(f, o, v);
   }
 
 }

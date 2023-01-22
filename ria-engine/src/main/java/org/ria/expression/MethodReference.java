@@ -18,13 +18,13 @@ public class MethodReference implements TargetExpression {
 
   @Override
   public Value eval(ScriptContext ctx) {
-    Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(varOrType);
+    Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(varOrType, ctx);
     return new MethodValue(v.type(), v.val(), methodName);
   }
 
   @Override
   public Value eval(ScriptContext ctx, Value target) {
-    Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(target.type().getName()+"."+varOrType);
+    Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(target.type().getName()+"."+varOrType, ctx);
     return new MethodValue(v.type(), v.val(), methodName);
   }
 

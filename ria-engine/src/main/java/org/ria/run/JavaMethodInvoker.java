@@ -79,6 +79,7 @@ public class JavaMethodInvoker {
             m,
             Arrays.toString(paramTypes),
             Arrays.toString(params));
+        // TODO firewall check
         Object result = m.invoke(symbol.getTarget(), RUtils.prepareParamsForInvoke(m, parameters, ctx));
         if(result != null) {
           return Value.of(result.getClass(), result);

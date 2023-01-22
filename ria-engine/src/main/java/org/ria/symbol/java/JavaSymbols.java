@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ria.ScriptException;
+import org.ria.run.ScriptContext;
 import org.ria.value.IntValue;
 import org.ria.value.ObjValue;
 import org.ria.value.SymbolValue;
@@ -64,7 +65,7 @@ public class JavaSymbols {
   // resolve from here ----------------------------------------------------
   // ----------------------------------------------------------------------
 
-  public Value resolveTypeOrStaticMember(String ident) {
+  public Value resolveTypeOrStaticMember(String ident, ScriptContext ctx) {
     // the ident string is something like Boolean.TRUE
     // or variable.counter or java.lang.System or just System (resolve from imports)
     // so it seem we have to resolve the first part of the identifier
@@ -94,7 +95,7 @@ public class JavaSymbols {
       String s = split.stream().limit(i).collect(Collectors.joining("."));
       Class<?> cls = RUtils.forName(s, classLoader);
       if(cls != null) {
-        return resolveRemaining(split.stream().skip(i).toList(), new ObjValue(cls, null));
+        return resolveRemaining(split.stream().skip(i).toList(), new ObjValue(cls, null), ctx);
       }
     }
     // check type from imports
@@ -106,18 +107,27 @@ public class JavaSymbols {
         String probe = impSplit.stream().collect(Collectors.joining(".")) + "." + s0;
         Class<?> cls = RUtils.forName(probe, classLoader);
         if(cls != null) {
-          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+          return resolveRemaining(
+              split.stream().skip(1).toList(),
+              new ObjValue(cls, null),
+              ctx);
         }
         // also try inner class, but shouldn't this be a static import?
         probe = impSplit.stream().collect(Collectors.joining(".")) + "$" + s0;
         cls = RUtils.forName(probe, classLoader);
         if(cls != null) {
-          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+          return resolveRemaining(
+              split.stream().skip(1).toList(),
+              new ObjValue(cls, null),
+              ctx);
         }
       } else if(StringUtils.equals(s0, impLast)) {
         Class<?> cls = RUtils.forName(imp, classLoader);
         if(cls != null) {
-          return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(cls, null));
+          return resolveRemaining(
+              split.stream().skip(1).toList(),
+              new ObjValue(cls, null),
+              ctx);
         } else {
           throw new ScriptException("class import '%s' not found".formatted(imp));
         }
@@ -137,11 +147,17 @@ public class JavaSymbols {
           // it could be a static field or a static inner type, check both
           Field f = RUtils.findStaticField(cls, s0);
           if(f != null) {
-            return resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(new FieldSymbol(f, null)));
+            return resolveRemaining(
+                split.stream().skip(1).toList(),
+                new SymbolValue(new FieldSymbol(f, null, ctx)),
+                ctx);
           }
           Class<?> innerCls = RUtils.innerClass(cls, s0);
           if(innerCls != null) {
-            return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(innerCls, null));
+            return resolveRemaining(
+                split.stream().skip(1).toList(),
+                new ObjValue(innerCls, null),
+                ctx);
           }
         } else {
           throw new ScriptException("static import '%s', class '%s' not found".formatted(imp, probe));
@@ -155,11 +171,17 @@ public class JavaSymbols {
           Field f = RUtils.findStaticField(cls, s0);
           log.debug("static field for '{}', '{}'", s0, f);
           if(f != null) {
-            return resolveRemaining(split.stream().skip(1).toList(), new SymbolValue(new FieldSymbol(f, null)));
+            return resolveRemaining(
+                split.stream().skip(1).toList(),
+                new SymbolValue(new FieldSymbol(f, null, ctx)),
+                ctx);
           }
           Class<?> innerCls = RUtils.innerClass(cls, s0);
           if(innerCls != null) {
-            return resolveRemaining(split.stream().skip(1).toList(), new ObjValue(innerCls, null));
+            return resolveRemaining(
+                split.stream().skip(1).toList(),
+                new ObjValue(innerCls, null),
+                ctx);
           }
           throw new ScriptException("static import '%s' does not have static field/type '%s'".formatted(cls.getName(), s0));
         } else {
@@ -170,7 +192,7 @@ public class JavaSymbols {
     return null;
   }
 
-  public Value resolveRemaining(List<String> ident, Value val) {
+  public Value resolveRemaining(List<String> ident, Value val, ScriptContext ctx) {
     if(ident.isEmpty()) {
       return val;
     }
@@ -180,14 +202,14 @@ public class JavaSymbols {
       Field staticField = RUtils.findStaticField(current.type(), s);
       if(staticField != null) {
         log.debug("found static field '{}' on type '{}'", s, current.type());
-        current = new SymbolValue(new FieldSymbol(staticField, null));
+        current = new SymbolValue(new FieldSymbol(staticField, null, ctx));
         continue;
       }
       if(current.val() != null) {
         Field field = RUtils.findField(current.type(), s);
         if(field != null) {
           log.debug("found field '{}' on type '{}'", s, current.type());
-          current = new SymbolValue(new FieldSymbol(field, current.val()));
+          current = new SymbolValue(new FieldSymbol(field, current.val(), ctx));
           continue;
         }
       }

@@ -49,6 +49,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
     Method m = chooseMethod(methods, args);
     if(m != null) {
       try {
+        // TODO firewall check
         return m.invoke(methodValue.getTarget(), castAll(m, args));
       } catch(IllegalArgumentException e) {
         String expected = Arrays.stream(m.getParameterTypes())
@@ -79,6 +80,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
           target.getClass(), target, methodValue.getMethodName());
       Method m = chooseMethod(methods, newArgs);
       try {
+        // TODO firewall check
         return m.invoke(target, castAll(m, newArgs));
       } catch(IllegalArgumentException e) {
         String expected = Arrays.stream(m.getParameterTypes())

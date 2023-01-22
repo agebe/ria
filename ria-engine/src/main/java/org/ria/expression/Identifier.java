@@ -33,7 +33,7 @@ public class Identifier implements TargetExpression, Ident {
   @Override
   public Value eval(ScriptContext ctx) {
     try {
-      Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(ident);
+      Value v = ctx.getSymbols().resolveVarOrTypeOrStaticMember(ident, ctx);
       log.debug("ident resolved to '{}'", v);
       return v;
     } catch(SymbolNotFoundException e) {
@@ -46,12 +46,12 @@ public class Identifier implements TargetExpression, Ident {
     if(target instanceof UnresolvedIdentifier uident) {
       String i = uident.getIdentifier() + "." + ident;
       try {
-        return ctx.getSymbols().resolveVarOrTypeOrStaticMember(i);
+        return ctx.getSymbols().resolveVarOrTypeOrStaticMember(i, ctx);
       } catch(SymbolNotFoundException e) {
         return new UnresolvedIdentifier(i);
       }
     } else {
-      return ctx.getSymbols().getJavaSymbols().resolveRemaining(List.of(ident), target);
+      return ctx.getSymbols().getJavaSymbols().resolveRemaining(List.of(ident), target, ctx);
     }
   }
 

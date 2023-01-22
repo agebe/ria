@@ -1,5 +1,6 @@
 package org.ria.run;
 
+import org.ria.firewall.Firewall;
 import org.ria.symbol.SymbolTable;
 import org.ria.value.Value;
 
@@ -7,9 +8,9 @@ public class ScriptRunner {
 
   private ScriptContext ctx;
 
-  public ScriptRunner(SymbolTable symbols) {
+  public ScriptRunner(SymbolTable symbols, Firewall firewall) {
     super();
-    ctx = new ScriptContext(symbols);
+    ctx = new ScriptContext(symbols, firewall);
     symbols.getScriptSymbols().setCtx(ctx);
   }
 

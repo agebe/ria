@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import org.ria.ScriptException;
+import org.ria.firewall.Firewall;
 import org.ria.statement.Function;
 import org.ria.symbol.SymbolTable;
 import org.ria.value.Value;
@@ -32,10 +33,13 @@ public class ScriptContext {
 
   private ThreadLocal<Context> contexts = ThreadLocal.withInitial(Context::new);
 
-  public ScriptContext(SymbolTable symbols) {
+  private Firewall firewall;
+
+  public ScriptContext(SymbolTable symbols, Firewall firewall) {
     super();
     this.symbols = symbols;
     this.functions = new FunctionInvoker(this);
+    this.firewall = firewall;
   }
 
   public Value getLastResult() {
@@ -102,6 +106,14 @@ public class ScriptContext {
 
   public boolean isExit() {
     return contexts.get().exit;
+  }
+
+  public Firewall getFirewall() {
+    return firewall;
+  }
+
+  public void setFirewall(Firewall firewall) {
+    this.firewall = firewall;
   }
 
 }
