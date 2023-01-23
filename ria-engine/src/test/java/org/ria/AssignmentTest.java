@@ -84,7 +84,6 @@ public class AssignmentTest {
         ''';
         var a = new org.ria.test.TestClass();
         a.a = 42;
-        //println(a.a);
         a.a;
         """);
     assertEquals(42, a);
@@ -98,9 +97,7 @@ public class AssignmentTest {
           public static int a;
         }
         ''';
-        println(TestClass.a);
         TestClass.a = 42;
-        println(TestClass.a);
         TestClass.a;
         """);
     assertEquals(42, a);

@@ -10,12 +10,8 @@ import org.ria.symbol.java.RUtils;
 import org.ria.value.ObjValue;
 import org.ria.value.SymbolValue;
 import org.ria.value.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class AssignmentOp implements Assignment, TargetExpression {
-
-  private static final Logger log = LoggerFactory.getLogger(AssignmentOp.class);
+public class AssignmentOp implements Assignment {
 
   private Identifier ident;
 
@@ -56,7 +52,6 @@ public class AssignmentOp implements Assignment, TargetExpression {
   @Override
   public Value eval(ScriptContext ctx, Value target) {
     Value v = expression.eval(ctx);
-    log.info("target '{}'", target);
     if(target instanceof SymbolValue s) {
       Value vObj = s.getSymbol().get();
       if(vObj instanceof ObjValue objValue) {

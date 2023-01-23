@@ -1,9 +1,15 @@
 package org.ria.expression;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
+import org.ria.ScriptException;
 import org.ria.run.ScriptContext;
+import org.ria.symbol.java.FieldSymbol;
+import org.ria.symbol.java.RUtils;
 import org.ria.value.Array;
+import org.ria.value.ObjValue;
+import org.ria.value.SymbolValue;
 import org.ria.value.Value;
 
 public class MultiAssignmentOp implements Assignment {
@@ -45,6 +51,62 @@ public class MultiAssignmentOp implements Assignment {
   @Override
   public List<Identifier> identifiers() {
     return identifiers;
+  }
+
+  private Field findField(Class<?> cls, Object o, String name) {
+    return o!=null?RUtils.findField(cls, name):RUtils.findStaticField(cls, name);
+  }
+
+  private Field findFieldNotNull(Class<?> cls, Object o, String name) {
+    Field f = findField(cls, o, name);
+    if(f == null) {
+      throw new ScriptException("'%s' field '%s' not found on class '%s'"
+          .formatted(
+              (o!=null?"member":"static"),
+              name,
+              cls.getName()));
+    }
+    return f;
+  }
+
+  private Value assign(ScriptContext ctx, ObjValue objValue, Value target, Value v) {
+    Class<?> cls = objValue.getType();
+    Object o = objValue.getVal();
+    if(v instanceof Array a) {
+      for(int i=0;i<identifiers.size();i++) {
+        String ident = identifiers.get(i).getIdent();
+        Field f = findFieldNotNull(cls, o, ident);
+        new FieldSymbol(f, o, ctx).set(v);
+      }
+    } else if(v.val() instanceof List<?> l) {
+      for(int i=0;i<identifiers.size();i++) {
+        String ident = identifiers.get(i).getIdent();
+        Field f = findFieldNotNull(cls, o, ident);
+        new FieldSymbol(f, o, ctx).set((i<l.size()?Value.of(l.get(i)):v));
+      }
+    } else {
+      for(int i=0;i<identifiers.size();i++) {
+        String ident = identifiers.get(i).getIdent();
+        Field f = findFieldNotNull(cls, o, ident);
+        new FieldSymbol(f, o, ctx).set(v);
+      }
+    }
+    return v;
+  }
+
+  @Override
+  public Value eval(ScriptContext ctx, Value target) {
+    Value v = expr.eval(ctx);
+    if(target instanceof SymbolValue s) {
+      Value vObj = s.getSymbol().get();
+      if(vObj instanceof ObjValue objValue) {
+        return assign(ctx, objValue, target, v);
+      }
+    } else if(target instanceof ObjValue objValue) {
+      return assign(ctx, objValue, target, v);
+    }
+    throw new ScriptException("field multi assign failed, names '%s', target '%s'"
+        .formatted(identifiers, target));
   }
 
 }
