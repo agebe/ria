@@ -71,4 +71,9 @@ public class ScriptVarSymbol implements VarSymbol {
     return "VarSymbol [name=" + name + ", val=" + val + "]";
   }
 
+  @Override
+  public void set(Value v) {
+    this.val = v;
+  }
+
 }

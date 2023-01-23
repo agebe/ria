@@ -62,4 +62,9 @@ public class ObjectVarSymbol implements VarSymbol {
     ctx.getFirewall().checkAccessAndSet(f, o, v);
   }
 
+  @Override
+  public void set(Value v) {
+    setVal(v);
+  }
+
 }

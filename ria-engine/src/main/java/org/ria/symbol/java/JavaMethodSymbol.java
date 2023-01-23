@@ -51,4 +51,9 @@ public class JavaMethodSymbol implements Symbol {
     throw new ScriptException("get not supported");
   }
 
+  @Override
+  public void set(Value v) {
+    throw new ScriptException("set not supported");
+  }
+
 }

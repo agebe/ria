@@ -52,4 +52,10 @@ public class ObjectMethodSymbol implements VarSymbol {
     
   }
 
+  @Override
+  public void set(Value v) {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

@@ -6,6 +6,8 @@ public interface Symbol {
 
   Value get();
 
+  void set(Value v);
+
   /**
    * increment number and return new Value or throw exception if operation is not supported or value is not a number
    */
@@ -15,4 +17,5 @@ public interface Symbol {
    * decrement number and return new Value or throw exception if operation is not supported or value is not a number
    */
   Value dec();
+
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class MultiAssignTest {
@@ -111,6 +112,27 @@ public class MultiAssignTest {
     assertEquals(1, script.getVariable("a"));
     assertEquals(2, script.getVariable("b"));
     assertEquals(List.of(1,2), script.getVariable("c"));
+  }
+
+  @Test
+  @Disabled
+  public void javaFields() {
+    new Script().run("""
+        javasrc '''
+        package org.ria.test;
+        public class TestClass {
+          public int a;
+          public int b;
+        }
+        ''';
+        org.ria.test.TestClass t = new org.ria.test.TestClass();
+        println(t);
+        t.(a,b) = [42,43];
+        println(typeof t);
+        println(t);
+        println(t.a);
+        println(t.b);
+        """);
   }
 
 }

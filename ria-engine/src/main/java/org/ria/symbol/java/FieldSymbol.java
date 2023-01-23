@@ -40,7 +40,8 @@ public class FieldSymbol implements Symbol {
     return get();
   }
 
-  private void set(Value v) {
+  @Override
+  public void set(Value v) {
     ctx.getFirewall().checkAccessAndSet(field, owner, v);
   }
 
