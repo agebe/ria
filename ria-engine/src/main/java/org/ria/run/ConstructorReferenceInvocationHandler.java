@@ -1,6 +1,7 @@
 package org.ria.run;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -13,26 +14,26 @@ public class ConstructorReferenceInvocationHandler implements InvocationHandler 
 
   private ConstructorValue constructorValue;
 
-//  private ScriptContext ctx;
+  private ScriptContext ctx;
 
   public ConstructorReferenceInvocationHandler(ConstructorValue value, ScriptContext ctx) {
     super();
     this.constructorValue = value;
-//    this.ctx = ctx;
+    this.ctx = ctx;
   }
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if(constructorValue.getDim() == 0) {
       final int paramCount = args!=null?args.length:0;
-      return Arrays.stream(constructorValue.getTargetType().getConstructors())
+      Constructor<?> constructor = Arrays.stream(constructorValue.getTargetType().getConstructors())
           .filter(c -> c.getParameterCount() == paramCount)
           // FIXME also check that the parameter types match
           .findFirst()
           .orElseThrow(() -> new ScriptException(
               "constructor with parameter types '%s' not found on class '%s'".formatted(
-                  toTypeString(args), constructorValue.getTargetType().getName())))
-          .newInstance(args);
+                  toTypeString(args), constructorValue.getTargetType().getName())));
+      return ctx.getFirewall().checkAndInvoke(constructor, args);
     } else {
       // create an array of the type and dimensions
       // arguments provide array lengths

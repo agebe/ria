@@ -1,6 +1,10 @@
 package org.ria.firewall;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -16,7 +20,15 @@ public class Firewall {
 
   private List<FieldRule> fieldRules = new ArrayList<>();
 
+  private List<ConstructorRule> constructorRules = new ArrayList<>();
+
+  private List<MethodRule> methodRules = new ArrayList<>();
+
   private RuleAction defaultFieldAction = RuleAction.ACCEPT;
+
+  private RuleAction defaultConstructorAction = RuleAction.ACCEPT;
+
+  private RuleAction defaultMethodAction = RuleAction.ACCEPT;
 
   public Firewall() {
     super();
@@ -78,10 +90,10 @@ public class Firewall {
     checkAccess(f, FieldAccess.SET, () -> {
       try {
         setField(f, target, v);
+        return null;
       } catch(IllegalArgumentException | IllegalAccessException e) {
         throw new ScriptException("failed to set field '%s'".formatted(f.getName()), e);
       }
-      return null;
     });
   }
 
@@ -93,6 +105,52 @@ public class Firewall {
         throw new ScriptException("failed to access field '%s'".formatted(f.getName()), e);
       }
     });
+  }
+
+  private ConstructorRule match(Constructor<?> c) {
+    if(constructorRules == null) {
+      return null;
+    }
+    return constructorRules.stream()
+        .filter(rule -> rule.matches(c))
+        .findFirst()
+        .orElse(null);
+  }
+
+  private Object checkAndInvokeConstructor(Constructor<?> c, Object[] parameters) {
+    ConstructorRule rule = match(c);
+    RuleAction action = rule!=null?rule.getAction():defaultConstructorAction;
+    if(RuleAction.ACCEPT.equals(action)) {
+      try {
+        return c.newInstance(parameters);
+      } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+          | InvocationTargetException e) {
+        throw new ScriptException("constructor '%s' invocation failed".formatted(c), e);
+      }
+    } else if(RuleAction.DENY.equals(action)) {
+      throw new AccessDeniedException("constructor '%s', access denied".formatted(c));
+    } else if(RuleAction.DROP.equals(action)) {
+      throw new ScriptException("firewall action drop not supported on constructor".formatted(action));
+    } else if(RuleAction.INTERCEPT.equals(action)) {
+      // TODO
+      throw new ScriptException("firewall action '%s' not implemeneted".formatted(action));
+    } else {
+      throw new ScriptException("firewall action '%s' not supported".formatted(action));
+    }
+  }
+
+  private Object checkAndInvokeMethod(Method m, Object[] parameters) {
+    return null;
+  }
+
+  public Object checkAndInvoke(Executable executable, Object[] parameters) {
+    if(executable instanceof Constructor<?> c) {
+      return checkAndInvokeConstructor(c, parameters);
+    } else if(executable instanceof Method m) {
+      return checkAndInvokeMethod(m, parameters);
+    } else {
+      throw new ScriptException("can't invoke '%s'".formatted(executable));
+    }
   }
 
   public List<FieldRule> getFieldRules() {
@@ -116,6 +174,45 @@ public class Firewall {
       throw new ScriptException("defaultFieldAction is null");
     }
     this.defaultFieldAction = defaultFieldAction;
+    return this;
+  }
+
+  public RuleAction getDefaultConstructorAction() {
+    return defaultConstructorAction;
+  }
+
+  public Firewall setDefaultConstructorAction(RuleAction defaultConstructorAction) {
+    if(defaultConstructorAction == null) {
+      throw new ScriptException("defaultConstructorAction is null");
+    }
+    this.defaultConstructorAction = defaultConstructorAction;
+    return this;
+  }
+
+  public List<ConstructorRule> getConstructorRules() {
+    return constructorRules;
+  }
+
+  public Firewall setConstructorRules(List<ConstructorRule> constructorRules) {
+    this.constructorRules = constructorRules;
+    return this;
+  }
+
+  public List<MethodRule> getMethodRules() {
+    return methodRules;
+  }
+
+  public Firewall setMethodRules(List<MethodRule> methodRules) {
+    this.methodRules = methodRules;
+    return this;
+  }
+
+  public RuleAction getDefaultMethodAction() {
+    return defaultMethodAction;
+  }
+
+  public Firewall setDefaultMethodAction(RuleAction defaultMethodAction) {
+    this.defaultMethodAction = defaultMethodAction;
     return this;
   }
 

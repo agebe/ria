@@ -21,6 +21,16 @@ public class FieldRule {
     super();
   }
 
+  public FieldRule(Set<FieldAccess> fieldAccess, String packageName, String className, String fieldName,
+      RuleAction action) {
+    super();
+    this.fieldAccess = fieldAccess;
+    this.packageName = packageName;
+    this.className = className;
+    this.fieldName = fieldName;
+    this.action = action;
+  }
+
   public boolean matches(Field field, FieldAccess fieldAccess) {
     if((this.fieldAccess != null) && !this.fieldAccess.contains(fieldAccess)) {
       return false;

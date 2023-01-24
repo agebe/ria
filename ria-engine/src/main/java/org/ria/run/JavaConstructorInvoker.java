@@ -33,20 +33,14 @@ public class JavaConstructorInvoker {
   }
 
   public Value invoke(Class<?> cls, List<FunctionParameter> plist) {
-    try {
-      Value[] parameters = resolveParameters(plist, ctx);
-      Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()), ctx);
-      if( c == null) {
-        throw new ScriptException("no constructor matching parameters found " + Arrays.toString(parameters));
-      }
-      log.debug("using constructor " + c);
-      // TODO firewall check
-      Object o = c.newInstance(RUtils.prepareParamsForInvoke(c, parameters, ctx));
-      return new ObjValue(cls, o);
-    } catch(Exception e) {
-      // FIXME improve message
-      throw new ScriptException("failed on '%s'".formatted(toString()), e);
+    Value[] parameters = resolveParameters(plist, ctx);
+    Constructor<?> c = RUtils.matchSignature(parameters, List.of(cls.getConstructors()), ctx);
+    if( c == null) {
+      throw new ScriptException("no constructor matching parameters found " + Arrays.toString(parameters));
     }
+    log.debug("using constructor " + c);
+    Object o = ctx.getFirewall().checkAndInvoke(c, RUtils.prepareParamsForInvoke(c, parameters, ctx));
+    return new ObjValue(cls, o);
   }
 
   private Value[] resolveParameters(List<FunctionParameter> parameters, ScriptContext ctx) {
