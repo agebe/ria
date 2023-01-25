@@ -1,7 +1,6 @@
 package org.ria.firewall;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -117,7 +116,7 @@ public class Firewall {
         .orElse(null);
   }
 
-  private Object checkAndInvokeConstructor(Constructor<?> c, Object[] parameters) {
+  public Object checkAndInvoke(Constructor<?> c, Object[] parameters) {
     ConstructorRule rule = match(c);
     RuleAction action = rule!=null?rule.getAction():defaultConstructorAction;
     if(RuleAction.ACCEPT.equals(action)) {
@@ -139,17 +138,34 @@ public class Firewall {
     }
   }
 
-  private Object checkAndInvokeMethod(Method m, Object[] parameters) {
-    return null;
+  private MethodRule match(Method m) {
+    if(methodRules == null) {
+      return null;
+    }
+    return methodRules.stream()
+        .filter(rule -> rule.matches(m))
+        .findFirst()
+        .orElse(null);
   }
 
-  public Object checkAndInvoke(Executable executable, Object[] parameters) {
-    if(executable instanceof Constructor<?> c) {
-      return checkAndInvokeConstructor(c, parameters);
-    } else if(executable instanceof Method m) {
-      return checkAndInvokeMethod(m, parameters);
+  public Object checkAndInvoke(Method m, Object target, Object[] parameters) {
+    MethodRule rule = match(m);
+    RuleAction action = rule!=null?rule.getAction():defaultMethodAction;
+    if(RuleAction.ACCEPT.equals(action)) {
+      try {
+        return m.invoke(target, parameters);
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        throw new ScriptException("method '%s' invocation failed".formatted(m), e);
+      }
+    } else if(RuleAction.DENY.equals(action)) {
+      throw new AccessDeniedException("method '%s', access denied".formatted(m));
+    } else if(RuleAction.DROP.equals(action)) {
+      return null;
+    } else if(RuleAction.INTERCEPT.equals(action)) {
+      // TODO
+      throw new ScriptException("firewall action '%s' not implemeneted".formatted(action));
     } else {
-      throw new ScriptException("can't invoke '%s'".formatted(executable));
+      throw new ScriptException("firewall action '%s' not supported".formatted(action));
     }
   }
 

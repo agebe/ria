@@ -10,6 +10,14 @@ public class Dependencies implements Consumer<Object> {
 
   private List<Dependency> dependencies = new ArrayList<>();
 
+  public Dependencies() {
+    super();
+  }
+
+  public Dependencies(List<Dependency> dependencies) {
+    this.dependencies.addAll(dependencies);
+  }
+
   @Override
   public void accept(Object o) {
     if(o instanceof Dependency d) {

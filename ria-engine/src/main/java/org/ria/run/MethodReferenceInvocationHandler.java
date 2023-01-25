@@ -1,14 +1,12 @@
 package org.ria.run;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.ria.CheckedExceptionWrapper;
 import org.ria.ScriptException;
 import org.ria.expression.CastOp;
 import org.ria.parser.Type;
@@ -49,8 +47,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
     Method m = chooseMethod(methods, args);
     if(m != null) {
       try {
-        // TODO firewall check
-        return m.invoke(methodValue.getTarget(), castAll(m, args));
+        return ctx.getFirewall().checkAndInvoke(m, methodValue.getTarget(), castAll(m, args));
       } catch(IllegalArgumentException e) {
         String expected = Arrays.stream(m.getParameterTypes())
             .map(cls -> cls.getName())
@@ -79,20 +76,7 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
       List<Method> methods = RUtils.findAccessibleMethods(
           target.getClass(), target, methodValue.getMethodName());
       Method m = chooseMethod(methods, newArgs);
-      try {
-        // TODO firewall check
-        return m.invoke(target, castAll(m, newArgs));
-      } catch(IllegalArgumentException e) {
-        String expected = Arrays.stream(m.getParameterTypes())
-            .map(cls -> cls.getName())
-            .collect(Collectors.joining(", "));
-        throw new ScriptException("invoke method '%s' failed with illegal arguments, passed '%s', expected '%s'"
-            .formatted(m.getName(), toTypeString(args), expected));
-      } catch(InvocationTargetException e) {
-        throw new CheckedExceptionWrapper(e.getCause());
-      } catch(IllegalAccessException e) {
-        throw new ScriptException("illegal access on method inocation of '%s'".formatted(m.getName()));
-      }
+      return ctx.getFirewall().checkAndInvoke(m, target, castAll(m, newArgs));
     } else {
       throw new ScriptException("method not found '%s', params '%s'".formatted(method.getName(), toTypeString(args)));
     }

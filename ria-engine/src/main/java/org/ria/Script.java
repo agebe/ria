@@ -185,8 +185,9 @@ public class Script implements ScriptEngine {
     return reparse(script).evalByte();
   }
 
-  public void setVariable(String name, Object val) {
+  public Script setVariable(String name, Object val) {
     symbols.getScriptSymbols().defineOrAssignVarRoot(name, Value.of(val));
+    return this;
   }
 
   public Object getVariable(String name) {

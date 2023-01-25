@@ -1,6 +1,5 @@
 * add val keyword (var/val same as in kotlin/scala)
 * enable/disable script features
-* script firewall (which java methods are allowed/denied)
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
 * apache license on all files

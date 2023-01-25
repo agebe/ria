@@ -28,7 +28,7 @@ public class ConstructorRule {
         !StringUtils.equals(packageName, c.getDeclaringClass().getPackageName())) {
       return false;
     }
-    if(StringUtils.isNotBlank(className) && !StringUtils.equals(className, c.getDeclaringClass().getName())) {
+    if(StringUtils.isNotBlank(className) && !StringUtils.equals(className, c.getDeclaringClass().getSimpleName())) {
       return false;
     }
     return true;

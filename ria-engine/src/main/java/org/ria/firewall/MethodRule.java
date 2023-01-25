@@ -31,7 +31,7 @@ public class MethodRule {
         !StringUtils.equals(packageName, method.getDeclaringClass().getPackageName())) {
       return false;
     }
-    if(StringUtils.isNotBlank(className) && !StringUtils.equals(className, method.getDeclaringClass().getName())) {
+    if(StringUtils.isNotBlank(className) && !StringUtils.equals(className, method.getDeclaringClass().getSimpleName())) {
       return false;
     }
     if(StringUtils.isNotBlank(name) && !StringUtils.equals(name, method.getName())) {
@@ -74,6 +74,12 @@ public class MethodRule {
   public MethodRule setAction(RuleAction action) {
     this.action = action;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "MethodRule [packageName=" + packageName + ", className=" + className + ", name=" + name + ", action="
+        + action + "]";
   }
 
 }
