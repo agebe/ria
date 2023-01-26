@@ -1,6 +1,7 @@
 #!/usr/bin/env ria
 dependencies {
   'org.eclipse.jetty.aggregate:jetty-all:9.4.49.v20220914'
+  'org.slf4j:slf4j-simple:1.7.36'
 }
 // copied from https://www.eclipse.org/jetty/documentation/jetty-9/index.html#jetty-helloworld
 import org.eclipse.jetty.server.Server;
