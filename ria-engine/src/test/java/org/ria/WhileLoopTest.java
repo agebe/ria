@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 
-public class WhileLoop {
+public class WhileLoopTest {
 
   @Test
   public void iteratorLoop() {
