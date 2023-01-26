@@ -16,16 +16,19 @@ public class HeaderEnterStatement extends AbstractStatement {
 
   private Repositories repos;
 
-  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo, File cacheBase) {
+  private Options options;
+
+  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo, File cacheBase, Options options) {
     super(lineNumber);
     this.repos = new Repositories(defaultMavenRepo, cacheBase);
+    this.options = options;
   }
 
   @Override
   public void execute(ScriptContext ctx) {
     if(!ctx.getSymbols().getScriptSymbols().isDefined(OPTIONS)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(
-          OPTIONS, Value.of(new Options()));
+          OPTIONS, Value.of(options));
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(DEPENDENCIES)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(

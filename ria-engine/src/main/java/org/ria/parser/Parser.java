@@ -1,15 +1,15 @@
 package org.ria.parser;
 
-import java.io.File;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.lang3.StringUtils;
+import org.ria.ScriptException;
 import org.ria.antlr.ScriptLexer;
 import org.ria.antlr.ScriptParser;
-import org.ria.ScriptException;
+import org.ria.statement.HeaderEnterStatement;
+import org.ria.statement.HeaderExitStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,21 +19,15 @@ public class Parser {
 
   private boolean showErrorsOnConsole;
 
-  private String defaultMavenRepo;
-
-  public Parser(boolean showErrorsOnConsole, String defaultMavenRepo) {
+  public Parser(boolean showErrorsOnConsole) {
     super();
     this.showErrorsOnConsole = showErrorsOnConsole;
-    this.defaultMavenRepo = defaultMavenRepo;
   }
 
   public ParserListener parse(
       String script,
-      ClassLoader scriptClassLoader,
-      File cacheBase,
-      boolean downloadDependenciesOnly,
-      boolean printDependencies,
-      boolean quiet) {
+      HeaderEnterStatement headerEnter,
+      HeaderExitStatement headerExit) {
     log.debug("parsing script '{}'", script);
     if(StringUtils.isBlank(script)) {
       throw new ScriptException("no script has been setup");
@@ -54,13 +48,7 @@ public class Parser {
     }
     parser.addErrorListener(new SyntaxExceptionErrorListener());
     ScriptParser.ScriptContext scriptCtx = parser.script();
-    ParserListener listener = new ParserListener(
-        scriptClassLoader,
-        defaultMavenRepo,
-        cacheBase,
-        downloadDependenciesOnly,
-        printDependencies,
-        quiet);
+    ParserListener listener = new ParserListener(headerEnter, headerExit);
     ParseTreeWalker.DEFAULT.walk(listener, scriptCtx);
     return listener;
   }

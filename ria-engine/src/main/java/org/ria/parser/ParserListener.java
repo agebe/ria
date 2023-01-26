@@ -1,6 +1,5 @@
 package org.ria.parser;
 
-import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +13,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringUtils;
+import org.ria.ScriptException;
 import org.ria.antlr.ScriptListener;
 import org.ria.antlr.ScriptParser.ArrayInitContext;
 import org.ria.antlr.ScriptParser.ArrowCaseContext;
@@ -79,7 +79,6 @@ import org.ria.antlr.ScriptParser.VardefStmtContext;
 import org.ria.antlr.ScriptParser.VoidLiteralContext;
 import org.ria.antlr.ScriptParser.WhileStmtContext;
 import org.ria.antlr.ScriptParser.YieldStmtContext;
-import org.ria.ScriptException;
 import org.ria.expression.Assignment;
 import org.ria.expression.AssignmentOp;
 import org.ria.expression.BoolLiteral;
@@ -145,14 +144,10 @@ public class ParserListener implements ScriptListener {
   private HeaderExitStatement headerExit;
 
   public ParserListener(
-      ClassLoader scriptClassLoader,
-      String defaultMavenRepo,
-      File cacheBase,
-      boolean downloadDependenciesOnly,
-      boolean printDependencies,
-      boolean quiet) {
-    headerEnter = new HeaderEnterStatement(0, defaultMavenRepo, cacheBase);
-    headerExit = new HeaderExitStatement(0, scriptClassLoader, downloadDependenciesOnly, printDependencies, quiet);
+      HeaderEnterStatement headerEnter,
+      HeaderExitStatement headerExit) {
+    this.headerEnter = headerEnter;
+    this.headerExit = headerExit;
     // add main function
     Function main = Function.main();
     stack.push(main);

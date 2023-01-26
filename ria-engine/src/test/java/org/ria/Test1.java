@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.PrintStream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -48,40 +49,35 @@ public class Test1 {
 
   public static final TestInner2 TI2 = new TestInner2();
 
-  private ScriptBuilder base = new ScriptBuilder()
-      .addImport("java.util.Objects")
-      .addStaticImport("org.junit.jupiter.api.Assertions.*");
+  private Script script;
+
+  @BeforeEach
+  public void prepareScript() {
+    script = new Script()
+        .addStaticImport("org.junit.jupiter.api.Assertions.*");
+  }
+
+//  private ScriptBuilder base = new ScriptBuilder()
+//      .addImport("java.util.Objects")
+//      .addStaticImport("org.junit.jupiter.api.Assertions.*");
 
   @Test
   public void hello() throws Exception {
-    base.setScript("java.lang.System.out.println('Hello World')").create().run();
+    script.run("java.lang.System.out.println('Hello World')");
   }
 
   @Test
   public void helloWithDefaultImport() {
-    base.setScript("System.out.println('Hello World')").create().run();
+    script.run("System.out.println('Hello World')");
   }
 
   @Test
   public void importTest() {
-    assertEquals("p1.A", base
-        .setScript("%s.p1.A.test()".formatted(pkg()))
-        .create()
-        .runReturning(String.class));
-    assertEquals("p2.A", base
-        .setScript("%s.p2.A.test()".formatted(pkg()))
-        .create()
-        .runReturning(String.class));
-    assertEquals("p1.A", base
-        .addImport("%s.p1.A".formatted(pkg()))
-        .setScript("A.test();")
-        .create()
-        .runReturning(String.class));
-    assertEquals("p2.A", base
-        .addImport("%s.p1.A".formatted(pkg()))
-        .setScript("%s.p2.A.test()".formatted(pkg()))
-        .create()
-        .runReturning(String.class));
+    assertEquals("p1.A", script.runReturning("%s.p1.A.test()".formatted(pkg()), String.class));
+    assertEquals("p2.A", script.runReturning("%s.p2.A.test()".formatted(pkg()), String.class));
+    assertEquals("p1.A", script.addImport("%s.p1.A".formatted(pkg())).runReturning("A.test();", String.class));
+    assertEquals("p2.A", script.addImport("%s.p1.A".formatted(pkg()))
+        .runReturning("%s.p2.A.test()".formatted(pkg()), String.class));
   }
 
   private String pkg() {
@@ -95,140 +91,98 @@ public class Test1 {
 
   @Test
   public void multiParamFCallTrue() {
-    boolean result = base.setScript("""
+    boolean result = script.evalPredicate("""
         Objects.equals("123", "123")
-        """)
-    .create()
-    .evalPredicate();
+        """);
     Assertions.assertTrue(result);
   }
 
   @Test
   public void multiParamFCallFalse() {
-    boolean result = base.setScript("""
+    boolean result = script.evalPredicate("""
         Objects.equals("foo", "bar")
-        """)
-    .create()
-    .evalPredicate();
+        """);
     Assertions.assertFalse(result);
-    Assertions.assertTrue(base.create().evalPredicate("Objects.equals(\"foo\", \"foo\")"));
+    Assertions.assertTrue(script.evalPredicate("Objects.equals(\"foo\", \"foo\")"));
   }
 
   @Test
   public void printNow() {
-    base.setScript("""
+    script.run("""
         System.out.println(LocalDateTime.now())
-        """)
-    .addImport("java.time.*")
-    .create()
-    .run();
+        """);
   }
 
   @Test
   public void importedHello() {
-    base
-    .setScript("println(\"Hello World\")")
-    .create()
-    .run();
+    script.run("println(\"Hello World\")");
   }
 
   @Test
   public void isBlank() {
-    boolean result = base.setScript("""
+    boolean result = script.evalPredicate("""
             org.apache.commons.lang3.StringUtils.isBlank("123")
-            """)
-        .create()
-        .evalPredicate();
+            """);
     assertFalse(result);
   }
 
   @Test
   public void staticImports() {
-    base.setScript("""
-        println(max(Double.parseDouble("1.0"), 2d));
-        println(now());
-        """)
+    script
     .addStaticImport("Math.*")
     .addStaticImport("java.time.LocalDateTime.now")
     .addStaticImport("java.time.Instant.now")
-    .create()
-    .run();
+    .run("""
+        println(max(Double.parseDouble("1.0"), 2d));
+        println(now());
+        """);
   }
 
   @Test
   public void runDouble() {
-    double pi = base.setScript("Math.PI;").create().evalDouble();
+    double pi = script.evalDouble("Math.PI;");
     Assertions.assertEquals(3.14, pi, 0.01);
-    double sqrt2 = base.setScript("Math.sqrt(2d)").create().evalDouble();
+    double sqrt2 = script.evalDouble("Math.sqrt(2d)");
     Assertions.assertEquals(1.4142, sqrt2, 0.01);
   }
 
   @Test
   public void runFloat() {
-    float f = base.setScript("""
-        Float.parseFloat("1.23")
-        """)
-        .create()
-        .evalFloat();
+    float f = script.evalFloat("""
+            Float.parseFloat("1.23")
+            """);
     Assertions.assertEquals(1.23, f, 0.01);
   }
 
   @Test
   public void boolLiteralTrue() {
-    boolean b = base.setScript("""
-        true
-        """)
-        .create()
-        .evalPredicate();
-    Assertions.assertTrue(b);
+    Assertions.assertTrue(script.evalPredicate("true"));
   }
 
   @Test
   public void boolLiteralFalse() {
-    boolean b = base.setScript("""
-        false
-        """)
-        .create()
-        .evalPredicate();
-    Assertions.assertFalse(b);
+    Assertions.assertFalse(script.evalPredicate("false"));
   }
 
   @Test
   public void boolLiteral() {
-    boolean b = base.setScript("""
-        Boolean.valueOf(true)
-        """)
-        .create()
-        .evalPredicate();
-    Assertions.assertTrue(b);
+    Assertions.assertTrue(script.evalPredicate("Boolean.valueOf(true)"));
   }
 
   @Test
   public void floatLiteral() {
-    float f = base
-        .setScript("1.2345f")
-        .create()
-        .evalFloat();
-    Assertions.assertEquals(1.2345f, f);
+    Assertions.assertEquals(1.2345f, script.evalFloat("1.2345f"));
   }
 
   @Test
   public void floatLiteral2() {
-    float f = base
-        .setScript("1.2345f")
-        .create()
-        .evalFloat();
-    Assertions.assertEquals(1.2345f, f);
+    Assertions.assertEquals(1.2345f, script.evalFloat("1.2345f"));
   }
 
 
   @Test
   public void doubleLiteral() {
-    double d = base
-        .setScript("12_34.5_6d")
-        .create()
-        .evalDouble();
-    Assertions.assertEquals(1234.56, d);
+    Assertions.assertEquals(1234.56, script.evalDouble("12_34.5_6d"));
   }
 
   @Test
@@ -283,12 +237,10 @@ public class Test1 {
 
   @Test
   public void varassign() {
-    boolean b = base.setScript("""
+    boolean b = script.evalPredicate("""
         var b;
         b = true;
-        """)
-        .create()
-        .evalPredicate();
+        """);
     Assertions.assertTrue(b);
   }
 
@@ -305,7 +257,7 @@ public class Test1 {
 
   @Test
   public void simpleIfElseTest() {
-    int a = base.create().evalInt("""
+    int a = script.evalInt("""
         1;
         if(true) 2; else 3;
         """);
@@ -314,19 +266,19 @@ public class Test1 {
 
   @Test
   public void danglingElseTest() {
-    assertEquals(1, base.create().evalInt("""
+    assertEquals(1, script.evalInt("""
         1;
         if(false)
           if(false) 2; else 3;
         """
         ));
-    assertEquals(2, base.create().evalInt("""
+    assertEquals(2, script.evalInt("""
         1;
         if(true)
           if(true) 2; else 3;
         """
         ));
-    assertEquals(3, base.create().evalInt("""
+    assertEquals(3, script.evalInt("""
         1;
         if(true)
           if(false) 2; else 3;
@@ -336,7 +288,7 @@ public class Test1 {
 
   @Test
   public void nestedIfElse() {
-    assertEquals(3, base.create().evalInt("""
+    assertEquals(3, script.evalInt("""
         1;
         if(true)
           if(false) 2; else 3;
@@ -377,7 +329,7 @@ public class Test1 {
 
   @Test
   public void ifBlockReturn() {
-    assertEquals(3, base.create().evalInt("""
+    assertEquals(3, script.evalInt("""
         1;
         if(true) {
           if(false) {
@@ -395,7 +347,7 @@ public class Test1 {
 
   @Test
   public void elseif() {
-    assertEquals(4, base.create().evalInt("""
+    assertEquals(4, script.evalInt("""
         1;
         if(false) {
           return 2;
@@ -419,21 +371,17 @@ public class Test1 {
   @Test
   public void varargs() {
     assertEquals("varargs",
-        base.setScript("""
+        script.runReturning("""
         String.format("var%s", "args")
-        """)
-        .create()
-        .runReturning(String.class));
+        """, String.class));
   }
 
   @Test
   public void twoMethods() {
     assertEquals("StringLiteral",
-        base.setScript("""
+        script.runReturning("""
         "myStringLiteral".substring(0).substring(2)
-        """)
-        .create()
-        .runReturning(String.class));
+        """, String.class));
   }
 
   @Test
@@ -446,7 +394,7 @@ public class Test1 {
 
   @Test
   public void test1() {
-    String script = """
+    String s = """
         var foo = %s.Test1.TestInner1::functionWith2Parameters;
         var v1 = "1";
         assertEquals("1", v1);
@@ -474,11 +422,7 @@ public class Test1 {
         // this should not be executed
         assertEquals("2", v1);
           """.formatted(pkg(), pkg(), pkg(), pkg());
-    boolean result = base
-    .setScript(script)
-    .create()
-    .evalPredicate();
-    assertTrue(result);
+    assertTrue(script.evalPredicate(s));
   }
 
   @Test

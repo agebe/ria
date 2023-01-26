@@ -10,6 +10,8 @@ import org.ria.parser.Parser;
 import org.ria.parser.ParserListener;
 import org.ria.run.ScriptRunner;
 import org.ria.statement.Function;
+import org.ria.statement.HeaderEnterStatement;
+import org.ria.statement.HeaderExitStatement;
 import org.ria.symbol.SymbolTable;
 import org.ria.symbol.VarSymbol;
 import org.ria.util.ManifestUtils;
@@ -45,6 +47,8 @@ public class Script implements ScriptEngine {
   private boolean quiet;
 
   private Firewall firewall = new Firewall();
+
+  private Options options = new Options();
 
   public Script() {
     this(null, null);
@@ -235,8 +239,10 @@ public class Script implements ScriptEngine {
 
   private Script parse(String script) {
     if(this.entry == null) {
-      ParserListener listener = new Parser(showErrorsOnConsole, defaultMavenRepo)
-          .parse(script, scriptClassLoader, getCacheBase(), downloadDependenciesOnly, displayInfo, quiet);
+      HeaderEnterStatement headerEnter = new HeaderEnterStatement(0, defaultMavenRepo, getCacheBase(), options);
+      HeaderExitStatement headerExit = new HeaderExitStatement(0, scriptClassLoader, downloadDependenciesOnly, displayInfo, quiet);
+      ParserListener listener = new Parser(showErrorsOnConsole)
+          .parse(script, headerEnter, headerExit);
       this.entry = listener.getMainFunction();
       this.symbols.getScriptSymbols().setMain(entry);
     }
@@ -305,6 +311,25 @@ public class Script implements ScriptEngine {
 
   public Script setFirewall(Firewall firewall) {
     this.firewall = firewall;
+    return this;
+  }
+
+  public Options getOptions() {
+    return options;
+  }
+
+  public Script setOptions(Options options) {
+    this.options = options;
+    return this;
+  }
+
+  public Script addImport(String imprt) {
+    this.getOptions().getDefaultImports().add(imprt);
+    return this;
+  }
+
+  public Script addStaticImport(String imprt) {
+    getOptions().getDefaultStaticImports().add(imprt);
     return this;
   }
 

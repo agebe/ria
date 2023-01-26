@@ -43,6 +43,8 @@ public class Options {
       "java.util.stream.*"
       ));
 
+  public Deque<String> defaultStaticImports = new ArrayDeque<>();
+
   public boolean importDependencies = true;
 
   /**
@@ -58,5 +60,45 @@ public class Options {
           "META-INF.*",
           "module-info\\.class"
           ));
+
+  public boolean isDefaultImportsEnabled() {
+    return defaultImportsEnabled;
+  }
+
+  public void setDefaultImportsEnabled(boolean defaultImportsEnabled) {
+    this.defaultImportsEnabled = defaultImportsEnabled;
+  }
+
+  public Deque<String> getDefaultImports() {
+    return defaultImports;
+  }
+
+  public void setDefaultImports(Deque<String> defaultImports) {
+    this.defaultImports = defaultImports;
+  }
+
+  public boolean isImportDependencies() {
+    return importDependencies;
+  }
+
+  public void setImportDependencies(boolean importDependencies) {
+    this.importDependencies = importDependencies;
+  }
+
+  public Set<String> getImportDependenciesFilter() {
+    return importDependenciesFilter;
+  }
+
+  public void setImportDependenciesFilter(Set<String> importDependenciesFilter) {
+    this.importDependenciesFilter = importDependenciesFilter;
+  }
+
+  public Deque<String> getDefaultStaticImports() {
+    return defaultStaticImports;
+  }
+
+  public void setDefaultStaticImports(Deque<String> defaultStaticImports) {
+    this.defaultStaticImports = defaultStaticImports;
+  }
 
 }

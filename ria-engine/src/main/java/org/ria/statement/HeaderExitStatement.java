@@ -215,13 +215,18 @@ public class HeaderExitStatement extends AbstractStatement {
       log.debug("default imports disabled");
       return;
     }
-    if(options.defaultImports == null) {
-      log.debug("default imports list is null");
-      return;
-    }
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
-    // add additional auto imports late so the user defined imports take precedence
-    options.defaultImports.forEach(symbols::addImport);
+    if(options.defaultImports != null) {
+      // add additional auto imports late so the user defined imports take precedence
+      options.defaultImports.forEach(symbols::addImport);
+    } else {
+      log.debug("default imports list is null");
+    }
+    if(options.defaultStaticImports != null) {
+      options.defaultStaticImports.forEach(symbols::addStaticImport);
+    } else {
+      log.debug("default static imports list is null");
+    }
   }
 
   private void compileJavaTypes(ScriptContext ctx) {

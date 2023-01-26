@@ -93,9 +93,7 @@ public class NewOpTest {
 
   @Test
   public void new4() throws Exception {
-    Writer w = new ScriptBuilder()
-        .addImport("java.io.*")
-        .create()
+    Writer w = new Script()
         .runReturning("""
         new BufferedWriter(new StringWriter())
         """, Writer.class);
@@ -106,45 +104,41 @@ public class NewOpTest {
 
   @Test
   public void concat() throws Exception {
-    String s = new ScriptBuilder()
-    .addImport(this.getClass().getPackageName()+".*")
-    .create()
-    .runReturning("""
-    new NewOpTest.Concat2("12", "34").toString();
-    """, String.class);
+    String s = new Script()
+        .addImport(this.getClass().getPackageName()+".*")
+        .runReturning("""
+            new NewOpTest.Concat2("12", "34").toString();
+            """, String.class);
     Assertions.assertEquals("1234", s);
   }
 
   @Test
   public void concatAll() throws Exception {
-    String s = new ScriptBuilder()
-    .addImport(this.getClass().getPackageName()+".*")
-    .create()
-    .runReturning("""
-    new NewOpTest.ConcatAll("12", "34", "56").toString();
-    """, String.class);
+    String s = new Script()
+        .addImport(this.getClass().getPackageName()+".*")
+        .runReturning("""
+            new NewOpTest.ConcatAll("12", "34", "56").toString();
+            """, String.class);
     Assertions.assertEquals("123456", s);
   }
 
   @Test
   public void concatRepeat() throws Exception {
-    String s = new ScriptBuilder()
-    .addImport(this.getClass().getPackageName()+".*")
-    .create()
-    .runReturning("""
-    new NewOpTest.ConcatAllPrefixRepeat("foo:", 3, "12", "34", "56").toString();
-    """, String.class);
+    String s = new Script()
+        .addImport(this.getClass().getPackageName()+".*")
+        .runReturning("""
+            new NewOpTest.ConcatAllPrefixRepeat("foo:", 3, "12", "34", "56").toString();
+            """, String.class);
     Assertions.assertEquals("foo:123456123456123456", s);
   }
 
   @Test
   public void concatRepeat2() throws Exception {
-    String s = new ScriptBuilder()
-    .addImport(this.getClass().getPackageName()+".*")
-    .create()
-    .runReturning("""
-    new NewOpTest.ConcatAllPrefixRepeat("foo:", 3).toString();
-    """, String.class);
+    String s = new Script()
+        .addImport(this.getClass().getPackageName()+".*")
+        .runReturning("""
+            new NewOpTest.ConcatAllPrefixRepeat("foo:", 3).toString();
+            """, String.class);
     Assertions.assertEquals("foo:", s);
   }
 

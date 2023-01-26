@@ -9,7 +9,7 @@ public class WhileLoop {
 
   @Test
   public void iteratorLoop() {
-    int i = new ScriptBuilder().addImport("java.util.*").create().evalInt("""
+    int i = new Script().evalInt("""
         var iter = List.of(1,2,3).iterator();
         while(iter.hasNext()) {
           iter.next();
