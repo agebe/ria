@@ -1,4 +1,6 @@
-package org.ria;
+package org.ria.parser;
+
+import org.ria.SyntaxException;
 
 public class ReservedKeywordException extends SyntaxException {
 

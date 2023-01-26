@@ -79,7 +79,6 @@ import org.ria.antlr.ScriptParser.VardefStmtContext;
 import org.ria.antlr.ScriptParser.VoidLiteralContext;
 import org.ria.antlr.ScriptParser.WhileStmtContext;
 import org.ria.antlr.ScriptParser.YieldStmtContext;
-import org.ria.ReservedKeywordException;
 import org.ria.ScriptException;
 import org.ria.expression.Assignment;
 import org.ria.expression.AssignmentOp;
