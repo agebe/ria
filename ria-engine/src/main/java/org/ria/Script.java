@@ -50,6 +50,8 @@ public class Script implements ScriptEngine {
 
   private Options options = new Options();
 
+  private Features features = new Features();
+
   public Script() {
     this(null, null);
   }
@@ -71,7 +73,7 @@ public class Script implements ScriptEngine {
     try {
       parse(script);
       setupArguments();
-      return new ScriptRunner(symbols, firewall).run();
+      return new ScriptRunner(symbols, firewall, features).run();
     } finally {
       Thread.currentThread().setContextClassLoader(ctxLoader);
     }
@@ -301,8 +303,9 @@ public class Script implements ScriptEngine {
   }
 
   @Override
-  public void setQuiet(boolean quiet) {
+  public Script setQuiet(boolean quiet) {
     this.quiet = quiet;
+    return this;
   }
 
   public Firewall getFirewall() {
@@ -330,6 +333,15 @@ public class Script implements ScriptEngine {
 
   public Script addStaticImport(String imprt) {
     getOptions().getDefaultStaticImports().add(imprt);
+    return this;
+  }
+
+  public Features getFeatures() {
+    return features;
+  }
+
+  public Script setFeatures(Features features) {
+    this.features = features;
     return this;
   }
 

@@ -37,4 +37,8 @@ public class Dependencies implements Consumer<Object> {
     this.dependencies = dependencies;
   }
 
+  public boolean hasDependencies() {
+    return (dependencies != null) && (!dependencies.isEmpty());
+  }
+
 }

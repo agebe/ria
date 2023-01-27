@@ -11,5 +11,5 @@ public interface ScriptEngine {
   void setHome(File home);
   void setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
   void setDisplayInfo(boolean enabled);
-  void setQuiet(boolean quiet);
+  ScriptEngine setQuiet(boolean quiet);
 }

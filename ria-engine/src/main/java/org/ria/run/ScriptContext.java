@@ -3,6 +3,7 @@ package org.ria.run;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import org.ria.Features;
 import org.ria.ScriptException;
 import org.ria.firewall.Firewall;
 import org.ria.statement.Function;
@@ -35,11 +36,14 @@ public class ScriptContext {
 
   private Firewall firewall;
 
-  public ScriptContext(SymbolTable symbols, Firewall firewall) {
+  private Features features;
+
+  public ScriptContext(SymbolTable symbols, Firewall firewall, Features features) {
     super();
     this.symbols = symbols;
     this.functions = new FunctionInvoker(this);
     this.firewall = firewall;
+    this.features = features;
   }
 
   public Value getLastResult() {
@@ -114,6 +118,14 @@ public class ScriptContext {
 
   public void setFirewall(Firewall firewall) {
     this.firewall = firewall;
+  }
+
+  public Features getFeatures() {
+    return features;
+  }
+
+  public void setFeatures(Features features) {
+    this.features = features;
   }
 
 }

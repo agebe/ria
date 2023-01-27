@@ -180,28 +180,32 @@ public class HeaderExitStatement extends AbstractStatement {
       throw new ScriptException("no maven repositories have been setup");
     }
     Dependencies dependencies = resolve(ctx, HeaderEnterStatement.DEPENDENCIES, Dependencies.class);
-    if(dependencies != null) {
-      DependencyOptions.setQuiet(quiet);
-      DependencyNode root = new DependencyResolver(repos).resolveAll(dependencies);
-      List<File> allJars = allJars(root);
-      if(!allJars.isEmpty()) {
-        if(printDependencies) {
-          allJars.stream()
-            .map(f -> f.getAbsolutePath())
-            .sorted()
-            .forEach(System.err::println);
+    if((dependencies != null) && dependencies.hasDependencies()) {
+      if(ctx.getFeatures().isDependenciesEnabled()) {
+        DependencyOptions.setQuiet(quiet);
+        DependencyNode root = new DependencyResolver(repos).resolveAll(dependencies);
+        List<File> allJars = allJars(root);
+        if(!allJars.isEmpty()) {
+          if(printDependencies) {
+            allJars.stream()
+              .map(f -> f.getAbsolutePath())
+              .sorted()
+              .forEach(System.err::println);
+          }
+          CLoader loader = new CLoader(
+              "scriptClassLoader",
+              allJars.stream().map(this::toUrl).toArray(URL[]::new),
+              scriptClassLoader);
+          ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
+          if(importFromDependencies(ctx)) {
+            importDependencies(root, ctx);
+          }
         }
-        CLoader loader = new CLoader(
-            "scriptClassLoader",
-            allJars.stream().map(this::toUrl).toArray(URL[]::new),
-            scriptClassLoader);
-        ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
-        if(importFromDependencies(ctx)) {
-          importDependencies(root, ctx);
-        }
+      } else if(!quiet) {
+        System.err.println("dependencies are disabled (via script features)");
       }
     } else {
-      log.debug("dependencies is null");
+      log.debug("no dependencies");
     }
   }
 
@@ -232,12 +236,16 @@ public class HeaderExitStatement extends AbstractStatement {
   private void compileJavaTypes(ScriptContext ctx) {
     JavaSymbols symbols = ctx.getSymbols().getJavaSymbols();
     if(!javaTypes.isEmpty()) {
-      List<JavaSource> l = javaTypes.stream()
-          .map(builder -> builder.create(ctx))
-          .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
-          .toList();
-      ClassLoader loader = JavaC.compile(l, symbols.getClassLoader(), quiet);
-      symbols.setClassLoader(loader);
+      if(ctx.getFeatures().isJavaSourceEnabled()) {
+        List<JavaSource> l = javaTypes.stream()
+            .map(builder -> builder.create(ctx))
+            .peek(source -> log.debug("source of type '{}':\n{}", source.getName(), source.getCharContent(true)))
+            .toList();
+        ClassLoader loader = JavaC.compile(l, symbols.getClassLoader(), quiet);
+        symbols.setClassLoader(loader);
+      } else if(!quiet) {
+        System.err.println("java sources are disabled (via script features)");
+      }
     }
   }
 

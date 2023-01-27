@@ -1,5 +1,6 @@
 package org.ria.statement;
 
+import org.ria.ScriptException;
 import org.ria.run.ScriptContext;
 
 public abstract class AbstractLoop extends AbstractStatement implements Breakable, Continueable, Statement {
@@ -42,6 +43,9 @@ public abstract class AbstractLoop extends AbstractStatement implements Breakabl
 
   @Override
   public final void execute(ScriptContext ctx) {
+    if(!ctx.getFeatures().isLoopsEnabled()) {
+      throw new ScriptException("loops are disabled (via script features)");
+    }
     try {
       clearBreak();
       clearContinue();
