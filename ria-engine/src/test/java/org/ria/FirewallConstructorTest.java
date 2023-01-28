@@ -2,11 +2,8 @@ package org.ria;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.ria.firewall.AccessDeniedException;
-import org.ria.firewall.ConstructorRule;
 import org.ria.firewall.Firewall;
 import org.ria.firewall.RuleAction;
 
@@ -30,7 +27,7 @@ public class FirewallConstructorTest {
   public void denyA() {
     assertThrows(AccessDeniedException.class, () -> new Script()
         .setFirewall(new Firewall()
-            .setConstructorRules(List.of(new ConstructorRule(null, "A", RuleAction.DENY))))
+            .addConstructorRule(null, "A", RuleAction.DENY))
         .run("""
         javasrc '''
         public class A {

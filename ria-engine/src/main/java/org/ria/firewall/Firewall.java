@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.ria.ScriptException;
@@ -229,6 +230,22 @@ public class Firewall {
 
   public Firewall setDefaultMethodAction(RuleAction defaultMethodAction) {
     this.defaultMethodAction = defaultMethodAction;
+    return this;
+  }
+
+  public Firewall addFieldRule(Set<FieldAccess> fieldAccess, String packageName, String className, String fieldName,
+      RuleAction action) {
+    this.fieldRules.add(new SimpleFieldRule(fieldAccess, packageName, className, fieldName, action));
+    return this;
+  }
+
+  public Firewall addConstructorRule(String packageName, String className, RuleAction action) {
+    this.constructorRules.add(new SimpleConstructorRule(packageName, className, action));
+    return this;
+  }
+
+  public Firewall addMethodRule(String packageName, String className, String name, RuleAction action) {
+    this.methodRules.add(new SimpleMethodRule(packageName, className, name, action));
     return this;
   }
 

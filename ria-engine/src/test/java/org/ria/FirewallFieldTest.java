@@ -4,13 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.ria.firewall.AccessDeniedException;
 import org.ria.firewall.FieldAccess;
-import org.ria.firewall.FieldRule;
 import org.ria.firewall.Firewall;
 import org.ria.firewall.RuleAction;
 
@@ -52,9 +50,7 @@ public class FirewallFieldTest {
   public void dropSet() {
     assertEquals(3, new Script().
         setFirewall(new Firewall()
-            .setFieldRules(List.of(new FieldRule()
-                .setFieldAccess(Set.of(FieldAccess.SET))
-                .setAction(RuleAction.DROP))))
+            .addFieldRule(Set.of(FieldAccess.SET), null, null, null, RuleAction.DROP))
         .run("""
         javasrc '''
         public class A {
