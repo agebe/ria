@@ -53,13 +53,13 @@ public class ObjectVarSymbol implements VarSymbol {
 
   @Override
   public Object getObjectOrNull() {
-    return ctx.getFirewall().checkAccessAndGet(f, o);
+    return ctx.getFirewall().checkAndGet(f, o);
   }
 
   @Override
   public void setVal(Value val) {
     Value v = CastOp.castTo(val, new Type(f.getType()), ctx);
-    ctx.getFirewall().checkAccessAndSet(f, o, v);
+    ctx.getFirewall().checkAndSet(f, o, v);
   }
 
   @Override

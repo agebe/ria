@@ -23,7 +23,7 @@ public class FieldSymbol implements Symbol {
 
   @Override
   public Value get() {
-    return Value.of(field.getType(), ctx.getFirewall().checkAccessAndGet(field, owner));
+    return Value.of(field.getType(), ctx.getFirewall().checkAndGet(field, owner));
   }
 
   @Override
@@ -42,7 +42,7 @@ public class FieldSymbol implements Symbol {
 
   @Override
   public void set(Value v) {
-    ctx.getFirewall().checkAccessAndSet(field, owner, v);
+    ctx.getFirewall().checkAndSet(field, owner, v);
   }
 
 }

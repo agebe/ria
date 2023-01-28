@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.ria.dependency.Dependencies;
 import org.ria.dependency.GradleShortDependency;
 import org.ria.firewall.AccessDeniedException;
-import org.ria.firewall.Firewall;
+import org.ria.firewall.DefaultFirewall;
 import org.ria.firewall.SimpleMethodRule;
 import org.ria.firewall.RuleAction;
 
@@ -18,7 +18,7 @@ public class FirewallMethodTest {
   @Test
   public void simple() {
     assertThrows(AccessDeniedException.class, () -> new Script()
-        .setFirewall(new Firewall()
+        .setFirewall(new DefaultFirewall()
             .setMethodRules(List.of(new SimpleMethodRule("java.lang", "System", null, RuleAction.DENY))))
         .run("""
         System.nanoTime();
@@ -28,7 +28,7 @@ public class FirewallMethodTest {
   @Test
   public void stringUtils() {
     new Script()
-    .setFirewall(new Firewall()
+    .setFirewall(new DefaultFirewall()
         .setDefaultMethodAction(RuleAction.DENY)
         .setDefaultFieldAction(RuleAction.DENY)
         .setDefaultConstructorAction(RuleAction.DENY)
@@ -45,7 +45,7 @@ public class FirewallMethodTest {
   @Test
   public void drop() {
     Object o = new Script()
-    .setFirewall(new Firewall()
+    .setFirewall(new DefaultFirewall()
         .addMethodRule("java.io", "PrintStream", "println", RuleAction.DROP)
         .addMethodRule("java.lang", "String", "concat", RuleAction.DROP))
     .run("""

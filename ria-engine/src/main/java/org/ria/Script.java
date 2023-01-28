@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ria.firewall.DefaultFirewall;
 import org.ria.firewall.Firewall;
 import org.ria.parser.Parser;
 import org.ria.parser.ParserListener;
@@ -46,7 +47,7 @@ public class Script implements ScriptEngine {
 
   private boolean quiet;
 
-  private Firewall firewall = new Firewall();
+  private Firewall firewall = new DefaultFirewall();
 
   private Options options = new Options();
 

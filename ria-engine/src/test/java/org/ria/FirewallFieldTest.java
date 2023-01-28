@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.ria.firewall.AccessDeniedException;
 import org.ria.firewall.FieldAccess;
-import org.ria.firewall.Firewall;
+import org.ria.firewall.DefaultFirewall;
 import org.ria.firewall.RuleAction;
 
 public class FirewallFieldTest {
@@ -17,7 +17,7 @@ public class FirewallFieldTest {
   @Test
   public void denyAll() {
     assertThrows(AccessDeniedException.class, () -> new Script().
-        setFirewall(new Firewall()
+        setFirewall(new DefaultFirewall()
             .setDefaultFieldAction(RuleAction.DENY))
         .run("""
         javasrc '''
@@ -33,7 +33,7 @@ public class FirewallFieldTest {
   @Test
   public void dropAll() {
     assertNull(new Script().
-        setFirewall(new Firewall()
+        setFirewall(new DefaultFirewall()
             .setDefaultFieldAction(RuleAction.DROP))
         .run("""
         javasrc '''
@@ -49,7 +49,7 @@ public class FirewallFieldTest {
   @Test
   public void dropSet() {
     assertEquals(3, new Script().
-        setFirewall(new Firewall()
+        setFirewall(new DefaultFirewall()
             .addFieldRule(Set.of(FieldAccess.SET), null, null, null, RuleAction.DROP))
         .run("""
         javasrc '''

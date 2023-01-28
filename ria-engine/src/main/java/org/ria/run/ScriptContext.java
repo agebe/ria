@@ -5,6 +5,7 @@ import java.util.Deque;
 
 import org.ria.Features;
 import org.ria.ScriptException;
+import org.ria.firewall.DefaultFirewall;
 import org.ria.firewall.Firewall;
 import org.ria.statement.Function;
 import org.ria.symbol.SymbolTable;
@@ -116,7 +117,7 @@ public class ScriptContext {
     return firewall;
   }
 
-  public void setFirewall(Firewall firewall) {
+  public void setFirewall(DefaultFirewall firewall) {
     this.firewall = firewall;
   }
 
