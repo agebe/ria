@@ -3,13 +3,13 @@ package org.ria;
 import java.io.File;
 
 public interface ScriptEngine {
-  void setDefaultMavenRepository(String url);
-  void setScriptClassLoader(ClassLoader scriptClassLoader);
-  void setShowErrorsOnConsole(boolean showErrorsOnConsole);
-  void setArguments(String[] arguments);
-  Object run(String script);
-  void setHome(File home);
-  void setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
-  void setDisplayInfo(boolean enabled);
+  ScriptEngine setDefaultMavenRepository(String url);
+  ScriptEngine setScriptClassLoader(ClassLoader scriptClassLoader);
+  ScriptEngine setShowErrorsOnConsole(boolean showErrorsOnConsole);
+  ScriptEngine setArguments(String[] arguments);
+  ScriptEngine setHome(File home);
+  ScriptEngine setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
+  ScriptEngine setDisplayInfo(boolean enabled);
   ScriptEngine setQuiet(boolean quiet);
+  Object run(String script);
 }

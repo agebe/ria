@@ -256,8 +256,9 @@ public class Script implements ScriptEngine {
   }
 
   @Override
-  public void setShowErrorsOnConsole(boolean showErrorsOnConsole) {
+  public Script setShowErrorsOnConsole(boolean showErrorsOnConsole) {
     this.showErrorsOnConsole = showErrorsOnConsole;
+    return this;
   }
 
   public String[] getArguments() {
@@ -265,8 +266,9 @@ public class Script implements ScriptEngine {
   }
 
   @Override
-  public void setArguments(String[] arguments) {
+  public Script setArguments(String[] arguments) {
     this.arguments = arguments;
+    return this;
   }
 
   public ClassLoader getScriptClassLoader() {
@@ -274,13 +276,15 @@ public class Script implements ScriptEngine {
   }
 
   @Override
-  public void setScriptClassLoader(ClassLoader scriptClassLoader) {
+  public Script setScriptClassLoader(ClassLoader scriptClassLoader) {
     this.scriptClassLoader = scriptClassLoader;
+    return this;
   }
 
   @Override
-  public void setDefaultMavenRepository(String url) {
+  public Script setDefaultMavenRepository(String url) {
     this.defaultMavenRepo = url;
+    return this;
   }
 
   public File getHome() {
@@ -288,18 +292,21 @@ public class Script implements ScriptEngine {
   }
 
   @Override
-  public void setHome(File home) {
+  public Script setHome(File home) {
     this.home = home;
+    return this;
   }
 
   @Override
-  public void setDownloadDependenciesOnly(boolean downloadDependenciesOnly) {
+  public Script setDownloadDependenciesOnly(boolean downloadDependenciesOnly) {
     this.downloadDependenciesOnly = downloadDependenciesOnly;
+    return this;
   }
 
   @Override
-  public void setDisplayInfo(boolean enabled) {
+  public Script setDisplayInfo(boolean enabled) {
     this.displayInfo = enabled;
+    return this;
   }
 
   @Override

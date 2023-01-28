@@ -192,16 +192,16 @@ public class ScriptLauncher {
         String script = new String(Files.readAllBytes(f.toPath()));
         Class<?> scriptClass = loader.loadClass(getBasePackage()+".Script");
         Object s = scriptClass.getDeclaredConstructor().newInstance();
-        ScriptEngine engine = (ScriptEngine)s;
-        engine.setDefaultMavenRepository(mavenRepo);
-        engine.setScriptClassLoader(ScriptLauncher.class.getClassLoader());
-        engine.setShowErrorsOnConsole(true);
-        engine.setArguments(cliOptions.scriptArgs);
-        engine.setHome(home);
-        engine.setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly);
-        engine.setDisplayInfo(cliOptions.info);
-        engine.setQuiet(cliOptions.quiet);
-        engine.run(script);
+        ((ScriptEngine)s)
+        .setDefaultMavenRepository(mavenRepo)
+        .setScriptClassLoader(ScriptLauncher.class.getClassLoader())
+        .setShowErrorsOnConsole(true)
+        .setArguments(cliOptions.scriptArgs)
+        .setHome(home)
+        .setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly)
+        .setDisplayInfo(cliOptions.info)
+        .setQuiet(cliOptions.quiet)
+        .run(script);
       } else {
         System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
         System.exit(1);
