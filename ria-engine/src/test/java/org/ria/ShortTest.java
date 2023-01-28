@@ -3,7 +3,6 @@ package org.ria;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ShortTest {
@@ -29,9 +28,8 @@ public class ShortTest {
   }
 
   @Test
-  @Disabled
   public void array2() {
-    assertEquals(2, new Script().run("short[] b = new byte[2];b.length;"));
+    assertEquals(2, new Script().run("short[] b = new short[2];b.length;"));
   }
 
   @Test
