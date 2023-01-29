@@ -64,17 +64,11 @@ public class ScriptVarSymbol implements VarSymbol {
   @Override
   public Value inc() {
     return setValue(val.inc());
-//    Value v = val.inc();
-//    this.val = v;
-//    return v;
   }
 
   @Override
   public Value dec() {
     return setValue(val.dec());
-//    Value v = val.dec();
-//    this.val = v;
-//    return v;
   }
 
   @Override
