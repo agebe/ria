@@ -46,6 +46,10 @@ public class ScriptSymbols {
     current.get().defineVar(name, val, type, ctx);
   }
 
+  public void defineVarUninitialized(String name, Type type) {
+    current.get().defineVarUninitialized(name, type, ctx);
+  }
+
   public void assignVar(String name, Value val) {
     current.get().assignVar(name, val);
   }

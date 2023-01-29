@@ -202,7 +202,7 @@ ccall
   ;
 
 typeOrPrimitiveOrVar
-  : typeOrPrimitive | 'var'
+  : typeOrPrimitive | 'var' | 'val'
   ;
 
 

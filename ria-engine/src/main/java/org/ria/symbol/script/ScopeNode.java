@@ -9,6 +9,8 @@ public interface ScopeNode {
 
   void defineVar(String name, Value val, Type type, ScriptContext ctx);
 
+  void defineVarUninitialized(String name, Type type, ScriptContext ctx);
+
   void assignVar(String name, Value val);
 
   VarSymbol getVarSymbol(String name);

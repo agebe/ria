@@ -1,4 +1,3 @@
-* add val keyword (var/val same as in kotlin/scala)
 * throw exceptions
   -> modify stack trace to contain script functions and line numbers
 * apache license on all files

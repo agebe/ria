@@ -9,7 +9,16 @@ import org.ria.parser.Type;
 import org.ria.run.ScriptContext;
 import org.ria.symbol.ScriptVarSymbol;
 import org.ria.symbol.VarSymbol;
+import org.ria.value.ArrayValue;
+import org.ria.value.BooleanValue;
+import org.ria.value.ByteValue;
+import org.ria.value.CharValue;
+import org.ria.value.DoubleValue;
+import org.ria.value.FloatValue;
+import org.ria.value.IntValue;
+import org.ria.value.LongValue;
 import org.ria.value.ObjValue;
+import org.ria.value.ShortValue;
 import org.ria.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +40,21 @@ public class ScriptScopeNode implements ScopeNode {
     this.parent = parent;
   }
 
+  private synchronized void define(String name, Value val, Type type, boolean initialized, ScriptContext ctx) {
+    ScriptVarSymbol v = variables.putIfAbsent(name,
+        new ScriptVarSymbol(name, castToNotNull(type, val, ctx), type, initialized, ctx));
+    if(v != null) {
+      throw new ScriptException("variable '%s' already defined".formatted(name));
+    }
+  }
+
   @Override
   public synchronized void defineVar(String name, Value val, Type type, ScriptContext ctx) {
 //    if(val == null) {
 //      throw new ScriptException("value is null for variable definition of '{}'".formatted(name));
 //    }
     log.debug("define variable '{}', type '{}', value '{}'", name, type, val);
-    ScriptVarSymbol v = variables.putIfAbsent(name,
-        new ScriptVarSymbol(name, castToNotNull(type, val, ctx), type, ctx));
-    if(v != null) {
-      throw new ScriptException("variable '%s' already defined".formatted(name));
-    }
+    define(name, val, type, true, ctx);
   }
 
   private Value castToNotNull(Type type, Value val, ScriptContext ctx) {
@@ -50,6 +63,44 @@ public class ScriptScopeNode implements ScopeNode {
     } else {
       return val!=null?CastOp.castTo(val, type, ctx):ObjValue.NULL;
     }
+  }
+
+  private Value defaultValue(ScriptContext ctx, Type type) {
+    // FIXME add primitive arrays
+    if(type == null) {
+      return ObjValue.NULL;
+    } else if(type.isDouble()) {
+      return new DoubleValue(0);
+    } else if(type.isFloat()) {
+      return new FloatValue(0);
+    } else if(type.isLong()) {
+      return new LongValue(0);
+    } else if(type.isInt()) {
+      return new IntValue(0);
+    } else if(type.isChar()) {
+      return new CharValue((char)0);
+    } else if(type.isByte()) {
+      return new ByteValue((byte)0);
+    } else if(type.isShort()) {
+      return new ShortValue((short)0);
+    } else if(type.isBoolean()) {
+      return BooleanValue.FALSE;
+    } else {
+      Class<?> cls = type.resolve(ctx);
+      if(cls == null) {
+        return ObjValue.NULL;
+      } else if(cls.isArray()) {
+        return new ArrayValue(null, cls);
+      } else {
+        return new ObjValue(cls, null);
+      }
+    }
+  }
+
+  @Override
+  public void defineVarUninitialized(String name, Type type, ScriptContext ctx) {
+    log.debug("define variable '{}' uninitialized, type '{}', value '{}'", name, type);
+    define(name, defaultValue(ctx, type), type, false, ctx);
   }
 
   @Override

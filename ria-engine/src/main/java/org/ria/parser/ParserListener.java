@@ -1275,6 +1275,9 @@ public class ParserListener implements ScriptListener {
     if(nextTerminalIs("var")) {
       popTerminal("var");
       stack.push(new TypeOrPrimitive());
+    } else if(nextTerminalIs("val")) {
+      popTerminal("val");
+      stack.push(new TypeOrPrimitive(new org.ria.parser.Type(true)));
     } else if(nextItemIs(TypeOrPrimitive.class)) {
       // nothing to do, just keep TypeOrPrimitive on the stack
     } else {

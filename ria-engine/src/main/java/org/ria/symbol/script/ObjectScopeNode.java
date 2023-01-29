@@ -35,6 +35,11 @@ public class ObjectScopeNode implements ScopeNode {
   }
 
   @Override
+  public void defineVarUninitialized(String name, Type type, ScriptContext ctx) {
+    throw new ScriptException("define field '%s' in object scope no supported".formatted(name));
+  }
+
+  @Override
   public void assignVar(String name, Value val) {
     VarSymbol v = getVarSymbol(name);
     if(v != null) {

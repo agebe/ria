@@ -13,9 +13,16 @@ public class Type {
 
   private Class<?> cls;
 
+  private boolean val;
+
   public Type() {
     // -1 dimensions skips the dimensions check below. use for 'var' as it also could be an array
     this(null, -1);
+  }
+
+  public Type(boolean val) {
+    this(null, -1);
+    this.val = val;
   }
 
   public Type(String name) {
@@ -138,6 +145,10 @@ public class Type {
       cls = cls.arrayType();
     }
     return cls;
+  }
+
+  public boolean isVal() {
+    return val;
   }
 
   @Override
