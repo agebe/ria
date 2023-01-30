@@ -1,5 +1,6 @@
 package org.ria.run;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -56,8 +57,6 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
             .formatted(m.getName(), toTypeString(args), expected));
       }
     } else {
-//      throw new ScriptException("none of the '%s' '%s' methods available matches input argument types '%s'".formatted(
-//          methods.size(), method.getName(), toTypeString(args)));
       // https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
       // Reference to an Instance Method of an Arbitrary Object of a Particular Type
       return invokeOnParam0(method, args);
@@ -86,25 +85,94 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
     if(args == null) {
       return null;
     }
-    Object[] result = new Object[args.length];
-    for(int i=0;i<args.length;i++) {
-      result[i] = CastOp.castTo(Value.of(args[i]), new Type(m.getParameterTypes()[i]), ctx).val();
+    if(m.getParameterCount() == args.length) {
+      Object[] result = new Object[args.length];
+      for(int i=0;i<args.length;i++) {
+        result[i] = CastOp.castTo(Value.of(args[i]), new Type(m.getParameterTypes()[i]), ctx).val();
+      }
+      return result;
+    } else if(m.isVarArgs()) {
+      Object[] result = new Object[m.getParameterCount()];
+      for(int i=0;i<m.getParameterCount()-1;i++) {
+        result[i] = CastOp.castTo(Value.of(args[i]), new Type(m.getParameterTypes()[i]), ctx).val();
+      }
+      Class<?> varargType = m.getParameterTypes()[m.getParameterCount()-1];
+      Object[] arr = (Object[])Array.newInstance(varargType.componentType(), 0);
+      result[m.getParameterCount()-1] = arr;
+      for(int pi=0,i=(m.getParameterCount()-1);i<args.length;i++,pi++) {
+        Array.set(arr, pi, args);
+      }
+      log.debug("varargs parameter types '{}'", toTypeString(result));
+      return result;
+    } else {
+      throw new ScriptException("wrong number of parameters on method '%s', supplied parameters '%s'"
+          .formatted(m.getName(), toTypeString(args)));
     }
-    return result;
+  }
+
+  private Class<?>[] types(Object[] args) {
+    return Arrays.stream(args)
+        .map(o -> o!=null?o.getClass():null)
+        .toArray(Class[]::new);
   }
 
   private Method chooseMethod(List<Method> methods, Object[] args) {
-    final int paramCount = args!=null?args.length:0;
     return methods
         .stream()
-        .filter(m -> m.getParameterCount() == paramCount)
         .filter(m -> matchesParams(m, args))
         .findFirst()
         .orElse(null);
   }
 
-  @SuppressWarnings("rawtypes")
   private boolean matchesParams(Method m, Object[] args) {
+    if(m.isVarArgs()) {
+      return matchesParamsVarargsMethod(m, args);
+    } else {
+      return matchesParamsRegularMethod(m, args);
+    }
+  }
+
+  private boolean matchesParamsVarargsMethod(Method m, Object[] args) {
+    Class<?>[] methodParams = m.getParameterTypes();
+    Class<?>[] argsClasses = types(args);
+    // check params before the vararg first
+    for(int i=0;i<methodParams.length-1;i++) {
+      if(args.length < (i+1)) {
+        return false;
+      }
+      Class<?> mp = methodParams[i];
+      Class<?> pt = argsClasses[i];
+      if(pt == null) {
+        continue;
+      }
+      if(!mp.isAssignableFrom(pt)) {
+        return false;
+      }
+    }
+    Class<?> vararg = methodParams[methodParams.length-1];
+    if(!vararg.isArray()) {
+      throw new ScriptException("expected vararg method param to be an array type but got " + vararg);
+    }
+    Class<?> varargType = vararg.getComponentType();
+    log.debug("vararg type '{}'", varargType);
+    // run through the remaining parameters which are the varargs.
+    // if there are none this is ok too
+    for(int i=methodParams.length;i<args.length;i++) {
+      Class<?> pt = argsClasses[i];
+      if(pt == null) {
+        continue;
+      }
+      if(!varargType.isAssignableFrom(pt)) {
+        return false;
+      }
+    }
+    log.debug("match parameters varargs success '{}', method parameter type '{}', supplied types '{}'",
+        m.getName(), Arrays.toString(m.getParameterTypes()), Arrays.toString(argsClasses));
+    return true;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private boolean matchesParamsRegularMethod(Method m, Object[] args) {
     List<Class> types = args != null?Arrays.stream(args).map(this::getType).toList():Collections.emptyList();
     if(m.getParameterCount() != types.size()) {
       log.debug("method '{}' parameter count mismatch, expected '{}', supplied '{}'",
@@ -115,6 +183,9 @@ public class MethodReferenceInvocationHandler implements InvocationHandler {
     }
     if(m.getParameterCount() == 0 && types.isEmpty()) {
       return true;
+    }
+    if(m.getParameterCount() != types.size()) {
+      return false;
     }
     for(int i=0;i<m.getParameterTypes().length;i++) {
       Class<?> mpt = m.getParameterTypes()[i];
