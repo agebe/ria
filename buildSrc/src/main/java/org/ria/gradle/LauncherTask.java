@@ -196,8 +196,7 @@ public class LauncherTask extends DefaultTask {
   private boolean isIncludeFile(File f) {
     if(includeBootAndSnapshotDependenciesOnly) {
       String name = f.getName();
-      return name.startsWith("ria-launcher-") ||
-          name.contains("-SNAPSHOT.");
+      return isBootLib(f) || name.contains("-SNAPSHOT.");
     } else {
       return true;
     }
