@@ -17,12 +17,14 @@ package org.ria.launcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,7 +80,15 @@ public class ScriptLauncher {
           .version(HttpClient.Version.HTTP_2)
           .GET()
           .build();
-      client.send(request, BodyHandlers.ofFile(f.toPath()));
+      HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+      if((response.statusCode() >= 200) && (response.statusCode() <= 299)) {
+        Files.copy(
+            response.body(),
+            f.toPath(),
+            StandardCopyOption.REPLACE_EXISTING);
+      } else {
+        throw new ScriptLauncherException("got http status code '%s' on '%s'".formatted(response.statusCode(), url));
+      }
     } catch(Exception e) {
       throw new ScriptLauncherException("failed to download file from " + url, e);
     }
