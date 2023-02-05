@@ -3,7 +3,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: gradle:jdk17
+    container: agebe/ria-build:latest
     steps:
     - uses: actions/checkout@v3
 #    - name: Set up JDK 17
@@ -16,11 +16,10 @@ jobs:
 #      with:
 #        gradle-version: current
     - name: execute gradle
-#      run: gradle build launcher
-      run: gradle build
+      run: gradle build launcher
 # https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
-#    - name: Archive launcher
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ria
-#        path: ria-launcher/build/launcher/ria
+    - name: Archive launcher
+      uses: actions/upload-artifact@v3
+      with:
+        name: ria
+        path: ria-launcher/build/launcher/ria
