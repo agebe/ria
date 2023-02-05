@@ -447,6 +447,7 @@ public class Test1 {
   }
 
   @Test
+  @Disabled // disabled as it throws a java.awt.HeadlessException on github actions ci
   public void callWithNull() {
     new Script().run("""
         var f = new javax.swing.JFrame();
