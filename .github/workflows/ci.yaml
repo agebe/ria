@@ -16,3 +16,9 @@ jobs:
         gradle-version: current
     - name: execute gradle
       run: gradle build launcher
+# https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+    - name: Archive launcher
+      uses: actions/upload-artifact@v3
+      with:
+        name: ria
+        path: ria-launcher/build/launcher/ria
