@@ -1,4 +1,5 @@
 name: Java CI
+run-name: ${{ github.actor }} started gradle build launcher
 on: [push]
 jobs:
   build:
