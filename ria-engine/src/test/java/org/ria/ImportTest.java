@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ImportTest {
@@ -91,6 +92,7 @@ public class ImportTest {
   }
 
   @Test
+  @Disabled // disabled as it throws a java.awt.HeadlessException on github actions ci
   public void changeDefaultImports() {
     assertEquals("java.awt.List", new Script().run("""
         options {
