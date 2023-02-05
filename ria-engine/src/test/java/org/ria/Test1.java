@@ -24,6 +24,7 @@ import java.io.PrintStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class Test1 {
@@ -454,6 +455,7 @@ public class Test1 {
   }
 
   @Test
+  @Disabled // disabled as it throws a java.awt.HeadlessException on github actions ci
   public void callWithBorderLayout() {
     new Script().run("""
         var f = new javax.swing.JFrame();
