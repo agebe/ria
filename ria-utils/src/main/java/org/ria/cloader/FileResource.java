@@ -15,9 +15,26 @@
  */
 package org.ria.cloader;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public interface Resource {
-  URL toURL();
-  String name();
+import org.ria.ScriptException;
+
+public record FileResource(File file) implements Resource {
+
+  @Override
+  public URL toURL() {
+    try {
+      return file.toURI().toURL();
+    } catch (MalformedURLException e) {
+      throw new ScriptException("failed to convert file path '%s' to url".formatted(file.getAbsolutePath()), e);
+    }
+  }
+
+  @Override
+  public String name() {
+    return file.getName();
+  }
+
 }

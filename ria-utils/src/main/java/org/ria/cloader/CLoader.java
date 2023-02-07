@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.ria.ScriptException;
@@ -52,7 +53,6 @@ public class CLoader extends ClassLoader implements AutoCloseable {
     files = Arrays.stream(urls)
         .map(this::toFile)
         .toList();
-//    System.out.println(files);
     initResources();
   }
 
@@ -70,7 +70,18 @@ public class CLoader extends ClassLoader implements AutoCloseable {
         .collect(Collectors.groupingBy(Resource::name));
   }
 
-  private Stream<Resource> initResources(File f) {
+  private boolean isZipFile(File f) {
+    if(f == null) {
+      return false;
+    }
+    try(ZipFile zipFile = new ZipFile(f)) {
+      return true;
+    } catch(Exception e) {
+      return false;
+    }
+  }
+
+  private Stream<Resource> initZipResource(File f) {
     try(ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(f)))) {
       List<Resource> resources = new ArrayList<>();
       for(;;) {
@@ -81,12 +92,20 @@ public class CLoader extends ClassLoader implements AutoCloseable {
         if(e.isDirectory()) {
           continue;
         }
-        resources.add(new Resource(e.getName(), f));
+        resources.add(new JarResource(e.getName(), f));
 //        System.out.println(e.getName());
       }
       return resources.stream();
     } catch(Exception e) {
       throw new ScriptException(e);
+    }
+  }
+
+  private Stream<Resource> initResources(File f) {
+    if(isZipFile(f)) {
+      return initZipResource(f);
+    } else {
+      return Stream.of(new FileResource(f));
     }
   }
 
