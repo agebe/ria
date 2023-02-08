@@ -1,0 +1,17 @@
+#!/usr/bin/env ria
+dependencies {
+  'org.slf4j:slf4j-api:2.0.6'
+  'ch.qos.logback:logback-classic:1.4.5'
+  'logback.xml'
+}
+
+Logger log = LoggerFactory.getLogger('script-logger');
+
+log.trace('trace message');
+log.debug('debug mesage');
+log.info('info message');
+
+var en = scriptClassLoader.getResources('logback.xml');
+while(en.hasMoreElements()) {
+  println(en.nextElement());
+}

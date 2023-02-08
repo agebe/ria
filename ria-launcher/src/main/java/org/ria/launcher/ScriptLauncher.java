@@ -147,7 +147,7 @@ public class ScriptLauncher {
     }
   }
 
-  private static void setupDebugLogging(ClassLoader cloader) {
+  private static void setupLogging(ClassLoader cloader, String level) {
     try {
       Class<?> clsLoggerFactory = cloader.loadClass("org.slf4j.LoggerFactory");
       Method methodGetILoggerFactory = clsLoggerFactory.getMethod("getILoggerFactory", new Class[0]);
@@ -156,9 +156,9 @@ public class ScriptLauncher {
       Object logger = methodGetLogger.invoke(loggerContext, getBasePackage());
       Class<?> clsLevel = cloader.loadClass("ch.qos.logback.classic.Level");
       Method methodValueOf = clsLevel.getMethod("valueOf", String.class);
-      Object levelDebug = methodValueOf.invoke(null, "DEBUG");
+      Object levelObject = methodValueOf.invoke(null, level.toUpperCase());
       Method methodSetLevel = logger.getClass().getMethod("setLevel", clsLevel);
-      methodSetLevel.invoke(logger, levelDebug);
+      methodSetLevel.invoke(logger, levelObject);
     } catch(Exception e) {
       e.printStackTrace(System.err);
     }
@@ -210,7 +210,9 @@ public class ScriptLauncher {
         .toArray(URL[]::new),
         ScriptLauncher.class.getClassLoader())) {
       if(cliOptions.debug) {
-        setupDebugLogging(loader);
+        setupLogging(loader, "debug");
+      } else {
+        setupLogging(loader, "info");
       }
       File f = scriptFile.toFile();
       if(f.exists()) {
