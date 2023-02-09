@@ -214,25 +214,19 @@ public class ScriptLauncher {
       } else {
         setupLogging(loader, "info");
       }
-      File f = scriptFile.toFile();
-      if(f.exists()) {
-        String script = new String(Files.readAllBytes(f.toPath()));
-        Class<?> scriptClass = loader.loadClass(getBasePackage()+".Script");
-        Object s = scriptClass.getDeclaredConstructor().newInstance();
-        ((ScriptEngine)s)
-        .setDefaultMavenRepository(mavenRepo)
-        .setScriptClassLoader(ScriptLauncher.class.getClassLoader())
-        .setShowErrorsOnConsole(true)
-        .setArguments(cliOptions.scriptArgs)
-        .setHome(home)
-        .setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly)
-        .setDisplayInfo(cliOptions.info)
-        .setQuiet(cliOptions.quiet)
-        .run(script);
-      } else {
-        System.err.println("script file '%s' not found".formatted(f.getAbsolutePath()));
-        System.exit(1);
-      }
+      String script = new String(Files.readAllBytes(scriptFile));
+      Class<?> scriptClass = loader.loadClass(getBasePackage()+".Script");
+      Object s = scriptClass.getDeclaredConstructor().newInstance();
+      ((ScriptEngine)s)
+      .setDefaultMavenRepository(mavenRepo)
+      .setScriptClassLoader(ScriptLauncher.class.getClassLoader())
+      .setShowErrorsOnConsole(true)
+      .setArguments(cliOptions.scriptArgs)
+      .setHome(home)
+      .setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly)
+      .setDisplayInfo(cliOptions.info)
+      .setQuiet(cliOptions.quiet)
+      .run(script);
     } catch(Throwable t) {
       t.printStackTrace();
       System.exit(1);
