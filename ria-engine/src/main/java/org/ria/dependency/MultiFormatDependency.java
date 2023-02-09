@@ -18,14 +18,18 @@ package org.ria.dependency;
 import java.util.List;
 
 import org.ria.ScriptException;
+import org.ria.run.ScriptContext;
 
 public class MultiFormatDependency implements Dependency {
 
   private String dependency;
 
-  public MultiFormatDependency(String dependency) {
+  private ScriptContext ctx;
+
+  public MultiFormatDependency(String dependency, ScriptContext ctx) {
     super();
     this.dependency = dependency;
+    this.ctx = ctx;
   }
 
   @Override
@@ -34,8 +38,8 @@ public class MultiFormatDependency implements Dependency {
       return new GradleShortDependency(dependency).resolve();
     } else if(FileTreeDependency.isFileTreeDependency(dependency)) {
       return new FileTreeDependency(dependency).resolve();
-    } else if(FileDependency.isFileDependency(dependency)) {
-      return new FileDependency(dependency).resolve();
+    } else if(FileDependency.isFileDependency(dependency, ctx)) {
+      return new FileDependency(dependency, ctx).resolve();
     } else if(MavenDependency.isMavenFormat(dependency)) {
       return new MavenDependency(dependency).resolve();
     } else {

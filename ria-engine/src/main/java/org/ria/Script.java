@@ -17,6 +17,7 @@ package org.ria;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,7 @@ import org.ria.firewall.DefaultFirewall;
 import org.ria.firewall.Firewall;
 import org.ria.parser.Parser;
 import org.ria.parser.ParserListener;
-import org.ria.run.ScriptRunner;
+import org.ria.run.ScriptContext;
 import org.ria.statement.Function;
 import org.ria.statement.HeaderEnterStatement;
 import org.ria.statement.HeaderExitStatement;
@@ -62,6 +63,8 @@ public class Script implements ScriptEngine {
 
   private boolean quiet;
 
+  private Path scriptFile;
+
   private Firewall firewall = new DefaultFirewall();
 
   private Options options = new Options();
@@ -89,7 +92,10 @@ public class Script implements ScriptEngine {
     try {
       parse(script);
       setupArguments();
-      return new ScriptRunner(symbols, firewall, features).run();
+      ScriptContext ctx = new ScriptContext(symbols, firewall, features, scriptFile);
+      symbols.getScriptSymbols().setCtx(ctx);
+      ctx.getSymbols().getScriptSymbols().getMain().executeFunction(ctx);
+      return ctx.getLastResult();
     } finally {
       Thread.currentThread().setContextClassLoader(ctxLoader);
     }
@@ -365,6 +371,11 @@ public class Script implements ScriptEngine {
 
   public Script setFeatures(Features features) {
     this.features = features;
+    return this;
+  }
+
+  public ScriptEngine setScriptFile(Path scriptFile) {
+    this.scriptFile = scriptFile;
     return this;
   }
 

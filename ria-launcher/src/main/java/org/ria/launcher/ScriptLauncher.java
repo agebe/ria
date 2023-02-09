@@ -226,6 +226,7 @@ public class ScriptLauncher {
       .setDownloadDependenciesOnly(cliOptions.downloadDependenciesOnly)
       .setDisplayInfo(cliOptions.info)
       .setQuiet(cliOptions.quiet)
+      .setScriptFile(scriptFile)
       .run(script);
     } catch(Throwable t) {
       t.printStackTrace();

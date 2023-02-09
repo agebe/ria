@@ -16,6 +16,7 @@
 package org.ria;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public interface ScriptEngine {
   ScriptEngine setDefaultMavenRepository(String url);
@@ -26,5 +27,6 @@ public interface ScriptEngine {
   ScriptEngine setDownloadDependenciesOnly(boolean downloadDependenciesOnly);
   ScriptEngine setDisplayInfo(boolean enabled);
   ScriptEngine setQuiet(boolean quiet);
+  ScriptEngine setScriptFile(Path scriptFile);
   Object run(String script);
 }

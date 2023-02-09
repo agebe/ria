@@ -19,32 +19,45 @@ import java.io.File;
 import java.util.List;
 
 import org.ria.ScriptException;
+import org.ria.run.ScriptContext;
 
 public class FileDependency implements Dependency {
 
   private String file;
 
-  public FileDependency(String file) {
+  private ScriptContext ctx;
+
+  public FileDependency(String file, ScriptContext ctx) {
     super();
     this.file = file;
+    this.ctx = ctx;
   }
 
   @Override
   public List<DependencyNode> resolve() {
-    File f = new File(file);
+    File f = resolve(file, ctx);
     if(!f.exists()) {
       throw new ScriptException("file dependency not found, " + f.getAbsolutePath());
     }
     if(!f.isFile()) {
-      throw new ScriptException("file dependency '%s' is not a normal file".formatted(f.getAbsolutePath()));
+      throw new ScriptException("file dependency '%s' is not a file".formatted(f.getAbsolutePath()));
     }
     return List.of(new DependencyNode(f));
   }
 
-  public static boolean isFileDependency(String s) {
+  private static File resolve(String s, ScriptContext ctx) {
+    if(new File(s).isAbsolute()) {
+      return new File(s);
+    } else {
+      File scriptDirectory = ctx.getScriptDirectory();
+      return scriptDirectory!=null?new File(scriptDirectory, s):null;
+    }
+  }
+
+  public static boolean isFileDependency(String s, ScriptContext ctx) {
     try {
-      File f = new File(s);
-      return f.isFile();
+      File f = resolve(s, ctx);
+      return f!=null?f.isFile():false;
     } catch(Exception e) {
       return false;
     }

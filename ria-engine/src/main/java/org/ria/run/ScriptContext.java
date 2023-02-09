@@ -15,6 +15,8 @@
  */
 package org.ria.run;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -54,12 +56,15 @@ public class ScriptContext {
 
   private Features features;
 
-  public ScriptContext(SymbolTable symbols, Firewall firewall, Features features) {
+  private Path scriptFile;
+
+  public ScriptContext(SymbolTable symbols, Firewall firewall, Features features, Path scriptFile) {
     super();
     this.symbols = symbols;
     this.functions = new FunctionInvoker(this);
     this.firewall = firewall;
     this.features = features;
+    this.scriptFile = scriptFile;
   }
 
   public Value getLastResult() {
@@ -142,6 +147,18 @@ public class ScriptContext {
 
   public void setFeatures(Features features) {
     this.features = features;
+  }
+
+  public Path getScriptFile() {
+    return scriptFile;
+  }
+
+  public void setScriptFile(Path scriptFile) {
+    this.scriptFile = scriptFile;
+  }
+
+  public File getScriptDirectory() {
+    return scriptFile!=null?scriptFile.toFile().getParentFile():null;
   }
 
 }

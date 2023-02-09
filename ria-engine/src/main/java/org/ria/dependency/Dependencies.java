@@ -20,13 +20,17 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.ria.ScriptException;
+import org.ria.run.ScriptContext;
 
 public class Dependencies implements Consumer<Object> {
 
   private List<Dependency> dependencies = new ArrayList<>();
 
-  public Dependencies() {
+  private ScriptContext ctx;
+
+  public Dependencies(ScriptContext ctx) {
     super();
+    this.ctx = ctx;
   }
 
   public Dependencies(List<Dependency> dependencies) {
@@ -38,7 +42,7 @@ public class Dependencies implements Consumer<Object> {
     if(o instanceof Dependency d) {
       dependencies.add(d);
     } else if(o instanceof String s) {
-      dependencies.add(new MultiFormatDependency(s));
+      dependencies.add(new MultiFormatDependency(s, ctx));
     } else {
       throw new ScriptException("unsupported dependency type " + o);
     }

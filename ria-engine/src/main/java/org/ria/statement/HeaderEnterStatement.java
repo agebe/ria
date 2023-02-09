@@ -47,7 +47,7 @@ public class HeaderEnterStatement extends AbstractStatement {
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(DEPENDENCIES)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(
-          DEPENDENCIES, Value.of(new Dependencies()));
+          DEPENDENCIES, Value.of(new Dependencies(ctx)));
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(REPOSITORIES)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(
