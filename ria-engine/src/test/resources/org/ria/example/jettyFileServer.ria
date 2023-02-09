@@ -1,7 +1,9 @@
 #!/usr/bin/env ria
 dependencies {
   'org.eclipse.jetty.aggregate:jetty-all:9.4.49.v20220914'
-  'org.slf4j:slf4j-simple:1.7.36'
+  'ch.qos.logback:logback-classic:1.4.5'
+  'org.slf4j:slf4j-api:2.0.6'
+  'logback.xml'
 }
 
 import java.nio.file.Path;
