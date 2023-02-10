@@ -19,19 +19,23 @@ import java.io.File;
 import java.util.List;
 
 import org.ria.ScriptException;
+import org.ria.run.ScriptContext;
 
 public class FileTreeDependency implements Dependency {
 
   private String baseDir;
 
-  public FileTreeDependency(String baseDir) {
+  private ScriptContext ctx;
+
+  public FileTreeDependency(String baseDir, ScriptContext ctx) {
     super();
     this.baseDir = baseDir;
+    this.ctx = ctx;
   }
 
   @Override
   public List<DependencyNode> resolve() {
-    File base = new File(baseDir);
+    File base = resolve(baseDir, ctx);
     if(!base.exists()) {
       throw new ScriptException("file tree base not found, " + base.getAbsolutePath());
     }
@@ -41,10 +45,19 @@ public class FileTreeDependency implements Dependency {
     return List.of(new DependencyNode(base));
   }
 
-  public static boolean isFileTreeDependency(String s) {
+  private static File resolve(String s, ScriptContext ctx) {
+    if(new File(s).isAbsolute()) {
+      return new File(s);
+    } else {
+      File scriptDirectory = ctx.getScriptDirectory();
+      return scriptDirectory!=null?new File(scriptDirectory, s):null;
+    }
+  }
+
+  public static boolean isFileTreeDependency(String s, ScriptContext ctx) {
     try {
-      File f = new File(s);
-      return f.isDirectory();
+      File f = resolve(s, ctx);
+      return f!=null?f.isDirectory():false;
     } catch(Exception e) {
       return false;
     }
