@@ -7,7 +7,7 @@ dependencies {
 println(scriptClassLoader.getResource("README"));
 println(new String(scriptClassLoader.getResourceAsStream("README").readAllBytes()));
 println('---------- Contents of Hello.java ----------');
-println(new String(scriptClassLoader.getResourceAsStream("mypackage/Hello.java").readAllBytes()));
+println(new String(scriptClassLoader.getResourceAsStream("mypackage/Hello.java.renamed").readAllBytes()));
 println('---------- ---------------------- ----------');
 println(scriptClassLoader.getResource("mypackage/Hello.class"));
 new mypackage.Hello().sayHello();
