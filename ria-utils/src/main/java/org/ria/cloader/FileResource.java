@@ -21,7 +21,7 @@ import java.net.URL;
 
 import org.ria.ScriptException;
 
-public record FileResource(File file) implements Resource {
+public record FileResource(File file, File base) implements Resource {
 
   @Override
   public URL toURL() {
@@ -34,7 +34,11 @@ public record FileResource(File file) implements Resource {
 
   @Override
   public String name() {
-    return file.getName();
+    if(base == null) {
+      return file.getName();
+    } else {
+      return base.toPath().relativize(file.toPath()).toString();
+    }
   }
 
 }

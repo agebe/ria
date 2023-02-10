@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,8 +106,37 @@ public class CLoader extends ClassLoader implements AutoCloseable {
   private Stream<Resource> initResources(File f) {
     if(isZipFile(f)) {
       return initZipResource(f);
+    } else if(f.isFile()) {
+      return Stream.of(new FileResource(f, null));
+    } else if(f.isDirectory()) {
+      return initDirectoryResource(f);
+    } else if(!f.exists()) {
+      System.err.println("resource '%s' does not exist, skipping...".formatted(f.getAbsolutePath()));
+      return Stream.of();
     } else {
-      return Stream.of(new FileResource(f));
+      throw new ScriptException("resource not supported " + f.getAbsolutePath());
+    }
+  }
+
+  private Stream<Resource> initDirectoryResource(File base) {
+    try(Stream<Path> stream = Files.walk((base.toPath()))) {
+      return stream
+          .filter(Files::isRegularFile)
+          .map(Path::toFile)
+          .flatMap(file -> {
+            if(file.getName().endsWith(".jar")) {
+              return initZipResource(file);
+            } else {
+              return Stream.of(new FileResource(file, base));
+            }
+          })
+          // convert to list here as the Files.walk stream is closed when the method returns
+          .toList()
+          .stream();
+    } catch(IOException e) {
+      throw new ScriptException(
+          "failed to resolves dependencies from file tree base '%s'".formatted(
+              base.getAbsolutePath()), e);
     }
   }
 
