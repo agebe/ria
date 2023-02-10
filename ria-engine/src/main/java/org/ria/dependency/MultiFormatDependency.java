@@ -36,14 +36,14 @@ public class MultiFormatDependency implements Dependency {
   public List<DependencyNode> resolve() {
     if(GradleShortDependency.isGradleShortFormat(dependency)) {
       return new GradleShortDependency(dependency).resolve();
+    } else if(MavenDependency.isMavenFormat(dependency)) {
+      return new MavenDependency(dependency).resolve();
     } else if(FileTreeDependency.isFileTreeDependency(dependency, ctx)) {
       return new FileTreeDependency(dependency, ctx).resolve();
     } else if(FileDependency.isFileDependency(dependency, ctx)) {
       return new FileDependency(dependency, ctx).resolve();
-    } else if(MavenDependency.isMavenFormat(dependency)) {
-      return new MavenDependency(dependency).resolve();
     } else {
-      throw new ScriptException("unsupported dependency format '%s'".formatted(dependency));
+      throw new ScriptException("dependency file not found '%s'".formatted(dependency));
     }
   }
 
