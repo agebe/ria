@@ -1,0 +1,23 @@
+#!/usr/bin/env ria
+
+dependencies {
+  '''
+  <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-text</artifactId>
+    <version>1.10.0</version>
+    <exclusions>
+      <exclusion>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+      </exclusion>
+    </exclusions> 
+  </dependency>'''
+}
+
+println("this example shows how to use maven formatted dependencies with exclusions");
+println("run 'ria --info maven.ria' to show dependencies");
+println(DoubleFormat.class.getName());
+for(var format : DoubleFormat.values()) {
+  println(format);
+}
