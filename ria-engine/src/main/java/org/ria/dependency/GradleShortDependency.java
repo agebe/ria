@@ -15,18 +15,25 @@
  */
 package org.ria.dependency;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ria.ScriptException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GradleShortDependency implements Dependency {
+
+  private static final Logger log = LoggerFactory.getLogger(GradleShortDependency.class);
 
   private String group;
 
   private String artifact;
 
   private String version;
+
+  private List<Exclusion> excludes = new ArrayList<>();
 
   public GradleShortDependency(String gradleShort) {
     super();
@@ -40,10 +47,22 @@ public class GradleShortDependency implements Dependency {
     version = split[2];
   }
 
+  public void exclude(String exclude) {
+    String[] s = StringUtils.split(exclude, ':');
+    if(s == null) {
+      return;
+    }
+    if(s.length == 2) {
+      excludes.add(new Exclusion(s[0], s[1]));
+    } else {
+      log.warn("wrong gradle exclude format '{}', needs to be <group>:<artifact>", exclude);
+    }
+  }
+
   @Override
   public List<DependencyNode> resolve() {
     // TODO add support for exclusions
-    return List.of(new DependencyNode(group, artifact, version, List.of(), false));
+    return List.of(new DependencyNode(group, artifact, version, excludes, false));
   }
 
   public static boolean isGradleShortFormat(String s) {

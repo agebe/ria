@@ -130,7 +130,7 @@ javaTypeDef
 // same rule as in the expression block.
 // this is only here so the object scope expression can be written without a final semicolon
 objectScopeStmt
-  : expr '{' ( stmt+ | expr+ )? '}'
+  : expr '{' ( expr+ | stmt+ )? '}'
   ;
 
 expr
@@ -193,7 +193,7 @@ expr
   | literal
   | ident
   | switchExpr
-  | expr '{' ( stmt+ | expr+ )? '}'
+  | expr '{' ( expr+ | stmt+ )? '}'
   ;
 
 lambda

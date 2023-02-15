@@ -17,6 +17,8 @@ dependencies {
 
 println("this example shows how to use maven formatted dependencies with exclusions");
 println("run 'ria --info maven.ria' to show dependencies");
+println();
+println("test output, using types from commons-text");
 println(DoubleFormat.class.getName());
 for(var format : DoubleFormat.values()) {
   println(format);

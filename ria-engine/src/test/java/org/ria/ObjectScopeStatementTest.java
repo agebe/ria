@@ -228,4 +228,47 @@ public class ObjectScopeStatementTest {
         """);
   }
 
+  @Test
+  public void functions() {
+    new Script().run("""
+        javasrc '''
+          public class B {
+            private String s;
+            public void set(String s) {
+              System.out.println("set on B " + s);
+              this.s = s;
+            }
+          }
+        ''';
+        javasrc $imports + '''
+        public class A implements Consumer<Object> {
+          @Override
+          public void accept(Object o) {
+            System.out.println("accept " + o);
+          }
+          public String create(String s) {
+          System.out.println("create " + s);
+            return s;
+          }
+          public List<String> list(String s) {
+            System.out.println("create list of " + s);
+            return List.of(s);
+          }
+          public B b() {
+            System.out.println("create B");
+            return new B();
+          }
+        }''';
+        var a = new A() {
+          create('123')
+          create('abc')
+          list('def')
+          b() {
+            set('zzz')
+          }
+        };
+        println(a);
+        """);
+  }
+
 }

@@ -21,8 +21,12 @@ import java.util.function.Consumer;
 
 import org.ria.ScriptException;
 import org.ria.run.ScriptContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Dependencies implements Consumer<Object> {
+
+  private static final Logger log = LoggerFactory.getLogger(Dependencies.class);
 
   private List<Dependency> dependencies = new ArrayList<>();
 
@@ -39,6 +43,7 @@ public class Dependencies implements Consumer<Object> {
 
   @Override
   public void accept(Object o) {
+    log.debug("adding dependency '{}'", o);
     if(o instanceof Dependency d) {
       dependencies.add(d);
     } else if(o instanceof String s) {
@@ -58,6 +63,10 @@ public class Dependencies implements Consumer<Object> {
 
   public boolean hasDependencies() {
     return (dependencies != null) && (!dependencies.isEmpty());
+  }
+
+  public GradleShortDependency gradle(String gradleShort) {
+    return new GradleShortDependency(gradleShort);
   }
 
 }
