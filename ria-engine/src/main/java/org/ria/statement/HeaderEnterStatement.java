@@ -16,9 +16,14 @@
 package org.ria.statement;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.ria.Options;
 import org.ria.dependency.Dependencies;
+import org.ria.dependency.Dependency;
+import org.ria.dependency.FileDependency;
+import org.ria.dependency.FileTreeDependency;
 import org.ria.dependency.Repositories;
 import org.ria.run.ScriptContext;
 import org.ria.value.Value;
@@ -33,10 +38,33 @@ public class HeaderEnterStatement extends AbstractStatement {
 
   private Options options;
 
-  public HeaderEnterStatement(int lineNumber, String defaultMavenRepo, File cacheBase, Options options) {
+  private List<File> classpaths = new ArrayList<>();
+
+  public HeaderEnterStatement(
+      int lineNumber,
+      String defaultMavenRepo,
+      File cacheBase,
+      Options options,
+      File classpath) {
     super(lineNumber);
     this.repos = new Repositories(defaultMavenRepo, cacheBase);
     this.options = options;
+    if(classpath != null && classpath.exists()) {
+      this.classpaths.add(classpath);
+    }
+  }
+
+  private Dependency fromFile(File f, ScriptContext ctx) {
+    if(f == null) {
+      return null;
+    }
+    if(f.isFile()) {
+      return new FileDependency(f.getPath(), ctx);
+    } else if(f.isDirectory()) {
+      return new FileTreeDependency(f.getPath(), ctx);
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -46,8 +74,15 @@ public class HeaderEnterStatement extends AbstractStatement {
           OPTIONS, Value.of(options));
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(DEPENDENCIES)) {
+      Dependencies dependencies = new Dependencies(ctx);
+      classpaths.forEach(cp -> {
+        Dependency d = fromFile(cp, ctx);
+        if(d != null) {
+          dependencies.accept(d);
+        }
+      });
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(
-          DEPENDENCIES, Value.of(new Dependencies(ctx)));
+          DEPENDENCIES, Value.of(dependencies));
     }
     if(!ctx.getSymbols().getScriptSymbols().isDefined(REPOSITORIES)) {
       ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot(

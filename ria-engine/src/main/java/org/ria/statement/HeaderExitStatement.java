@@ -211,6 +211,7 @@ public class HeaderExitStatement extends AbstractStatement {
               "scriptClassLoader",
               allJars.stream().map(this::toUrl).toArray(URL[]::new),
               scriptClassLoader);
+          log.debug("set script classloader '{}'", loader);
           ctx.getSymbols().getJavaSymbols().setClassLoader(loader);
           if(importFromDependencies(ctx)) {
             importDependencies(root, ctx);
@@ -274,6 +275,7 @@ public class HeaderExitStatement extends AbstractStatement {
 
   @Override
   public void execute(ScriptContext ctx) {
+    log.trace("enter header exit statement");
     addDefaultImports(ctx);
     resolveDependencies(ctx);
     if(downloadDependenciesOnly) {

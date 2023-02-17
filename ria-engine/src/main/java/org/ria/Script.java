@@ -261,10 +261,16 @@ public class Script implements ScriptEngine {
     return cacheBase;
   }
 
+  private File getHomeClasspath() {
+    return home!=null?new File(home, "classpath"):null;
+  }
+
   private Script parse(String script) {
     if(this.entry == null) {
-      HeaderEnterStatement headerEnter = new HeaderEnterStatement(0, defaultMavenRepo, getCacheBase(), options);
-      HeaderExitStatement headerExit = new HeaderExitStatement(0, scriptClassLoader, downloadDependenciesOnly, displayInfo, quiet);
+      HeaderEnterStatement headerEnter = new HeaderEnterStatement(
+          0, defaultMavenRepo, getCacheBase(), options, getHomeClasspath());
+      HeaderExitStatement headerExit = new HeaderExitStatement(
+          0, scriptClassLoader, downloadDependenciesOnly, displayInfo, quiet);
       ParserListener listener = new Parser(showErrorsOnConsole)
           .parse(script, headerEnter, headerExit);
       this.entry = listener.getMainFunction();
