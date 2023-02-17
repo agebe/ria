@@ -229,6 +229,7 @@ public class ScriptLauncher {
       .setDisplayInfo(cliOptions.info)
       .setQuiet(cliOptions.quiet)
       .setScriptFile(scriptFile)
+      .setClasspath(cliOptions.classpath)
       .run(script);
     } catch(Throwable t) {
       t.printStackTrace();

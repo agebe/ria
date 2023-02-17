@@ -18,6 +18,9 @@ package org.ria;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +73,8 @@ public class Script implements ScriptEngine {
   private Options options = new Options();
 
   private Features features = new Features();
+
+  private List<File> classpath;
 
   public Script() {
     this(null, null);
@@ -265,10 +270,16 @@ public class Script implements ScriptEngine {
     return home!=null?new File(home, "classpath"):null;
   }
 
+  private List<File> classpath() {
+    return Stream.concat(Stream.of(getHomeClasspath()), classpath!=null?classpath.stream():Stream.empty())
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
   private Script parse(String script) {
     if(this.entry == null) {
       HeaderEnterStatement headerEnter = new HeaderEnterStatement(
-          0, defaultMavenRepo, getCacheBase(), options, getHomeClasspath());
+          0, defaultMavenRepo, getCacheBase(), options, classpath());
       HeaderExitStatement headerExit = new HeaderExitStatement(
           0, scriptClassLoader, downloadDependenciesOnly, displayInfo, quiet);
       ParserListener listener = new Parser(showErrorsOnConsole)
@@ -382,6 +393,12 @@ public class Script implements ScriptEngine {
 
   public ScriptEngine setScriptFile(Path scriptFile) {
     this.scriptFile = scriptFile;
+    return this;
+  }
+
+  @Override
+  public ScriptEngine setClasspath(List<File> classpath) {
+    this.classpath = classpath;
     return this;
   }
 

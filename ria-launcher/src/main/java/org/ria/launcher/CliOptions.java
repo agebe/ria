@@ -15,9 +15,12 @@
  */
 package org.ria.launcher;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CliOptions {
 
@@ -37,11 +40,28 @@ public class CliOptions {
 
   public String mavenRepo;
 
+  public List<File> classpath = new ArrayList<>();
+
   public Path scriptEngineHome;
 
   public Path scriptFile;
 
   public String[] scriptArgs;
+
+  private String pathSeparator() {
+    return System.getProperty("path.separator");
+  }
+
+  private List<File> paths(String s) {
+    return Arrays.stream(s.split(pathSeparator()))
+        .map(File::new)
+        .peek(f -> {
+          if(!f.exists()) {
+            System.out.println("WARN: classpath item '%s' does not exist".formatted(f.getAbsolutePath()));
+          }
+        })
+        .toList();
+  }
 
   public CliOptions(String[] args) {
     scriptEngineHome = Paths.get(args[0]);
@@ -54,6 +74,9 @@ public class CliOptions {
       } else if(equalsAny(s, "--maven-repository", "-r")) {
         i++;
         mavenRepo = args[i];
+      } else if(equalsAny(s, "--classpath", "-cp")) {
+        i++;
+        classpath.addAll(paths(args[i]));
       } else if(equalsAny(s, "--trace")) {
         trace = true;
       } else if(equalsAny(s, "--debug")) {
@@ -89,12 +112,16 @@ public class CliOptions {
           --download-dependencies-only, -d  download missing dependencies into the cache and exit
           --maven-repository, -r            the default maven repo to use if not specified in the script
           --home                            set script engine home, e.g. maven download cache ('%s')
+          --classpath, -cp                  add to script classpath in addition to %s/classpath and script dependencies.
+                                            can be a e.g. a single jar file or directory
+                                            containing jars or classes or other resources.
+                                            specify multiple times or separate paths with '%s'
           --trace                           display trace output
           --debug                           display debug output
           --info                            display info output on std error
           --quiet, -q                       display less output on std error
           --help, -h                        display this help and exit
-        """.formatted(scriptEngineHome));
+        """.formatted(scriptEngineHome, scriptEngineHome, pathSeparator()));
   }
 
   private boolean equalsAny(String s, String... others) {

@@ -45,12 +45,16 @@ public class HeaderEnterStatement extends AbstractStatement {
       String defaultMavenRepo,
       File cacheBase,
       Options options,
-      File classpath) {
+      List<File> classpath) {
     super(lineNumber);
     this.repos = new Repositories(defaultMavenRepo, cacheBase);
     this.options = options;
-    if(classpath != null && classpath.exists()) {
-      this.classpaths.add(classpath);
+    if(classpath != null) {
+      classpath.forEach(cp -> {
+        if(cp.exists()) {
+          classpaths.add(cp);
+        }
+      });
     }
   }
 
