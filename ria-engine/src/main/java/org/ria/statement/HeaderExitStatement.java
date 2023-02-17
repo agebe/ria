@@ -19,12 +19,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -45,6 +48,7 @@ import org.ria.run.ScriptContext;
 import org.ria.symbol.VarSymbol;
 import org.ria.symbol.java.JavaSymbols;
 import org.ria.util.PackageNameUtils;
+import org.ria.util.ZipUtil;
 import org.ria.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,16 +155,51 @@ public class HeaderExitStatement extends AbstractStatement {
     return result;
   }
 
-  private Set<String> getPackages(File f, Set<String> filters) {
-    Set<Pattern> patterns = filters.stream()
-        .map(Pattern::compile)
-        .collect(Collectors.toSet());
+  private Set<String> getPackages(File f, Set<Pattern> filters) {
+    if(f == null) {
+      return Set.of();
+    } else if(ZipUtil.isZipFile(f)) {
+      return getPackagesFromJar(f, filters);
+    } else if(f.isDirectory()) {
+      return getPackagesFromDirectory(f, filters);
+    } else {
+      return Set.of();
+    }
+  }
+
+  private Set<String> getPackagesFromDirectory(File f, Set<Pattern> filters) {
+    try(Stream<Path> stream = Files.walk((f.toPath()))) {
+      return stream
+          .filter(Files::isRegularFile)
+          .map(Path::toFile)
+          .flatMap(file -> {
+            if(ZipUtil.isZipFile(file)) {
+              return getPackagesFromJar(file, filters).stream();
+            } else if(file.getName().endsWith(".class")) {
+              return Stream.of(f.toPath().relativize(file.toPath()).toString())
+                  .filter(name -> !filterOut(name, filters))
+                  .map(FilenameUtils::getPathNoEndSeparator)
+                  .map(path -> StringUtils.replaceChars(path, '/', '.'))
+                  .filter(StringUtils::isNotBlank)
+                  .filter(PackageNameUtils::isPackageNameValid);
+            } else {
+              return Stream.empty();
+            }
+          })
+          .collect(Collectors.toSet());
+    } catch(IOException e) {
+      throw new ScriptException(
+          "failed to determine packages from  '%s'".formatted(f.getAbsolutePath()), e);
+    }
+  }
+
+  private Set<String> getPackagesFromJar(File f, Set<Pattern> filters) {
     try(ZipFile zip = new ZipFile(f)) {
       return zip.stream()
           .map(ZipEntry::getName)
           .map(StringUtils::strip)
           .filter(name -> StringUtils.endsWith(name, ".class"))
-          .filter(name -> !filterOut(name, patterns))
+          .filter(name -> !filterOut(name, filters))
           .map(FilenameUtils::getPathNoEndSeparator)
           .map(path -> StringUtils.replaceChars(path, '/', '.'))
           .filter(StringUtils::isNotBlank)
@@ -175,11 +214,14 @@ public class HeaderExitStatement extends AbstractStatement {
   private void importDependencies(DependencyNode root, ScriptContext ctx) {
     Options options = resolve(ctx, HeaderEnterStatement.OPTIONS, Options.class);
     Set<String> filters = options!=null?options.importDependenciesFilter:Set.of();
+    Set<Pattern> patterns = filters.stream()
+        .map(Pattern::compile)
+        .collect(Collectors.toSet());
     JavaSymbols sym = ctx.getSymbols().getJavaSymbols();
-    // TODO all packages from direct dependencies should also be auto imported
-    List<File> jars = jarsToImport(root);
-    jars.stream()
-    .flatMap(jar -> getPackages(jar, filters).stream())
+    // the list can also contain directories and non jar files
+    List<File> files = jarsToImport(root);
+    files.stream()
+    .flatMap(file -> getPackages(file, patterns).stream())
     .distinct()
     .sorted()
     .forEachOrdered(pkg -> {

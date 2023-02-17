@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.ria.ScriptException;
+import org.ria.util.ZipUtil;
 
 public class CLoader extends ClassLoader implements AutoCloseable {
 
@@ -72,17 +72,6 @@ public class CLoader extends ClassLoader implements AutoCloseable {
         .collect(Collectors.groupingBy(Resource::name));
   }
 
-  private boolean isZipFile(File f) {
-    if(f == null) {
-      return false;
-    }
-    try(ZipFile zipFile = new ZipFile(f)) {
-      return true;
-    } catch(Exception e) {
-      return false;
-    }
-  }
-
   private Stream<Resource> initZipResource(File f) {
     try(ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(f)))) {
       List<Resource> resources = new ArrayList<>();
@@ -104,7 +93,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
   }
 
   private Stream<Resource> initResources(File f) {
-    if(isZipFile(f)) {
+    if(ZipUtil.isZipFile(f)) {
       return initZipResource(f);
     } else if(f.isFile()) {
       return Stream.of(new FileResource(f, null));
@@ -124,7 +113,7 @@ public class CLoader extends ClassLoader implements AutoCloseable {
           .filter(Files::isRegularFile)
           .map(Path::toFile)
           .flatMap(file -> {
-            if(file.getName().endsWith(".jar")) {
+            if(ZipUtil.isZipFile(file)) {
               return initZipResource(file);
             } else {
               return Stream.of(new FileResource(file, base));
