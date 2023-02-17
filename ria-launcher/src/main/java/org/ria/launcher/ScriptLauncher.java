@@ -209,7 +209,9 @@ public class ScriptLauncher {
         .map(ScriptLauncher::toUrl)
         .toArray(URL[]::new),
         ScriptLauncher.class.getClassLoader())) {
-      if(cliOptions.debug) {
+      if(cliOptions.trace) {
+        setupLogging(loader, "trace");
+      } else if(cliOptions.debug) {
         setupLogging(loader, "debug");
       } else {
         setupLogging(loader, "info");

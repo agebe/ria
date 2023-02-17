@@ -172,7 +172,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void visitTerminal(TerminalNode node) {
-    log.debug("visit terminal '{}'", node.getSymbol().getText());
+    log.trace("visit terminal '{}'", node.getSymbol().getText());
     if(ReservedKeywords.isReservedKeyword(node.getSymbol().getText())) {
       throw new ReservedKeywordException("reserved keyword '%s' on line '%s'"
           .formatted(node.getSymbol().getText(), node.getSymbol().getLine()));
@@ -183,7 +183,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void visitErrorNode(ErrorNode node) {
-    log.debug("visit error node '{}'", node);
+    log.trace("visit error node '{}'", node);
   }
 
   @Override
@@ -217,13 +217,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterStmt(StmtContext ctx) {
-    log.debug("enterStmt '{}'", ctx.getText());
+    log.trace("enterStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitStmt(StmtContext ctx) {
-    log.debug("exitStmt '{}'", ctx.getText());
-    log.debug("'{}'", stack);
+    log.trace("exitStmt '{}'", ctx.getText());
+    log.trace("'{}'", stack);
     Statement stmt = popStatement();
     if(stmt instanceof Function) {
       findMostRecentFunction().addFunction((Function)stmt);
@@ -250,12 +250,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterReturnStmt(ReturnStmtContext ctx) {
-    log.debug("enter return stmt '{}'", ctx.getText());
+    log.trace("enter return stmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitReturnStmt(ReturnStmtContext ctx) {
-    log.debug("exit return stmt '{}'", ctx.getText());
+    log.trace("exit return stmt '{}'", ctx.getText());
     popSemi();
     Expression expr = null;
     if(stack.getFirst() instanceof Expression) {
@@ -267,12 +267,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterAssignment(AssignmentContext ctx) {
-    log.debug("enter assign '{}'", ctx.getText());
+    log.trace("enter assign '{}'", ctx.getText());
   }
 
   @Override
   public void exitAssignment(AssignmentContext ctx) {
-    log.debug("exit assign '{}'", ctx.getText());
+    log.trace("exit assign '{}'", ctx.getText());
   }
 
   private List<ParseTree> getChildren(ParserRuleContext ctx) {
@@ -326,7 +326,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterExpr(ExprContext ctx) {
-    log.debug("enter expr '{}'", ctx.getText());
+    log.trace("enter expr '{}'", ctx.getText());
     if(isObjectScopeExpression(ctx)) {
       if(isObjectScopeExpressionWithStatements(ctx)) {
         stack.push(new BlockStatement(ctx.getStart().getLine()));
@@ -340,7 +340,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitExpr(ExprContext ctx) {
-    log.debug("exit expr '{}'", ctx.getText());
+    log.trace("exit expr '{}'", ctx.getText());
     if(isObjectScopeExpression(ctx)) {
       stack.push(parseObjectScopeExpression(ctx));
     } else {
@@ -350,12 +350,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFcall(FcallContext ctx) {
-    log.debug("enter fcall '{}'", ctx.getText());
+    log.trace("enter fcall '{}'", ctx.getText());
   }
 
   @Override
   public void exitFcall(FcallContext ctx) {
-    log.debug("exit fcall '{}'", ctx.getText());
+    log.trace("exit fcall '{}'", ctx.getText());
     FunctionParameters params = (FunctionParameters)stack.pop();
     FunctionName name = (FunctionName)stack.pop();
     stack.push(new FunctionCall(name, params.getParameters(), null));
@@ -363,23 +363,23 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFname(FnameContext ctx) {
-    log.debug("enter fname '{}'", ctx.getText());
+    log.trace("enter fname '{}'", ctx.getText());
   }
 
   @Override
   public void exitFname(FnameContext ctx) {
-    log.debug("exit fname '{}'", ctx.getText());
+    log.trace("exit fname '{}'", ctx.getText());
     stack.push(new FunctionName(popTerminal().getToken().getText()));
   }
 
   @Override
   public void enterFparams(FparamsContext ctx) {
-    log.debug("enter fparams '{}'", ctx.getText());
+    log.trace("enter fparams '{}'", ctx.getText());
   }
 
   @Override
   public void exitFparams(FparamsContext ctx) {
-    log.debug("exit fparams '{}'", ctx.getText());
+    log.trace("exit fparams '{}'", ctx.getText());
     List<FunctionParameter> l = new ArrayList<>();
     popTerminal(")");
     for(;;) {
@@ -404,33 +404,33 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFparam(FparamContext ctx) {
-    log.debug("enter fparam '{}'", ctx.getText());
+    log.trace("enter fparam '{}'", ctx.getText());
   }
 
   @Override
   public void exitFparam(FparamContext ctx) {
-    log.debug("exit fparam '{}'", ctx.getText());
+    log.trace("exit fparam '{}'", ctx.getText());
     stack.push(new FunctionParameter((Expression)stack.pop()));
   }
 
   @Override
   public void enterLiteral(LiteralContext ctx) {
-    log.debug("enter literal '{}'", ctx.getText());
+    log.trace("enter literal '{}'", ctx.getText());
   }
 
   @Override
   public void exitLiteral(LiteralContext ctx) {
-    log.debug("exit literal '{}'", ctx.getText());
+    log.trace("exit literal '{}'", ctx.getText());
   }
 
   @Override
   public void enterIdent(IdentContext ctx) {
-    log.debug("enter ident '{}'", ctx.getText());
+    log.trace("enter ident '{}'", ctx.getText());
   }
 
   @Override
   public void exitIdent(IdentContext ctx) {
-    log.debug("exit ident '{}'", ctx.getText());
+    log.trace("exit ident '{}'", ctx.getText());
     stack.push(new Identifier(popTerminal().getToken().getText()));
   }
 
@@ -513,7 +513,7 @@ public class ParserListener implements ScriptListener {
   }
 
   private void printStack() {
-    log.debug("stack '{}'", stack);
+    log.trace("stack '{}'", stack);
   }
 
   public Function getMainFunction() {
@@ -522,12 +522,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterStrLiteral(StrLiteralContext ctx) {
-    log.debug("enter strLiteral '{}'", ctx.getText());
+    log.trace("enter strLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitStrLiteral(StrLiteralContext ctx) {
-    log.debug("exit strLiteral '{}'", ctx.getText());
+    log.trace("exit strLiteral '{}'", ctx.getText());
     Terminal t = (Terminal)stack.pop();
     String s = t.getToken().getText();
     if(TextBlockUtil.isTextBlock(s)) {
@@ -551,45 +551,45 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterBoolLiteral(BoolLiteralContext ctx) {
-    log.debug("enter boolLiteral '{}'", ctx.getText());
+    log.trace("enter boolLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitBoolLiteral(BoolLiteralContext ctx) {
-    log.debug("exit boolLiteral '{}'", ctx.getText());
+    log.trace("exit boolLiteral '{}'", ctx.getText());
     stack.push(new BoolLiteral(popTerminal().getText()));
   }
 
   @Override
   public void enterFloatLiteral(FloatLiteralContext ctx) {
-    log.debug("enter floatLiteral '{}'", ctx.getText());
+    log.trace("enter floatLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitFloatLiteral(FloatLiteralContext ctx) {
-    log.debug("exit floatLiteral '{}'", ctx.getText());
+    log.trace("exit floatLiteral '{}'", ctx.getText());
     stack.push(new FloatLiteral(popTerminal().getText()));
   }
 
   @Override
   public void enterIntLiteral(IntLiteralContext ctx) {
-    log.debug("enter intLiteral '{}'", ctx.getText());
+    log.trace("enter intLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitIntLiteral(IntLiteralContext ctx) {
-    log.debug("exit intLiteral '{}'", ctx.getText());
+    log.trace("exit intLiteral '{}'", ctx.getText());
     stack.push(new IntLiteral(popTerminal().getText()));
   }
 
   @Override
   public void enterAssignmentOp(AssignmentOpContext ctx) {
-    log.debug("enter AssignmentOp '{}'", ctx.getText());
+    log.trace("enter AssignmentOp '{}'", ctx.getText());
   }
 
   @Override
   public void exitAssignmentOp(AssignmentOpContext ctx) {
-    log.debug("exit AssignmentOp '{}'", ctx.getText());
+    log.trace("exit AssignmentOp '{}'", ctx.getText());
     Expression expr = popExpression();
     popTerminal("=");
     Identifier ident = popIdentifier();
@@ -598,36 +598,36 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterEmptyStmt(EmptyStmtContext ctx) {
-    log.debug("enterEmptyStmt '{}'", ctx.getText());
+    log.trace("enterEmptyStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitEmptyStmt(EmptyStmtContext ctx) {
-    log.debug("exitEmptyStmt '{}'", ctx.getText());
+    log.trace("exitEmptyStmt '{}'", ctx.getText());
     popSemi();
     stack.push(new EmptyStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void enterExprStmt(ExprStmtContext ctx) {
-    log.debug("enterExprStmt '{}'", ctx.getText());
+    log.trace("enterExprStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitExprStmt(ExprStmtContext ctx) {
-    log.debug("exitExprStmt '{}'", ctx.getText());
+    log.trace("exitExprStmt '{}'", ctx.getText());
     popSemi();
     stack.push(new ExpressionStatement(ctx.getStart().getLine(), popExpression()));
   }
 
   @Override
   public void enterVardefStmt(VardefStmtContext ctx) {
-    log.debug("enterVardefStmt '{}'", ctx.getText());
+    log.trace("enterVardefStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitVardefStmt(VardefStmtContext ctx) {
-    log.debug("exitVardefStmt '{}'", ctx.getText());
+    log.trace("exitVardefStmt '{}'", ctx.getText());
     LinkedList<VarDef> vars = new LinkedList<>();
     org.ria.parser.Type type;
     popSemi();
@@ -655,28 +655,28 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterBlock(BlockContext ctx) {
-    log.debug("enterBlock '{}'", ctx.getText());
+    log.trace("enterBlock '{}'", ctx.getText());
     stack.push(new BlockStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitBlock(BlockContext ctx) {
-    log.debug("exitBlock '{}'", ctx.getText());
-    log.debug("stack '{}'", stack);
+    log.trace("exitBlock '{}'", ctx.getText());
+    log.trace("stack '{}'", stack);
     popTerminal("}");
     popTerminal("{");
   }
 
   @Override
   public void enterIfStmt(IfStmtContext ctx) {
-    log.debug("enterIfStmt '{}'", ctx.getText());
+    log.trace("enterIfStmt '{}'", ctx.getText());
     stack.push(new IfStatement(ctx.getStop().getLine()));
   }
 
   @Override
   public void exitIfStmt(IfStmtContext ctx) {
-    log.debug("exitIfStmt '{}'", ctx.getText());
-    log.debug("stack '{}'", stack);
+    log.trace("exitIfStmt '{}'", ctx.getText());
+    log.trace("stack '{}'", stack);
     popTerminal(")");
     Expression e = popExpression();
     popTerminal("(");
@@ -687,13 +687,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterIfElseStmt(IfElseStmtContext ctx) {
-    log.debug("enterIfElseStmt '{}'", ctx.getText());
+    log.trace("enterIfElseStmt '{}'", ctx.getText());
     stack.push(new IfStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitIfElseStmt(IfElseStmtContext ctx) {
-    log.debug("exitIfElseStmt '{}'", ctx.getText());
+    log.trace("exitIfElseStmt '{}'", ctx.getText());
     popTerminal("else");
     popTerminal(")");
     Expression e = popExpression();
@@ -705,12 +705,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterCcall(CcallContext ctx) {
-    log.debug("enterCcall '{}'", ctx.getText());
+    log.trace("enterCcall '{}'", ctx.getText());
   }
 
   @Override
   public void exitCcall(CcallContext ctx) {
-    log.debug("exitCcall '{}'", ctx.getText());
+    log.trace("exitCcall '{}'", ctx.getText());
     FunctionParameters params = (FunctionParameters)stack.pop();
     Type type = (Type)stack.pop();
     popTerminal("new");
@@ -719,25 +719,25 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterNullLiteral(NullLiteralContext ctx) {
-    log.debug("enterNullLiteral '{}'", ctx.getText());
+    log.trace("enterNullLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitNullLiteral(NullLiteralContext ctx) {
-    log.debug("exitNullLiteral '{}'", ctx.getText());
+    log.trace("exitNullLiteral '{}'", ctx.getText());
     popTerminal("null");
     stack.push(new NullLiteral());
   }
 
   @Override
   public void enterWhileStmt(WhileStmtContext ctx) {
-    log.debug("enterWhileStmt '{}'", ctx.getText());
+    log.trace("enterWhileStmt '{}'", ctx.getText());
     stack.push(new WhileStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitWhileStmt(WhileStmtContext ctx) {
-    log.debug("exitWhileStmt '{}'", ctx.getText());
+    log.trace("exitWhileStmt '{}'", ctx.getText());
     popTerminal(")");
     Expression e = popExpression();
     popTerminal("(");
@@ -748,24 +748,24 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterForStmt(ForStmtContext ctx) {
-    log.debug("enterForStmt '{}'", ctx.getText());
+    log.trace("enterForStmt '{}'", ctx.getText());
     stack.push(new ForStatementBuilder(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitForStmt(ForStmtContext ctx) {
-    log.debug("exitForStmt '{}'", ctx.getText());
+    log.trace("exitForStmt '{}'", ctx.getText());
     printStack();
     popTerminal(")");
     ForStatementBuilder b = (ForStatementBuilder)stack.pop();
     var forStmt = b.create();
-    log.debug("adding '{}' to stack", forStmt);
+    log.trace("adding '{}' to stack", forStmt);
     stack.push(forStmt);
   }
 
   @Override
   public void enterForInit(ForInitContext ctx) {
-    log.debug("enterForInit '{}'", ctx.getText());
+    log.trace("enterForInit '{}'", ctx.getText());
     // get rid of terminals so the ForStatementBuilder is the next
     popTerminal("(");
     popTerminal("for");
@@ -776,7 +776,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitForInit(ForInitContext ctx) {
-    log.debug("exitForInit '{}'", ctx.getText());
+    log.trace("exitForInit '{}'", ctx.getText());
     if(stack.peek() instanceof Terminal) {
       popTerminal(";");
       List<Assignment> l = new LinkedList<>();
@@ -800,12 +800,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterForTerm(ForTermContext ctx) {
-    log.debug("enterForTerm '{}'", ctx.getText());
+    log.trace("enterForTerm '{}'", ctx.getText());
   }
 
   @Override
   public void exitForTerm(ForTermContext ctx) {
-    log.debug("exitForTerm '{}'", ctx.getText());
+    log.trace("exitForTerm '{}'", ctx.getText());
     popTerminal(";");
     if(stack.peek() instanceof Expression) {
       Expression expr = popExpression();
@@ -815,12 +815,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterForInc(ForIncContext ctx) {
-    log.debug("enterForInc '{}'", ctx.getText());
+    log.trace("enterForInc '{}'", ctx.getText());
   }
 
   @Override
   public void exitForInc(ForIncContext ctx) {
-    log.debug("exitForInc '{}'", ctx.getText());
+    log.trace("exitForInc '{}'", ctx.getText());
     LinkedList<Expression> l = new LinkedList<>();
     for(;;) {
       if(stack.peek() instanceof ForStatementBuilder) {
@@ -838,24 +838,24 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterHeader(HeaderContext ctx) {
-    log.debug("enterHeader '{}'", ctx.getText());
+    log.trace("enterHeader '{}'", ctx.getText());
     findMostRecentContainerStatement().addStatement(headerEnter);
   }
 
   @Override
   public void exitHeader(HeaderContext ctx) {
-    log.debug("exitHeader '{}'", ctx.getText());
+    log.trace("exitHeader '{}'", ctx.getText());
     findMostRecentContainerStatement().addStatement(headerExit);
   }
 
   @Override
   public void enterImportStmt(ImportStmtContext ctx) {
-    log.debug("enterImportStmt '{}'", ctx.getText());
+    log.trace("enterImportStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitImportStmt(ImportStmtContext ctx) {
-    log.debug("exitImportStmt '{}'", ctx.getText());
+    log.trace("exitImportStmt '{}'", ctx.getText());
     popSemi();
     ImportType type = null;
     if(nextItemIs(ImportType.class)) {
@@ -879,13 +879,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterImportType(ImportTypeContext ctx) {
-    log.debug("enterImportType '{}'", ctx.getText());
+    log.trace("enterImportType '{}'", ctx.getText());
     stack.push(new ImportTypeStartMarker());
   }
 
   @Override
   public void exitImportType(ImportTypeContext ctx) {
-    log.debug("exitImportType '{}'", ctx.getText());
+    log.trace("exitImportType '{}'", ctx.getText());
     String type = "";
     for(;;) {
       if(nextItemIs(ImportTypeStartMarker.class)) {
@@ -899,13 +899,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFunctionDefinition(FunctionDefinitionContext ctx) {
-    log.debug("enterFunctionDefinition '{}'", ctx.getText());
+    log.trace("enterFunctionDefinition '{}'", ctx.getText());
     stack.push(new Function(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitFunctionDefinition(FunctionDefinitionContext ctx) {
-    log.debug("exitFunctionDefinition '{}'", ctx.getText());
+    log.trace("exitFunctionDefinition '{}'", ctx.getText());
     BlockStatement block = (BlockStatement)stack.pop();
     FunctionParameterIdentifiers params = (FunctionParameterIdentifiers)stack.pop();
     FunctionName name = (FunctionName)stack.pop();
@@ -921,12 +921,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterBreakStmt(BreakStmtContext ctx) {
-    log.debug("enterBreakStmt '{}'", ctx.getText());
+    log.trace("enterBreakStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitBreakStmt(BreakStmtContext ctx) {
-    log.debug("exitBreakStmt '{}'", ctx.getText());
+    log.trace("exitBreakStmt '{}'", ctx.getText());
     popSemi();
     popTerminal("break");
     stack.push(new BreakStatement(ctx.getStart().getLine()));
@@ -934,12 +934,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterContinueStmt(ContinueStmtContext ctx) {
-    log.debug("enterContinueStmt '{}'", ctx.getText());
+    log.trace("enterContinueStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitContinueStmt(ContinueStmtContext ctx) {
-    log.debug("exitContinueStmt '{}'", ctx.getText());
+    log.trace("exitContinueStmt '{}'", ctx.getText());
     popSemi();
     popTerminal("continue");
     stack.push(new ContinueStatement(ctx.getStart().getLine()));
@@ -947,13 +947,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterDoWhileStmt(DoWhileStmtContext ctx) {
-    log.debug("enterDoWhileStmt '{}'", ctx.getText());
+    log.trace("enterDoWhileStmt '{}'", ctx.getText());
     stack.push(new DoWhileStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitDoWhileStmt(DoWhileStmtContext ctx) {
-    log.debug("exitDoWhileStmt '{}'", ctx.getText());
+    log.trace("exitDoWhileStmt '{}'", ctx.getText());
     popSemi();
     popTerminal(")");
     Expression e = popExpression();
@@ -966,12 +966,12 @@ public class ParserListener implements ScriptListener {
 
 //  @Override
 //  public void enterCharLiteral(CharLiteralContext ctx) {
-//    log.debug("enterCharLiteral '{}'", ctx.getText());
+//    log.trace("enterCharLiteral '{}'", ctx.getText());
 //  }
 //
 //  @Override
 //  public void exitCharLiteral(CharLiteralContext ctx) {
-//    log.debug("exitCharLiteral '{}'", ctx.getText());
+//    log.trace("exitCharLiteral '{}'", ctx.getText());
 //    Terminal t = popTerminal();
 //    String s = t.getToken().getText();
 //    if(StringUtils.startsWith(s, "'") && StringUtils.endsWith(s, "'")) {
@@ -983,13 +983,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterForEachStmt(ForEachStmtContext ctx) {
-    log.debug("enterForEachStmt '{}'", ctx.getText());
+    log.trace("enterForEachStmt '{}'", ctx.getText());
     stack.push(new ForEachStatement(ctx.getStart().getLine()));
   }
 
   @Override
   public void exitForEachStmt(ForEachStmtContext ctx) {
-    log.debug("exitForEachStmt '{}'", ctx.getText());
+    log.trace("exitForEachStmt '{}'", ctx.getText());
     popTerminal(")");
     Expression expr = popExpression();
     popTerminal(":");
@@ -1005,12 +1005,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterMultiAssignmentOp(MultiAssignmentOpContext ctx) {
-    log.debug("enterMultiAssignmentOp '{}'", ctx.getText());
+    log.trace("enterMultiAssignmentOp '{}'", ctx.getText());
   }
 
   @Override
   public void exitMultiAssignmentOp(MultiAssignmentOpContext ctx) {
-    log.debug("exitMultiAssignmentOp '{}'", ctx.getText());
+    log.trace("exitMultiAssignmentOp '{}'", ctx.getText());
     Expression expr = popExpression();
     popTerminal("=");
     popTerminal(")");
@@ -1032,17 +1032,17 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterAssign(AssignContext ctx) {
-    log.debug("enterAssign '{}'", ctx.getText());
+    log.trace("enterAssign '{}'", ctx.getText());
   }
 
   @Override
   public void exitAssign(AssignContext ctx) {
-    log.debug("exitAssign '{}'", ctx.getText());
+    log.trace("exitAssign '{}'", ctx.getText());
   }
 
   @Override
   public void enterLambda(LambdaContext ctx) {
-    log.debug("enterLambda '{}'", ctx.getText());
+    log.trace("enterLambda '{}'", ctx.getText());
     // push a function so nested function (inside the lambda are added to the lambda)
     stack.push(new Function(ctx.getStart().getLine()));
     // push a block as statements are automatically added to outer blocks (and not left on the stack)
@@ -1054,7 +1054,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitLambda(LambdaContext ctx) {
-    log.debug("exitLambda '{}'", ctx.getText());
+    log.trace("exitLambda '{}'", ctx.getText());
     Expression expr = null;
     if(nextItemIsExpression()) {
       expr = popExpression();
@@ -1092,12 +1092,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFDefParams(FDefParamsContext ctx) {
-    log.debug("enterFDefParams '{}'", ctx.getText());
+    log.trace("enterFDefParams '{}'", ctx.getText());
   }
 
   @Override
   public void exitFDefParams(FDefParamsContext ctx) {
-    log.debug("exitFDefParams '{}'", ctx.getText());
+    log.trace("exitFDefParams '{}'", ctx.getText());
     List<Identifier> l = new ArrayList<>();
     popTerminal(")");
     for(;;) {
@@ -1122,12 +1122,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterMethodRef(MethodRefContext ctx) {
-    log.debug("enterMethodRef '{}'", ctx.getText());
+    log.trace("enterMethodRef '{}'", ctx.getText());
   }
 
   @Override
   public void exitMethodRef(MethodRefContext ctx) {
-    log.debug("exitMethodRef '{}'", ctx.getText());
+    log.trace("exitMethodRef '{}'", ctx.getText());
     String methodName = popIdentifier().getIdent();
     popTerminal("::");
     String varOrType = ((Ident)stack.pop()).getIdent();
@@ -1136,12 +1136,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterConstructorRef(ConstructorRefContext ctx) {
-    log.debug("enterConstructorRef '{}'", ctx.getText());
+    log.trace("enterConstructorRef '{}'", ctx.getText());
   }
 
   @Override
   public void exitConstructorRef(ConstructorRefContext ctx) {
-    log.debug("exitConstructorRef '{}'", ctx.getText());
+    log.trace("exitConstructorRef '{}'", ctx.getText());
     popTerminal("new");
     popTerminal("::");
     int dim = 0;
@@ -1160,13 +1160,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterType(TypeContext ctx) {
-    log.debug("enterType '{}'", ctx.getText());
+    log.trace("enterType '{}'", ctx.getText());
     stack.push(new StartMarker());
   }
 
   @Override
   public void exitType(TypeContext ctx) {
-    log.debug("exitType '{}'", ctx.getText());
+    log.trace("exitType '{}'", ctx.getText());
     for(;;) {
       if(nextItemIs(StartMarker.class)) {
         stack.pop();
@@ -1179,12 +1179,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterNewArray(NewArrayContext ctx) {
-    log.debug("enterNewArray '{}'", ctx.getText());
+    log.trace("enterNewArray '{}'", ctx.getText());
   }
 
   @Override
   public void exitNewArray(NewArrayContext ctx) {
-    log.debug("exitNewArray '{}'", ctx.getText());
+    log.trace("exitNewArray '{}'", ctx.getText());
     LinkedList<Expression> dims = new LinkedList<>();
     for(;;) {
       if(nextTerminalIs("]")) {
@@ -1212,12 +1212,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterNewArrayInit(NewArrayInitContext ctx) {
-    log.debug("enterNewArrayInit '{}'", ctx.getText());
+    log.trace("enterNewArrayInit '{}'", ctx.getText());
   }
 
   @Override
   public void exitNewArrayInit(NewArrayInitContext ctx) {
-    log.debug("exitNewArrayInit '{}'", ctx.getText());
+    log.trace("exitNewArrayInit '{}'", ctx.getText());
     ArrayInit init = pop(ArrayInit.class);
     TypeOrPrimitive type = pop(TypeOrPrimitive.class);
     popTerminal("new");
@@ -1226,12 +1226,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterTypeOrPrimitive(TypeOrPrimitiveContext ctx) {
-    log.debug("enterTypeOrPrimitive '{}'", ctx.getText());
+    log.trace("enterTypeOrPrimitive '{}'", ctx.getText());
   }
 
   @Override
   public void exitTypeOrPrimitive(TypeOrPrimitiveContext ctx) {
-    log.debug("exitTypeOrPrimitive '{}'", ctx.getText());
+    log.trace("exitTypeOrPrimitive '{}'", ctx.getText());
     int arrayDimensions = 0;
     for(;;) {
       if(nextTerminalIs("]")) {
@@ -1242,7 +1242,7 @@ public class ParserListener implements ScriptListener {
         break;
       }
     }
-    log.debug("array dimensions '{}'", arrayDimensions);
+    log.trace("array dimensions '{}'", arrayDimensions);
     if(nextItemIs(Terminal.class)) {
       Terminal type = popTerminal();
       stack.push(new TypeOrPrimitive(new org.ria.parser.Type(type.getText(), arrayDimensions)));
@@ -1254,12 +1254,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterArrayInit(ArrayInitContext ctx) {
-    log.debug("enterArrayInit '{}'", ctx.getText());
+    log.trace("enterArrayInit '{}'", ctx.getText());
   }
 
   @Override
   public void exitArrayInit(ArrayInitContext ctx) {
-    log.debug("exitArrayInit '{}'", ctx.getText());
+    log.trace("exitArrayInit '{}'", ctx.getText());
     popTerminal("}");
     LinkedList<ParseItem> l = new LinkedList<>();
     for(;;) {
@@ -1281,12 +1281,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterTypeOrPrimitiveOrVar(TypeOrPrimitiveOrVarContext ctx) {
-    log.debug("enterTypeOrPrimitiveOrVar '{}'", ctx.getText());
+    log.trace("enterTypeOrPrimitiveOrVar '{}'", ctx.getText());
   }
 
   @Override
   public void exitTypeOrPrimitiveOrVar(TypeOrPrimitiveOrVarContext ctx) {
-    log.debug("exitTypeOrPrimitiveOrVar '{}'", ctx.getText());
+    log.trace("exitTypeOrPrimitiveOrVar '{}'", ctx.getText());
     if(nextTerminalIs("var")) {
       popTerminal("var");
       stack.push(new TypeOrPrimitive());
@@ -1302,12 +1302,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterHeaderElement(HeaderElementContext ctx) {
-    log.debug("enterHeaderElement '{}'", ctx.getText());
+    log.trace("enterHeaderElement '{}'", ctx.getText());
   }
 
   @Override
   public void exitHeaderElement(HeaderElementContext ctx) {
-    log.debug("exitHeaderElement '{}'", ctx.getText());
+    log.trace("exitHeaderElement '{}'", ctx.getText());
     if(nextItemIs(Statement.class)) {
       findMostRecentContainerStatement().addStatement(popStatement());
     }
@@ -1315,12 +1315,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterThrowStmt(ThrowStmtContext ctx) {
-    log.debug("enterThrowStmt '{}'", ctx.getText());
+    log.trace("enterThrowStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitThrowStmt(ThrowStmtContext ctx) {
-    log.debug("exitThrowStmt '{}'", ctx.getText());
+    log.trace("exitThrowStmt '{}'", ctx.getText());
     popSemi();
     Expression expr = popExpression();
     popTerminal("throw");
@@ -1329,12 +1329,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterTryStmt(TryStmtContext ctx) {
-    log.debug("enterTryStmt '{}'", ctx.getText());
+    log.trace("enterTryStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitTryStmt(TryStmtContext ctx) {
-    log.debug("exitTryStmt '{}'", ctx.getText());
+    log.trace("exitTryStmt '{}'", ctx.getText());
     FinallyBlock fblock = null;
     if(nextItemIs(FinallyBlock.class)) {
       fblock = pop(FinallyBlock.class);
@@ -1373,12 +1373,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterTryResource(TryResourceContext ctx) {
-    log.debug("enterTryResource '{}'", ctx.getText());
+    log.trace("enterTryResource '{}'", ctx.getText());
   }
 
   @Override
   public void exitTryResource(TryResourceContext ctx) {
-    log.debug("exitTryResource '{}'", ctx.getText());
+    log.trace("exitTryResource '{}'", ctx.getText());
     Expression expr = popExpression();
     popTerminal("=");
     Identifier ident = popIdentifier();
@@ -1388,12 +1388,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterCatchBlock(CatchBlockContext ctx) {
-    log.debug("enterCatchBlock '{}'", ctx.getText());
+    log.trace("enterCatchBlock '{}'", ctx.getText());
   }
 
   @Override
   public void exitCatchBlock(CatchBlockContext ctx) {
-    log.debug("exitCatchBlock '{}'", ctx.getText());
+    log.trace("exitCatchBlock '{}'", ctx.getText());
     BlockStatement block = pop(BlockStatement.class);
     popTerminal(")");
     Identifier ident = popIdentifier();
@@ -1416,12 +1416,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterFinallyBlock(FinallyBlockContext ctx) {
-    log.debug("enterFinallyBlock '{}'", ctx.getText());
+    log.trace("enterFinallyBlock '{}'", ctx.getText());
   }
 
   @Override
   public void exitFinallyBlock(FinallyBlockContext ctx) {
-    log.debug("exitFinallyBlock '{}'", ctx.getText());
+    log.trace("exitFinallyBlock '{}'", ctx.getText());
     BlockStatement block = pop(BlockStatement.class);
     popTerminal("finally");
     FinallyBlock fblock = new FinallyBlock(block);
@@ -1430,13 +1430,13 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterSwitchExpr(SwitchExprContext ctx) {
-    log.debug("enterSwitchExpr '{}'", ctx.getText());
+    log.trace("enterSwitchExpr '{}'", ctx.getText());
     stack.push(new SwitchExpression());
   }
 
   @Override
   public void exitSwitchExpr(SwitchExprContext ctx) {
-    log.debug("exitSwitchExpr '{}'", ctx.getText());
+    log.trace("exitSwitchExpr '{}'", ctx.getText());
     popTerminal("}");
     popTerminal("{");
     popTerminal(")");
@@ -1449,23 +1449,23 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterCases(CasesContext ctx) {
-    log.debug("enterCases '{}'", ctx.getText());
+    log.trace("enterCases '{}'", ctx.getText());
   }
 
   @Override
   public void exitCases(CasesContext ctx) {
-    log.debug("exitCases '{}'", ctx.getText());
+    log.trace("exitCases '{}'", ctx.getText());
   }
 
   @Override
   public void enterColonCase(ColonCaseContext ctx) {
-    log.debug("enterColonCase '{}'", ctx.getText());
+    log.trace("enterColonCase '{}'", ctx.getText());
     stack.push(new BlockStatement((ctx.getStart().getLine())));
   }
 
   @Override
   public void exitColonCase(ColonCaseContext ctx) {
-    log.debug("exitColonCase '{}'", ctx.getText());
+    log.trace("exitColonCase '{}'", ctx.getText());
     popTerminal(":");
     if(nextTerminalIs("default")) {
       popTerminal("default");
@@ -1485,7 +1485,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterArrowCase(ArrowCaseContext ctx) {
-    log.debug("enterArrowCase '{}'", ctx.getText());
+    log.trace("enterArrowCase '{}'", ctx.getText());
     stack.push(new BlockStatement((ctx.getStart().getLine())));
   }
 
@@ -1501,7 +1501,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitArrowCase(ArrowCaseContext ctx) {
-    log.debug("exitArrowCase '{}'", ctx.getText());
+    log.trace("exitArrowCase '{}'", ctx.getText());
     BlockStatement block = arrowCaseBody(ctx.getStart().getLine());
     popTerminal("->");
     LinkedList<Expression> caseExpressions = new LinkedList<>();
@@ -1528,12 +1528,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterSwitchStmt(SwitchStmtContext ctx) {
-    log.debug("enterSwitchStmt '{}'", ctx.getText());
+    log.trace("enterSwitchStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitSwitchStmt(SwitchStmtContext ctx) {
-    log.debug("exitSwitchStmt '{}'", ctx.getText());
+    log.trace("exitSwitchStmt '{}'", ctx.getText());
     SwitchExpression s = pop(SwitchExpression.class);
     ExpressionStatement stmt = new ExpressionStatement(ctx.getStart().getLine(), s);
     stack.push(stmt);
@@ -1541,12 +1541,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterYieldStmt(YieldStmtContext ctx) {
-    log.debug("enterYieldStmt '{}'", ctx.getText());
+    log.trace("enterYieldStmt '{}'", ctx.getText());
   }
 
   @Override
   public void exitYieldStmt(YieldStmtContext ctx) {
-    log.debug("exitYieldStmt '{}'", ctx.getText());
+    log.trace("exitYieldStmt '{}'", ctx.getText());
     popSemi();
     Expression expr = popExpression();
     popTerminal("yield");
@@ -1555,12 +1555,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterVoidLiteral(VoidLiteralContext ctx) {
-    log.debug("enterVoidLiteral '{}'", ctx.getText());
+    log.trace("enterVoidLiteral '{}'", ctx.getText());
   }
 
   @Override
   public void exitVoidLiteral(VoidLiteralContext ctx) {
-    log.debug("exitVoidLiteral '{}'", ctx.getText());
+    log.trace("exitVoidLiteral '{}'", ctx.getText());
     popTerminal("void");
     stack.push(new VoidLiteral());
   }
@@ -1581,12 +1581,12 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterJavaTypeDef(JavaTypeDefContext ctx) {
-    log.debug("enterJavaTypeDef '{}'", ctx.getText());
+    log.trace("enterJavaTypeDef '{}'", ctx.getText());
   }
 
   @Override
   public void exitJavaTypeDef(JavaTypeDefContext ctx) {
-    log.debug("exitJavaTypeDef '{}'", ctx.getText());
+    log.trace("exitJavaTypeDef '{}'", ctx.getText());
     popSemi();
     Expression expr = popExpression();
     popTerminal("javasrc");
@@ -1596,7 +1596,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void enterObjectScopeStmt(ObjectScopeStmtContext ctx) {
-    log.debug("enterObjectScopeStmt '{}'", ctx.getText());
+    log.trace("enterObjectScopeStmt '{}'", ctx.getText());
     if(isObjectScopeExpressionWithStatements(ctx)) {
       stack.push(new BlockStatement(ctx.getStart().getLine()));
     }
@@ -1604,7 +1604,7 @@ public class ParserListener implements ScriptListener {
 
   @Override
   public void exitObjectScopeStmt(ObjectScopeStmtContext ctx) {
-    log.debug("exitObjectScopeStmt '{}'", ctx.getText());
+    log.trace("exitObjectScopeStmt '{}'", ctx.getText());
     stack.push(new ExpressionStatement(ctx.getStart().getLine(), parseObjectScopeExpression(ctx)));
   }
 

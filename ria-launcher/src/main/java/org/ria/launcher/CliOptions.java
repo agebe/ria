@@ -25,6 +25,8 @@ public class CliOptions {
 
   public boolean downloadDependenciesOnly;
 
+  public boolean trace;
+
   public boolean debug;
 
   public boolean info;
@@ -52,6 +54,8 @@ public class CliOptions {
       } else if(equalsAny(s, "--maven-repository", "-r")) {
         i++;
         mavenRepo = args[i];
+      } else if(equalsAny(s, "--trace")) {
+        trace = true;
       } else if(equalsAny(s, "--debug")) {
         debug = true;
       } else if(equalsAny(s, "--info")) {
@@ -85,6 +89,7 @@ public class CliOptions {
           --download-dependencies-only, -d  download missing dependencies into the cache and exit
           --maven-repository, -r            the default maven repo to use if not specified in the script
           --home                            set script engine home, e.g. maven download cache ('%s')
+          --trace                           display trace output
           --debug                           display debug output
           --info                            display info output on std error
           --quiet, -q                       display less output on std error
