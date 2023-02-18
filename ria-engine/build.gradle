@@ -23,8 +23,8 @@ generateGrammarSource {
 tasks.eclipse.dependsOn(generateGrammarSource)
 
 // this is required since gradle 7.x for the maven publish tasks to work (tested on gradle 7.2)
-//tasks.sourcesJar.dependsOn(generateGrammarSource)
-//tasks.sourcesJar.duplicatesStrategy('exclude')
+tasks.sourcesJar.dependsOn(generateGrammarSource)
+tasks.sourcesJar.duplicatesStrategy('exclude')
 
 dependencies {
   implementation project(':ria-utils')

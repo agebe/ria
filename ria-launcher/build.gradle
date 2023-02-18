@@ -12,6 +12,11 @@ dependencies {
   runtimeOnly 'ch.qos.logback:logback-classic:1.4.5'
 }
 
+// do not publish the launcher to maven central
+// https://stackoverflow.com/a/66672316/20615256
+tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
+tasks.withType(PublishToMavenLocal).configureEach { it.enabled = false }
+
 task launcherCompile(type:Exec) {
   workingDir 'build/launcher'
   commandLine 'gcc',
