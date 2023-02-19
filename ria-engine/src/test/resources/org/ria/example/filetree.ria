@@ -4,19 +4,19 @@ dependencies {
   'resources/'
 }
 
-println(scriptClassLoader.getResource("README"));
-println(new String(scriptClassLoader.getResourceAsStream("README").readAllBytes()));
+println($loader.getResource("README"));
+println(new String($loader.getResourceAsStream("README").readAllBytes()));
 println('---------- Contents of Hello.java ----------');
-println(new String(scriptClassLoader.getResourceAsStream("mypackage/Hello.java.renamed").readAllBytes()));
+println(new String($loader.getResourceAsStream("mypackage/Hello.java.renamed").readAllBytes()));
 println('---------- ---------------------- ----------');
-println(scriptClassLoader.getResource("mypackage/Hello.class"));
+println($loader.getResource("mypackage/Hello.class"));
 new mypackage.Hello().sayHello();
 println('---');
 println('---');
 println('---');
-println(scriptClassLoader.getResource("my/company/Test.java"));
+println($loader.getResource("my/company/Test.java"));
 println('---------- Contents of my.company.Test.java ----------');
-println(new String(scriptClassLoader.getResourceAsStream("my/company/Test.java").readAllBytes()));
+println(new String($loader.getResourceAsStream("my/company/Test.java").readAllBytes()));
 println('---------- -------------------------------- ----------');
-println(scriptClassLoader.getResource("my/company/Test.class"));
+println($loader.getResource("my/company/Test.class"));
 println(new my.company.Test());

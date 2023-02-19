@@ -43,6 +43,7 @@ public class JavaTypeDefTest {
           }
         }
         ''';
+        println($loader);
         new bar.Foo().hello();
         """);
     assertEquals("hello from java", s);

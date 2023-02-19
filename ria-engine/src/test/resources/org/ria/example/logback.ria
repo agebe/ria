@@ -11,7 +11,7 @@ log.trace('trace message');
 log.debug('debug mesage');
 log.info('info message');
 
-var en = scriptClassLoader.getResources('logback.xml');
+var en = $loader.getResources('logback.xml');
 while(en.hasMoreElements()) {
   println(en.nextElement());
 }

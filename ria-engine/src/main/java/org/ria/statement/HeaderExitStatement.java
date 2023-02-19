@@ -332,7 +332,7 @@ public class HeaderExitStatement extends AbstractStatement {
     // so set it up here but restore to the previous context class loader when the script is done executing
     // the restoring is done in Script.runVal
     Thread.currentThread().setContextClassLoader(symbols.getClassLoader());
-    ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot("scriptClassLoader", Value.of(symbols.getClassLoader()));
+    ctx.getSymbols().getScriptSymbols().defineOrAssignVarRoot("$loader", Value.of(symbols.getClassLoader()));
   }
 
   public void addJavaType(JavaSourceBuilder source) {

@@ -43,7 +43,7 @@ public class Script implements ScriptEngine {
 
   private static final Logger log = LoggerFactory.getLogger(Script.class);
 
-  private SymbolTable symbols;
+  private SymbolTable symbols = new SymbolTable();
 
   private String script;
 
@@ -77,17 +77,12 @@ public class Script implements ScriptEngine {
   private List<File> classpath;
 
   public Script() {
-    this(null, null);
+    this(null);
   }
 
   public Script(String script) {
-    this(script, null);
-  }
-
-  public Script(String script, SymbolTable symbols) {
     super();
     this.script = script;
-    this.symbols = symbols!=null?symbols:new SymbolTable();
   }
 
   private Value runVal() {
