@@ -96,7 +96,7 @@ public interface Value {
   boolean equalsOp(Value other);
 
   default String getText() {
-    throw new ScriptException("no text representation implemented");
+    return val()!=null?val().toString():"null";
   }
 
   default boolean toBoolean() {
