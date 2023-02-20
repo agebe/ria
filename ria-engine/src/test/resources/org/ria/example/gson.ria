@@ -35,5 +35,51 @@ var json = '''
 		value: "#000"
 	}
 ]''';
-var l = new Gson().fromJson(json, List.class);
-println(l.get(0).get("value"));
+var list = new Gson().fromJson(json, List.class);
+println(list.get(0).get("value"));
+
+// parse again this time showing how to create specific java types
+
+javasrc $imports + '''
+public class Item {
+
+  public static enum Color {
+    @SerializedName("red")
+    RED,
+    @SerializedName("green")
+    GREEN,
+    @SerializedName("blue")
+    BLUE,
+    @SerializedName("cyan")
+    CYAN,
+    @SerializedName("magenta")
+    MAGENTA,
+    @SerializedName("yellow")
+    YELLOW,
+    @SerializedName("black")
+    BLACK,
+    ;
+  }
+
+  public Color color;
+
+  @SerializedName("value")
+  public String code;
+
+  @Override
+  public String toString() {
+    return color + "/" + code;
+  }
+}
+''';
+
+javasrc $imports + '''
+public class GsonTypes {
+  public static java.lang.reflect.Type listOfItems() {
+    return new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType();
+  }
+}
+''';
+
+var listOfItems = new Gson().fromJson(json, GsonTypes.listOfItems());
+listOfItems.forEach(println);
