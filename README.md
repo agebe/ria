@@ -1,6 +1,6 @@
 # ria
 
-ria is an interpreted [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) scripting language. The syntax is quite close to Java with some Javascript, Groovy and Gradle mixed in. Scripts can be run from the CLI and executed with the native launcher or integrated into your java programs. It comes with builtin dependency management that is similar to Gradles. The firewall feature allows to define limits on what the script can do. This might be interesting If you want to allow e.g. customers to write configuration scripts that run on your JVM without being able exit the JVM or do other nasty things.
+ria is an interpreted [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) scripting language. The syntax is quite close to Java with some Javascript, Groovy and Gradle mixed in. Scripts can be run from the CLI and executed with the native launcher or integrated into your Java programs. The script system uses the same data types as Java and script are meant to use Java types (e.g. java.util.List). It comes with builtin dependency management that is similar to Gradles to easily use libraries published in any maven repository. The firewall feature allows to define limits on what the script can do. This might be interesting If you want to allow e.g. customers to write configuration scripts that run on your JVM without being able exit the JVM or do other nasty things.
 
 # Requirements
 
@@ -90,13 +90,53 @@ println(typeof myChar);
 ```
 The script engine simply looks at the expected target type and attempts a type conversion automatically. This would obviously fail for strings that can not be converted to a single charater.
 
-More script examples can be found in the [script examples directory](https://github.com/agebe/ria/tree/main/ria-engine/src/test/resources/org/ria/example) or for java embedded scripts look at the [500+ JUnit tests](https://github.com/agebe/ria/tree/main/ria-engine/src/test/java/org/ria).
+More script examples can be found in the [script examples directory](https://github.com/agebe/ria/tree/main/ria-engine/src/test/resources/org/ria/example) or for Java embedded scripts look at the [500+ JUnit tests](https://github.com/agebe/ria/tree/main/ria-engine/src/test/java/org/ria).
 
 # Syntax
 
-Keywords, Literals, Operators, Statements and Expressions
+The script language syntax is so similar to Javas that this section mostly points out the differences between Java syntax and the script language syntax.
 
-TODO, write documentation
+## Keywords
+
+### arrayof
+
+### function
+
+### javasrc
+
+## Literals
+
+The script has all of the Java literals too except for the char literal. Single quotes are used for string literals and there is no difference when enclosing strings in double or single quotes. Java textblocks are also supported and they work the same way like so:
+
+```java
+var myTextBlock = """
+  row1
+  row2""";
+```
+
+To be consistent with single line String the textblocks can also be enclosed with 3 single quotes.
+
+ria script has a list, array and map literal.
+
+```java
+  var myList = [1,2,3];
+  var myArray = arrayof [1,2,3];
+  var myMap = ['key1':'value1','key2':'value2'];
+```
+
+The list literal creates a mutable ArrayList and the map literal a mutable LinkedHashMap. When using the array literal the array has the type of the common super class following [this approach from StackOverflow](https://stackoverflow.com/a/9797689)
+
+## Operators
+
+## Statements and Expressions
+
+### object scope expression
+
+### try-catch-finally
+
+## Lambda
+
+## Generics
 
 # Dependencies
 
