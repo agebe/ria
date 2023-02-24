@@ -1,6 +1,6 @@
 # ria
 
-ria is a interpreted [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) scripting language. The syntax is quite close to Java with some Javascript, Groovy and Gradle mixed in. Scripts can be run from the CLI and executed with the native launcher or integrated into your java programs. It comes with builtin dependency management that is similar to Gradles. The firewall feature allows to define limits on what the script can do. This might be interesting If you want to allow e.g. customers to write configuration scripts that run on your JVM without being able exit the JVM or do other nasty things.
+ria is an interpreted [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) scripting language. The syntax is quite close to Java with some Javascript, Groovy and Gradle mixed in. Scripts can be run from the CLI and executed with the native launcher or integrated into your java programs. It comes with builtin dependency management that is similar to Gradles. The firewall feature allows to define limits on what the script can do. This might be interesting If you want to allow e.g. customers to write configuration scripts that run on your JVM without being able exit the JVM or do other nasty things.
 
 # Requirements
 
@@ -56,9 +56,9 @@ hello, world!
 
 The language as 2 types of line comments, the java style // and the script style # sign which is used in the first line of the hello world program. The first line tells the program loader which interpeter to use to execute the script, also known as [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)). Since the first line is a comment for the script engine it will ignore it and hence it is optional.
 
-The second line simply outputs 'hello, world!' to the console. The seasoned java developer probably noticed 2 things here: The println function and the single quote enclosed strings.
+The second line simply outputs 'hello, world!' to the console. If you have a Java background you might have noticed that the script does not have a surrounding class nor main method, the println function and the single quote enclosed strings. The script language does not have its own classes/methods but you can break your script code up into functions though. Every script statement that is not part of a function is implicitly wrapped into the main function. More on functions is documented a bit furhter down in this README (TODO).
 
-The println function is simply a variable that is setup by the script engine automatically. It points to System.out.println method so println and System.out.println are interchangeable. The script engine allows to assign method reference to variables. Let's try this:
+The println function is simply a variable that is setup by the script engine automatically before the script is run. It points to System.out.println method so println and System.out.println are interchangeable. The script engine allows to assign method reference to variables. Let's try this:
 
 ```java
 println(typeof println);
@@ -68,7 +68,16 @@ var p = System.out::println;
 p('printed with my own System.out::println method reference!');
 ```
 
-Java uses the single quotes as character literals. Since strings are used more often and the script could be embedded in Java source code the script language uses double and single quotes for enclosing strings (no difference). If this was not the case embedded script in java would have to escape the double quotes like so:
+If you execute the above code you should see something like this
+
+```java
+method
+method java.io.PrintStream::println, on object java.io.PrintStream@b3ca52e
+method java.io.PrintStream::println, on object java.io.PrintStream@b3ca52e
+printed with my own System.out::println method reference!
+```
+
+Java uses the single quotes for character literals. Since strings are used more often and the script could be embedded in Java source code the script language uses double and single quotes for enclosing strings (no difference). If this was not the case embedded script in java would have to escape the double quotes like so:
 
 ```java
 String myScript = "println(\"hello world\");";
