@@ -9,7 +9,7 @@ mainClassName = 'org.ria.launcher.ScriptLauncher'
 dependencies {
   implementation project(':ria-engine')
   implementation project(':ria-utils')
-  runtimeOnly 'ch.qos.logback:logback-classic:1.4.5'
+  runtimeOnly 'ch.qos.logback:logback-classic:1.4.6'
 }
 
 // do not publish the launcher to maven central
