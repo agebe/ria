@@ -35,7 +35,7 @@ dependencies {
   implementation 'commons-io:commons-io:2.11.0'
   implementation 'org.apache.maven:maven-model:3.9.0'
   testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
-  testRuntimeOnly 'ch.qos.logback:logback-classic:1.4.5'
+  testRuntimeOnly 'ch.qos.logback:logback-classic:1.4.7'
 }
 
 test {
